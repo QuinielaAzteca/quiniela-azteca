@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quiniela Azteca</title>
+  <style>
+    :root{
+      --fg:#111;--bg:#f7f7f7;--card:#fff;--line:#e6e6e6;
+      --ok:#111;--l:#137b28;--v:#c62828;--e:#777777;--pick:54px;
+      --list-blue:#0b6cff;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+      background:var(--bg);
+      color:var(--fg);
+    }
+    .wrap{
+      max-width:760px;
+      margin:0 auto;
+      padding:12px;
+    }
+
+    .title{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:4px;
+      padding:12px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:12px;
+      margin-bottom:10px;
+      text-align:center;
+    }
+    .title h1{
+      font-size:20px;
+      margin:0;
+      letter-spacing:.04em;
+    }
+    .title h1 .title-q{color:var(--l);}
+    .title h1 .title-a{color:var(--v);}
+    .title small{
+      font-size:13px;
+      color:#444;
+      font-weight:700;
+    }
+    .hint{
+      font-size:13px;
+      color:#444;
+      font-weight:700;
+    }
+    .hint .dias{
+      display:block;
+      margin-top:2px;
+    }
+
+    .namebox{
+      width:100%;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      margin-top:8px;
+    }
+    .namebox input{
+      width:100%;
+      padding:10px;
+      border:1px solid var(--line);
+      border-radius:8px;
+      font-size:15px;
+    }
+    #nombre{text-transform:uppercase}
+
+    .instr-card{
+      margin-top:8px;
+      background:#fff;
+      border:1px solid #eee;
+      border-radius:10px;
+      padding:8px;
+      font-size:12px;
+    }
+    .instr-card h3{
+      margin:0 0 4px;
+      font-size:13px;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      color:#555;
+    }
+    .instr-card small{color:#777;font-size:11px;}
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:14px;
+      overflow:hidden;
+      margin-top:10px;
+    }
+    .bar{
+      height:8px;
+      background:linear-gradient(
+        90deg,
+        var(--l) 0%,
+        var(--l) 33%,
+        #ffffff 33%,
+        #ffffff 66%,
+        var(--v) 66%,
+        var(--v) 100%
+      );
+    }
+    .card .inner{padding:6px 6px 10px}
+
+    .row{
+      display:grid;
+      grid-template-columns:24px var(--pick) 1.2fr var(--pick) 1.2fr var(--pick);
+      gap:4px;
+      padding:8px 4px;
+      border-bottom:1px solid var(--line);
+      align-items:center;
+    }
+    .row:last-child{border-bottom:none}
+    .n{font-weight:700;text-align:center;font-size:13px;}
+    .team{
+      text-align:center;
+      font-weight:700;
+      padding:2px 2px;
+      font-size:12px;
+      line-height:1.15;
+      white-space:normal;
+      word-break:keep-all;
+    }
+
+    .pick{
+      display:grid;
+      place-items:center;
+      width:var(--pick);
+      height:var(--pick);
+      border:2px solid #bbb;
+      border-radius:12px;
+      font-weight:800;
+      font-size:18px;
+      user-select:none;
+      cursor:pointer;
+      background:#fff;
+      transition:transform .06s ease,border-color .06s ease,background .06s ease,color .06s ease;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .pick.L{color:var(--l);}
+    .pick.V{color:var(--v);}
+    .pick.E{color:var(--e);}
+    .pick.on{background:var(--ok);color:#fff;border-color:var(--ok);}
+    .pick:active{transform:scale(.97);}
+
+    .panel{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+    .totals{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:10px 12px;
+    }
+
+    .controls{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:2px;
+    }
+    .btn{
+      flex:1;
+      appearance:none;
+      border:2px solid var(--fg);
+      background:var(--fg);
+      color:#fff;
+      padding:12px 10px;
+      border-radius:10px;
+      font-weight:800;
+      font-size:13px;
+    }
+    .btn.alt{
+      background:#fff;
+      color:var(--fg);
+    }
+    #btnEnviar{
+      background:var(--l);
+      border-color:var(--l);
+    }
+    .btn:disabled{opacity:.6}
+
+    .section{
+      margin-top:10px;
+      background:#fafafa;
+      border:1px dashed var(--line);
+      border-radius:12px;
+      padding:10px;
+    }
+
+    .group{
+      background:transparent;
+      border:none;
+      padding:0;
+      margin:0;
+    }
+
+    .groupCard{
+      background:#fff;
+      border:1px solid #eee;
+      border-radius:12px;
+      padding:10px 10px 6px;
+      margin:10px 0;
+    }
+    .groupHeader{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:6px;
+    }
+    .groupTitle{
+      font-weight:800;
+      font-size:14px;
+    }
+    .groupBadges{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+    .badge{
+      padding:2px 8px;
+      border-radius:999px;
+      border:1px solid #ccc;
+      background:#f5f5f5;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .itemRow{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:8px;
+      padding:6px 0;
+      border-top:1px dashed #eee;
+    }
+    .itemInfo{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+    }
+    .itemSub{
+      font-size:12px;
+      color:#555;
+    }
+
+    .listHeader{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      font-size:13px;
+      font-weight:700;
+    }
+
+    .sel-inline{
+      font-size:13px;
+      margin:3px 0;
+    }
+    .sel-inline span{
+      margin-right:4px;
+      font-weight:700;
+      color:#000;
+    }
+    .sel-inline span.multi{
+      color:var(--list-blue);
+    }
+    .sel-inline sup{
+      font-size:10px;
+      vertical-align:super;
+    }
+
+    .mini{
+      appearance:none;
+      border:1px solid #ccc;
+      background:#f9f9f9;
+      padding:4px 7px;
+      border-radius:8px;
+      font-weight:700;
+      font-size:12px;
+      cursor:pointer;
+    }
+    .mini.danger{border-color:#c62828;color:#c62828;background:#fff}
+
+    .footerTotal{
+      margin-top:8px;
+      font-weight:800;
+      text-align:right;
+      background:#fff;
+      border:1px solid #eee;
+      border-radius:10px;
+      padding:10px 12px;
+    }
+
+    .err{
+      position:fixed;
+      top:50%;
+      left:50%;
+      transform:translate(-50%,-50%);
+      z-index:999;
+      min-width:220px;
+      max-width:90%;
+      padding:10px 12px;
+      background:#ffecec;
+      border:1px solid #f5b5b5;
+      color:#c62828;
+      font-size:13px;
+      border-radius:10px;
+      box-shadow:0 6px 16px rgba(0,0,0,.25);
+      text-align:center;
+    }
+
+    .snack{
+      position:fixed;
+      left:50%;
+      bottom:12px;
+      transform:translateX(-50%);
+      background:#111;
+      color:#fff;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:13px;
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .15s ease,transform .15s ease;
+    }
+    .snack.show{opacity:1;transform:translate(-50%,-4px)}
+
+    @keyframes bump {
+      0%{transform:scale(1);}
+      30%{transform:scale(1.12);}
+      100%{transform:scale(1);}
+    }
+    .bump-anim{
+      animation:bump .18s ease-out;
+    }
+
+    @media (max-width:520px){
+      .namebox{grid-template-columns:1fr}
+    }
+    @media (max-width:420px){
+      :root{--pick:48px}
+      .row{
+        grid-template-columns:22px var(--pick) 1.2fr var(--pick) 1.2fr var(--pick);
+      }
+      .pick{border-radius:10px;font-size:16px}
+      .team{font-size:11px;}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="title">
+      <h1 id="titleTxt">
+        <span class="title-q">QUINIELA</span> <span class="title-a">AZTECA</span>
+      </h1>
+      <small id="subtitleTxt">Jornada</small>
+      <div class="hint">
+        <span>Costo por quiniela: <b id="precioTxt">$25</b> · Cierre: <b id="cierreTxt">–</b></span><br>
+        <span id="diasTxt" class="dias">-</span>
+      </div>
+
+      <div class="namebox">
+        <input id="telefono" placeholder="Teléfono del cliente (10–15 dígitos)" inputmode="numeric" pattern="[0-9]*" autocomplete="tel" />
+        <input id="nombre" placeholder="NOMBRE O ALIAS DE LA QUINIELA" inputmode="text" autocomplete="off" autocapitalize="characters" enterkeyhint="done">
+      </div>
+
+      <div class="instr-card">
+        <h3>INSTRUCCIONES</h3>
+        <small>
+          1) Elige L/E/V en cada partido (puedes marcar más de uno para dobles y triples).<br>
+          2) Revisa combinaciones y costo.<br>
+          3) Toca <b>Agregar</b> para guardar la quiniela en la lista.<br>
+          4) <b>Limpiar</b> borra solo el cupón actual; <b>Borrar lista</b> elimina todas las guardadas.<br>
+          5) Al final toca <b>Enviar por WhatsApp</b> para mandar todas las quinielas de la lista.
+        </small>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="bar"></div>
+      <div class="inner">
+        <div id="rows"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="totals">
+        <div>
+          <div style="font-size:12px;color:#555">Combinaciones actuales</div>
+          <div style="font-size:20px;font-weight:800" id="combosTxt">1</div>
+        </div>
+        <div>
+          <div style="font-size:12px;color:#555">Total a pagar</div>
+          <div style="font-size:20px;font-weight:800" id="totalTxt">$25</div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="btn alt" id="btnAgregar">Agregar</button>
+        <button class="btn alt" id="btnLimpiar">Limpiar</button>
+        <button class="btn" id="btnEnviar">Enviar por WhatsApp</button>
+      </div>
+
+      <div class="section">
+        <div class="group">
+          <h3>LISTA DE QUINIELAS</h3>
+          <div class="listHeader">
+            <span>Guardadas</span>
+            <button class="mini danger" id="btnVaciar">Borrar lista</button>
+          </div>
+          <div id="listaWrap"></div>
+          <div id="listaFooter" class="footerTotal">TOTAL LISTA: 0 comb. · $0</div>
+        </div>
+      </div>
+
+      <div class="err" id="errMsg" style="display:none;"></div>
+    </div>
+  </div>
+
+  <div class="snack" id="snack"></div>
+
+<script>
+const SHEET_ENDPOINT_PUBLIC = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec";
+const PHONE_NUMBER = "5213333911690";
+
+// vendedor desde la URL (?v=juan)
+const VENDEDOR = new URLSearchParams(window.location.search).get("v") || "";
+
+let BASE_PRICE = 25;
+let PARTIDOS   = [];
+let carrito    = JSON.parse(localStorage.getItem('quiniela_carrito_v4') || '[]');
+let telCache   = localStorage.getItem('quiniela_tel') || '';
+
+const $  = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const fmtMoney = n => '$' + (n || 0).toLocaleString('es-MX');
+
+function showSnack(msg) {
+  const el = $('#snack');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+function setError(msg) {
+  const err = $('#errMsg');
+  if (!msg) {
+    err.style.display = 'none';
+    err.textContent   = '';
+  } else {
+    err.textContent   = msg;
+    err.style.display = 'block';
+  }
+}
+
+// Cerrar mensaje al tocar fuera
+document.addEventListener('click', e => {
+  const err = $('#errMsg');
+  if (err.style.display === 'none') return;
+  if (e.target.closest('#errMsg')) return;
+  setError('');
+});
+
+const telInput    = $('#telefono');
+const nombreInput = $('#nombre');
+
+if (telCache) telInput.value = telCache;
+
+function cleanTel() {
+  const c = telInput.value.replace(/\D/g, '').slice(0, 15);
+  if (telInput.value !== c) telInput.value = c;
+}
+telInput.addEventListener('keydown', e => {
+  const ok = ['Backspace','Delete','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Tab','Home','End','Enter'];
+  if (ok.includes(e.key)) return;
+  if (e.ctrlKey || e.metaKey) return;
+  if (!/^\d$/.test(e.key)) e.preventDefault();
+});
+telInput.addEventListener('input', cleanTel);
+telInput.addEventListener('paste', e => {
+  e.preventDefault();
+  const t = (e.clipboardData || window.clipboardData).getData('text');
+  telInput.value = (t || '').replace(/\D/g, '').slice(0, 15);
+});
+
+nombreInput.addEventListener('input', e => {
+  const pos = e.target.selectionStart;
+  e.target.value = e.target.value.toUpperCase();
+  e.target.setSelectionRange(pos, pos);
+});
+
+function renderRows() {
+  const rows = $('#rows');
+  rows.innerHTML = '';
+  const partidos = PARTIDOS.slice(0, 9);
+  partidos.forEach((p, idx) => {
+    const num = idx + 1;
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.innerHTML = `
+      <div class="n">${num}</div>
+      <div class="pick L" data-i="${idx}" data-k="L">L</div>
+      <div class="team">${p.local}</div>
+      <div class="pick E" data-i="${idx}" data-k="E">E</div>
+      <div class="team">${p.visita}</div>
+      <div class="pick V" data-i="${idx}" data-k="V">V</div>
+    `;
+    rows.appendChild(row);
+  });
+}
+
+function getSelections() {
+  const map = {};
+  $$('#rows .pick').forEach(p => {
+    const i = parseInt(p.dataset.i, 10);
+    const k = p.dataset.k;
+    map[i] = map[i] || {L:false,E:false,V:false};
+    if (p.classList.contains('on')) map[i][k] = true;
+  });
+  const sels = [];
+  for (let i = 0; i < 9; i++) {
+    const m = map[i] || {L:false,E:false,V:false};
+    const chars = [];
+    if (m.L) chars.push('L');
+    if (m.E) chars.push('E');
+    if (m.V) chars.push('V');
+    sels.push(chars.join(''));
+  }
+  return sels;
+}
+
+function setSelectionsFromArray(sels) {
+  $$('#rows .pick').forEach(p => p.classList.remove('on'));
+  sels.forEach((s, idx) => {
+    if (!s) return;
+    if (s.includes('L')) $(`#rows .pick[data-i="${idx}"][data-k="L"]`)?.classList.add('on');
+    if (s.includes('E')) $(`#rows .pick[data-i="${idx}"][data-k="E"]`)?.classList.add('on');
+    if (s.includes('V')) $(`#rows .pick[data-i="${idx}"][data-k="V"]`)?.classList.add('on');
+  });
+}
+
+function combosFromSelections(sels) {
+  return sels.reduce((acc, s) => {
+    const len = (s || '').length;
+    return acc * Math.max(len, 1);
+  }, 1);
+}
+
+function updateCurrentTotals() {
+  const sels   = getSelections();
+  const combos = combosFromSelections(sels);
+  const total  = combos * BASE_PRICE;
+  $('#combosTxt').textContent = combos;
+  const totalEl = $('#totalTxt');
+  totalEl.textContent = fmtMoney(total);
+  totalEl.classList.remove('bump-anim');
+  void totalEl.offsetWidth;
+  totalEl.classList.add('bump-anim');
+}
+
+document.addEventListener('click', e => {
+  const el = e.target.closest('.pick');
+  if (!el) return;
+  el.classList.toggle('on');
+  updateCurrentTotals();
+});
+
+function decorateSels(selsArr) {
+  const spans = selsArr.map((s) => {
+    if (!s) return '';
+    let sup = '';
+    let cls = '';
+    if (s.length === 2) { sup = '<sup>2</sup>'; cls = 'multi'; }
+    else if (s.length === 3) { sup = '<sup>3</sup>'; cls = 'multi'; }
+    return `<span class="${cls}">${s}${sup}</span>`;
+  }).filter(Boolean);
+  if (!spans.length) return '—';
+  return spans.join(' ');
+}
+
+function renderCarrito() {
+  const wrap = $('#listaWrap');
+  wrap.innerHTML = '';
+  let totalComb = 0;
+  let totalCost = 0;
+
+  const groups = [];
+  const indexByName = {};
+
+  carrito.forEach((q, idxGlobal) => {
+    let gIndex = indexByName[q.nombre];
+    if (gIndex === undefined) {
+      gIndex = groups.length;
+      indexByName[q.nombre] = gIndex;
+      groups.push({ nombre: q.nombre, items: [], totalComb: 0, totalCost: 0 });
+    }
+    groups[gIndex].items.push({ q, idxGlobal });
+    groups[gIndex].totalComb += q.combos;
+    groups[gIndex].totalCost += q.combos * BASE_PRICE;
+
+    totalComb += q.combos;
+    totalCost += q.combos * BASE_PRICE;
+  });
+
+  groups.forEach(group => {
+    const card = document.createElement('div');
+    card.className = 'groupCard';
+
+    const header = document.createElement('div');
+    header.className = 'groupHeader';
+    header.innerHTML = `
+      <div class="groupTitle">${group.nombre}</div>
+      <div class="groupBadges">
+        <span class="badge">${group.items.length} q.</span>
+        <span class="badge">${group.totalComb} comb.</span>
+        <span class="badge">${fmtMoney(group.totalCost)}</span>
+      </div>
+    `;
+    card.appendChild(header);
+
+    group.items.forEach(entry => {
+      const q = entry.q;
+      const idxGlobal = entry.idxGlobal;
+      const row = document.createElement('div');
+      row.className = 'itemRow';
+
+      const selsHtml = decorateSels(q.sels);
+      const comboTxt = `${q.combos} comb. · ${fmtMoney(q.combos * BASE_PRICE)}`;
+
+      row.innerHTML = `
+        <div class="itemInfo">
+          <div class="sel-inline">${selsHtml}</div>
+          <div class="itemSub">${comboTxt}</div>
+        </div>
+        <button class="mini danger" data-del="${idxGlobal}">Eliminar</button>
+      `;
+      card.appendChild(row);
+    });
+
+    wrap.appendChild(card);
+  });
+
+  $('#listaFooter').textContent =
+    `TOTAL LISTA: ${totalComb} comb. · ${fmtMoney(totalCost)}`;
+}
+
+document.addEventListener('click', e => {
+  const btn = e.target.closest('button.mini.danger[data-del]');
+  if (!btn) return;
+  const idx = parseInt(btn.dataset.del, 10);
+  carrito.splice(idx, 1);
+  localStorage.setItem('quiniela_carrito_v4', JSON.stringify(carrito));
+  renderCarrito();
+});
+
+function validarBase(tel, nombre, sels, combos) {
+  setError('');
+
+  if (!tel) {
+    setError('Captura el teléfono del cliente.');
+    telInput.focus();
+    return false;
+  }
+  if (!/^\d{10,15}$/.test(tel)) {
+    setError('El teléfono debe tener entre 10 y 15 dígitos.');
+    telInput.focus();
+    return false;
+  }
+  if (!nombre) {
+    setError('Captura el nombre o alias de la quiniela.');
+    nombreInput.focus();
+    return false;
+  }
+  const faltantes = sels.filter(s => !s).length;
+  if (faltantes > 0) {
+    setError('Debes seleccionar un resultado en los 9 partidos.');
+    return false;
+  }
+  if (!combos) {
+    setError('Debes tener al menos una combinación.');
+    return false;
+  }
+  return true;
+}
+
+$('#btnLimpiar').addEventListener('click', () => {
+  setSelectionsFromArray(Array(9).fill(''));
+  updateCurrentTotals();
+  setError('');
+});
+
+$('#btnVaciar').addEventListener('click', () => {
+  carrito = [];
+  localStorage.setItem('quiniela_carrito_v4', JSON.stringify(carrito));
+  renderCarrito();
+});
+
+$('#btnAgregar').addEventListener('click', () => {
+  const tel     = telInput.value.trim();
+  const nombre  = nombreInput.value.trim().toUpperCase();
+  const sels    = getSelections();
+  const combos  = combosFromSelections(sels);
+
+  if (!validarBase(tel, nombre, sels, combos)) return;
+
+  localStorage.setItem('quiniela_tel', tel);
+
+  carrito.push({ nombre, sels, combos });
+  localStorage.setItem('quiniela_carrito_v4', JSON.stringify(carrito));
+  renderCarrito();
+  showSnack('Quiniela agregada a la lista');
+
+  setSelectionsFromArray(Array(9).fill(''));
+  updateCurrentTotals();
+});
+
+function formatWhatsSelections(sels) {
+  const parts = [];
+  sels.forEach((val, idx) => {
+    if (!val) return;
+    let txt = val;
+    if (val.length === 2) txt = val + '²';
+    else if (val.length === 3) txt = val + '³';
+    parts.push((idx + 1) + ':' + txt);
+  });
+  return parts.join(' '); // solo espacios
+}
+
+$('#btnEnviar').addEventListener('click', () => {
+  const tel     = telInput.value.trim();
+  const nombre  = nombreInput.value.trim().toUpperCase();
+  const sels    = getSelections();
+  const combos  = combosFromSelections(sels);
+
+  setError('');
+
+  let itemsToSend = carrito.slice();
+
+  if (!itemsToSend.length && nombre && combos > 0) {
+    const selsCopy = sels.slice();
+    if (!validarBase(tel, nombre, selsCopy, combos)) return;
+    itemsToSend.push({ nombre, sels: selsCopy, combos });
+  }
+
+  if (!tel) {
+    setError('Captura el teléfono del cliente.');
+    telInput.focus();
+    return;
+  }
+  if (!/^\d{10,15}$/.test(tel)) {
+    setError('El teléfono debe tener entre 10 y 15 dígitos.');
+    telInput.focus();
+    return;
+  }
+  if (!itemsToSend.length) {
+    setError('No hay quinielas para enviar.');
+    return;
+  }
+
+  localStorage.setItem('quiniela_tel', tel);
+
+  const lines = [];
+  const titulo   = $('#titleTxt').innerText.trim() || 'QUINIELA AZTECA';
+  const subtitulo= $('#subtitleTxt').textContent;
+  const cierre   = $('#cierreTxt').textContent;
+  const dias     = $('#diasTxt').textContent;
+
+  lines.push(`🏆 *${titulo}*`);
+  if (subtitulo) lines.push(`📆 ${subtitulo}`);
+  if (dias)      lines.push(dias);
+  lines.push(`Costo por quiniela: *${fmtMoney(BASE_PRICE)}*`);
+  if (cierre) lines.push(`Cierre: *${cierre}*`);
+  lines.push('');
+
+  const groups = [];
+  const indexByName = {};
+  itemsToSend.forEach(q => {
+    const name = q.nombre;
+    let idx = indexByName[name];
+    if (idx === undefined) {
+      idx = groups.length;
+      indexByName[name] = idx;
+      groups.push({ nombre: name, items: [] });
+    }
+    groups[idx].items.push(q);
+  });
+
+  groups.forEach(group => {
+    const count = group.items.length;
+    const label = count === 1 ? 'quiniela' : 'quinielas';
+    lines.push(`👤 *${group.nombre}* (${count} ${label})`);
+    group.items.forEach(q => {
+      const selLine = formatWhatsSelections(q.sels);
+      const comb    = q.combos;
+      const total   = comb * BASE_PRICE;
+      lines.push(`   • ${selLine}`);
+      lines.push(`     Comb: ${comb} · ${fmtMoney(total)}`);
+    });
+    lines.push('');
+  });
+
+  const totalGlobalCombos = itemsToSend.reduce((a,q)=>a+q.combos,0);
+  const totalGlobalMoney  = totalGlobalCombos * BASE_PRICE;
+  const totalQuinielas    = itemsToSend.length;
+  const labelLista        = totalQuinielas === 1 ? 'Quiniela' : 'Quinielas';
+
+  lines.push(`*TOTAL LISTA: ${totalQuinielas} ${labelLista} ${totalGlobalCombos} combinaciones.*`);
+  lines.push(`*TOTAL A PAGAR: ${fmtMoney(totalGlobalMoney)}.*`);
+
+  const waUrl = `https://wa.me/${PHONE_NUMBER}?text=${encodeURIComponent(lines.join('\n'))}`;
+
+  window.open(waUrl,'_blank');
+  showSnack('Abriendo WhatsApp...');
+
+  const payload = {
+    tel,
+    vendedor: VENDEDOR,
+    items: itemsToSend.map(q => ({ nombre: q.nombre, sels: q.sels }))
+  };
+
+  fetch(SHEET_ENDPOINT_PUBLIC, {
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify(payload)
+  }).catch(()=>{}).finally(()=>{
+    carrito = [];
+    localStorage.setItem('quiniela_carrito_v4', JSON.stringify(carrito));
+    renderCarrito();
+  });
+});
+
+function applyConfig(cfg) {
+  BASE_PRICE = cfg.precio || 25;
+  PARTIDOS   = cfg.partidos || [];
+
+  const titleEl = $('#titleTxt');
+  const titulo  = (cfg.titulo || 'QUINIELA AZTECA').toUpperCase();
+
+  if (titulo === 'QUINIELA AZTECA') {
+    titleEl.innerHTML = '<span class="title-q">QUINIELA</span> <span class="title-a">AZTECA</span>';
+  } else {
+    titleEl.textContent = titulo;
+  }
+
+  $('#subtitleTxt').textContent = cfg.subtitulo || '';
+  $('#precioTxt').textContent   = fmtMoney(BASE_PRICE);
+  $('#cierreTxt').textContent   = cfg.cierre    || '';
+  const diasEl = $('#diasTxt');
+  if (cfg.diasPartido) {
+    diasEl.textContent = cfg.diasPartido;
+    diasEl.style.display = 'block';
+  } else {
+    diasEl.textContent = '';
+    diasEl.style.display = 'none';
+  }
+
+  renderRows();
+  updateCurrentTotals();
+  renderCarrito();
+}
+
+function loadConfig() {
+  fetch(SHEET_ENDPOINT_PUBLIC + '?mode=config')
+    .then(r => r.json())
+    .then(data => {
+      if (!data.ok || !data.cfg) throw new Error('Config inválida');
+      applyConfig(data.cfg);
+    })
+    .catch(() => {
+      applyConfig({
+        titulo:'QUINIELA AZTECA',
+        subtitulo:'Jornada',
+        cierre:'',
+        precio:25,
+        diasPartido:'',
+        partidos:[]
+      });
+    });
+}
+
+document.addEventListener('DOMContentLoaded', loadConfig);
+</script>
+</body>
+</html>
