@@ -60,7 +60,7 @@
     .namebox{
       width:100%;
       display:grid;
-      grid-template-columns:1fr 1fr;
+      grid-template-columns:1fr 170px;
       gap:8px;
       margin-top:8px;
     }
@@ -200,60 +200,62 @@
       padding:10px;
     }
 
-    .group{
-      background:transparent;
-      border:none;
-      padding:0;
-      margin:0;
-    }
-
+    /* Tarjetas de grupos en la lista */
     .groupCard{
       background:#fff;
       border:1px solid #eee;
       border-radius:12px;
       padding:10px 10px 6px;
       margin:10px 0;
+      box-shadow:0 1px 3px rgba(0,0,0,.04);
     }
     .groupHeader{
       display:flex;
       justify-content:space-between;
       align-items:center;
-      margin-bottom:6px;
+      gap:6px;
+      margin-bottom:4px;
     }
     .groupTitle{
+      font-size:15px;
       font-weight:800;
-      font-size:14px;
     }
     .groupBadges{
       display:flex;
-      gap:6px;
+      gap:4px;
       flex-wrap:wrap;
+      justify-content:flex-end;
     }
     .badge{
-      padding:2px 8px;
+      padding:3px 7px;
       border-radius:999px;
-      border:1px solid #ccc;
-      background:#f5f5f5;
-      font-size:12px;
+      border:1px solid #ddd;
+      font-size:11px;
       font-weight:700;
+      background:#f7f7f7;
+    }
+    .badge.money{
+      border-color:#c62828;
+      color:#c62828;
+      background:#fff5f5;
     }
 
-    .itemRow{
+    .groupItem{
       display:flex;
+      align-items:flex-start;
       justify-content:space-between;
-      align-items:center;
       gap:8px;
-      padding:6px 0;
+      padding-top:6px;
       border-top:1px dashed #eee;
+      margin-top:4px;
     }
-    .itemInfo{
-      display:flex;
-      flex-direction:column;
-      gap:2px;
+    .groupItemMain{
+      flex:1;
     }
-    .itemSub{
-      font-size:12px;
+    .groupItemMeta{
+      font-size:11px;
       color:#555;
+      margin-top:2px;
     }
 
     .listHeader{
@@ -288,8 +290,9 @@
       padding:4px 7px;
       border-radius:8px;
       font-weight:700;
-      font-size:12px;
+      font-size:11px;
       cursor:pointer;
+      white-space:nowrap;
     }
     .mini.danger{border-color:#c62828;color:#c62828;background:#fff}
 
@@ -414,15 +417,12 @@
       </div>
 
       <div class="section">
-        <div class="group">
-          <h3>LISTA DE QUINIELAS</h3>
-          <div class="listHeader">
-            <span>Guardadas</span>
-            <button class="mini danger" id="btnVaciar">Borrar lista</button>
-          </div>
-          <div id="listaWrap"></div>
-          <div id="listaFooter" class="footerTotal">TOTAL LISTA: 0 comb. · $0</div>
+        <div class="listHeader">
+          <span>LISTA DE QUINIELAS</span>
+          <button class="mini danger" id="btnVaciar">Borrar lista</button>
         </div>
+        <div id="listaWrap"></div>
+        <div id="listaFooter" class="footerTotal">TOTAL LISTA: 0 comb. · $0</div>
       </div>
 
       <div class="err" id="errMsg" style="display:none;"></div>
@@ -434,9 +434,6 @@
 <script>
 const SHEET_ENDPOINT_PUBLIC = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec";
 const PHONE_NUMBER = "5213333911690";
-
-// vendedor desde la URL (?v=juan)
-const VENDEDOR = new URLSearchParams(window.location.search).get("v") || "";
 
 let BASE_PRICE = 25;
 let PARTIDOS   = [];
@@ -453,25 +450,6 @@ function showSnack(msg) {
   el.classList.add('show');
   setTimeout(() => el.classList.remove('show'), 2000);
 }
-
-function setError(msg) {
-  const err = $('#errMsg');
-  if (!msg) {
-    err.style.display = 'none';
-    err.textContent   = '';
-  } else {
-    err.textContent   = msg;
-    err.style.display = 'block';
-  }
-}
-
-// Cerrar mensaje al tocar fuera
-document.addEventListener('click', e => {
-  const err = $('#errMsg');
-  if (err.style.display === 'none') return;
-  if (e.target.closest('#errMsg')) return;
-  setError('');
-});
 
 const telInput    = $('#telefono');
 const nombreInput = $('#nombre');
@@ -596,19 +574,19 @@ function renderCarrito() {
   let totalComb = 0;
   let totalCost = 0;
 
+  const groupsMap = {};
   const groups = [];
-  const indexByName = {};
 
   carrito.forEach((q, idxGlobal) => {
-    let gIndex = indexByName[q.nombre];
-    if (gIndex === undefined) {
-      gIndex = groups.length;
-      indexByName[q.nombre] = gIndex;
-      groups.push({ nombre: q.nombre, items: [], totalComb: 0, totalCost: 0 });
+    let g = groupsMap[q.nombre];
+    if (!g) {
+      g = { nombre: q.nombre, items: [], totalComb: 0, totalCost: 0 };
+      groupsMap[q.nombre] = g;
+      groups.push(g);
     }
-    groups[gIndex].items.push({ q, idxGlobal });
-    groups[gIndex].totalComb += q.combos;
-    groups[gIndex].totalCost += q.combos * BASE_PRICE;
+    g.items.push({ q, idxGlobal });
+    g.totalComb += q.combos;
+    g.totalCost += q.combos * BASE_PRICE;
 
     totalComb += q.combos;
     totalCost += q.combos * BASE_PRICE;
@@ -625,7 +603,7 @@ function renderCarrito() {
       <div class="groupBadges">
         <span class="badge">${group.items.length} q.</span>
         <span class="badge">${group.totalComb} comb.</span>
-        <span class="badge">${fmtMoney(group.totalCost)}</span>
+        <span class="badge money">${fmtMoney(group.totalCost)}</span>
       </div>
     `;
     card.appendChild(header);
@@ -633,20 +611,20 @@ function renderCarrito() {
     group.items.forEach(entry => {
       const q = entry.q;
       const idxGlobal = entry.idxGlobal;
-      const row = document.createElement('div');
-      row.className = 'itemRow';
-
       const selsHtml = decorateSels(q.sels);
-      const comboTxt = `${q.combos} comb. · ${fmtMoney(q.combos * BASE_PRICE)}`;
 
-      row.innerHTML = `
-        <div class="itemInfo">
+      const item = document.createElement('div');
+      item.className = 'groupItem';
+      item.innerHTML = `
+        <div class="groupItemMain">
           <div class="sel-inline">${selsHtml}</div>
-          <div class="itemSub">${comboTxt}</div>
+          <div class="groupItemMeta">${q.combos} comb. · ${fmtMoney(q.combos * BASE_PRICE)}</div>
         </div>
-        <button class="mini danger" data-del="${idxGlobal}">Eliminar</button>
+        <div>
+          <button class="mini danger" data-del="${idxGlobal}">Eliminar</button>
+        </div>
       `;
-      card.appendChild(row);
+      card.appendChild(item);
     });
 
     wrap.appendChild(card);
@@ -665,40 +643,67 @@ document.addEventListener('click', e => {
   renderCarrito();
 });
 
-function validarBase(tel, nombre, sels, combos) {
-  setError('');
+function validarBase(tel, nombre, sels, combos, err) {
+  err.style.display = 'none';
+  err.textContent   = '';
 
   if (!tel) {
-    setError('Captura el teléfono del cliente.');
+    setTimeout(() => {
+      err.textContent = 'Captura el teléfono del cliente.';
+      err.style.display = 'block';
+    }, 0);
     telInput.focus();
     return false;
   }
   if (!/^\d{10,15}$/.test(tel)) {
-    setError('El teléfono debe tener entre 10 y 15 dígitos.');
+    setTimeout(() => {
+      err.textContent = 'El teléfono debe tener entre 10 y 15 dígitos.';
+      err.style.display = 'block';
+    }, 0);
     telInput.focus();
     return false;
   }
   if (!nombre) {
-    setError('Captura el nombre o alias de la quiniela.');
+    setTimeout(() => {
+      err.textContent = 'Captura el nombre o alias de la quiniela.';
+      err.style.display = 'block';
+    }, 0);
     nombreInput.focus();
     return false;
   }
   const faltantes = sels.filter(s => !s).length;
   if (faltantes > 0) {
-    setError('Debes seleccionar un resultado en los 9 partidos.');
+    setTimeout(() => {
+      err.textContent = 'Debes seleccionar un resultado en los 9 partidos.';
+      err.style.display = 'block';
+    }, 0);
     return false;
   }
   if (!combos) {
-    setError('Debes tener al menos una combinación.');
+    setTimeout(() => {
+      err.textContent = 'Debes tener al menos una combinación.';
+      err.style.display = 'block';
+    }, 0);
     return false;
   }
   return true;
 }
 
+// Cerrar recuadro de error al tocar afuera
+document.addEventListener('click', e => {
+  const err = $('#errMsg');
+  if (err.style.display === 'block' && !e.target.closest('#errMsg')) {
+    err.style.display = 'none';
+    err.textContent = '';
+  }
+});
+
 $('#btnLimpiar').addEventListener('click', () => {
   setSelectionsFromArray(Array(9).fill(''));
   updateCurrentTotals();
-  setError('');
+  const err = $('#errMsg');
+  err.style.display = 'none';
+  err.textContent   = '';
 });
 
 $('#btnVaciar').addEventListener('click', () => {
@@ -712,8 +717,9 @@ $('#btnAgregar').addEventListener('click', () => {
   const nombre  = nombreInput.value.trim().toUpperCase();
   const sels    = getSelections();
   const combos  = combosFromSelections(sels);
+  const err     = $('#errMsg');
 
-  if (!validarBase(tel, nombre, sels, combos)) return;
+  if (!validarBase(tel, nombre, sels, combos, err)) return;
 
   localStorage.setItem('quiniela_tel', tel);
 
@@ -726,6 +732,7 @@ $('#btnAgregar').addEventListener('click', () => {
   updateCurrentTotals();
 });
 
+/* Helper para mensaje de WhatsApp: 1:L 2:LV² 3:V³ ... */
 function formatWhatsSelections(sels) {
   const parts = [];
   sels.forEach((val, idx) => {
@@ -735,7 +742,7 @@ function formatWhatsSelections(sels) {
     else if (val.length === 3) txt = val + '³';
     parts.push((idx + 1) + ':' + txt);
   });
-  return parts.join(' '); // solo espacios
+  return parts.join(' ');
 }
 
 $('#btnEnviar').addEventListener('click', () => {
@@ -743,29 +750,41 @@ $('#btnEnviar').addEventListener('click', () => {
   const nombre  = nombreInput.value.trim().toUpperCase();
   const sels    = getSelections();
   const combos  = combosFromSelections(sels);
+  const err     = $('#errMsg');
 
-  setError('');
+  err.style.display = 'none';
+  err.textContent   = '';
 
   let itemsToSend = carrito.slice();
 
+  // Si no hay nada en la lista pero sí hay una quiniela activa, la añadimos
   if (!itemsToSend.length && nombre && combos > 0) {
     const selsCopy = sels.slice();
-    if (!validarBase(tel, nombre, selsCopy, combos)) return;
+    if (!validarBase(tel, nombre, selsCopy, combos, err)) return;
     itemsToSend.push({ nombre, sels: selsCopy, combos });
   }
 
   if (!tel) {
-    setError('Captura el teléfono del cliente.');
+    setTimeout(() => {
+      err.textContent = 'Captura el teléfono del cliente.';
+      err.style.display = 'block';
+    }, 0);
     telInput.focus();
     return;
   }
   if (!/^\d{10,15}$/.test(tel)) {
-    setError('El teléfono debe tener entre 10 y 15 dígitos.');
+    setTimeout(() => {
+      err.textContent = 'El teléfono debe tener entre 10 y 15 dígitos.';
+      err.style.display = 'block';
+    }, 0);
     telInput.focus();
     return;
   }
   if (!itemsToSend.length) {
-    setError('No hay quinielas para enviar.');
+    setTimeout(() => {
+      err.textContent = 'No hay quinielas para enviar.';
+      err.style.display = 'block';
+    }, 0);
     return;
   }
 
@@ -784,6 +803,7 @@ $('#btnEnviar').addEventListener('click', () => {
   if (cierre) lines.push(`Cierre: *${cierre}*`);
   lines.push('');
 
+  // Agrupar por nombre
   const groups = [];
   const indexByName = {};
   itemsToSend.forEach(q => {
@@ -826,7 +846,6 @@ $('#btnEnviar').addEventListener('click', () => {
 
   const payload = {
     tel,
-    vendedor: VENDEDOR,
     items: itemsToSend.map(q => ({ nombre: q.nombre, sels: q.sels }))
   };
 
