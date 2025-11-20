@@ -4,6 +4,15 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Quiniela Azteca</title>
+
+  <!-- Miniatura / favicon (cambia las rutas a tus imágenes reales) -->
+  <link rel="icon" href="favicon.png" type="image/png" />
+  <meta property="og:title" content="Quiniela Azteca" />
+  <meta property="og:description" content="Llena y envía tus quinielas desde el celular." />
+  <meta property="og:image" content="https://quinielaazteca.github.io/quiniela-azteca/miniatura.png" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://quinielaazteca.github.io/quiniela-azteca/" />
+
   <style>
     :root{
       --fg:#111;--bg:#f7f7f7;--card:#fff;--line:#e6e6e6;
@@ -36,14 +45,14 @@
       text-align:center;
     }
     .title h1{
-      font-size:20px;
+      font-size:24px; /* más grande */
       margin:0;
       letter-spacing:.04em;
     }
     .title h1 .title-q{color:var(--l);}
     .title h1 .title-a{color:var(--v);}
     .title small{
-      font-size:13px;
+      font-size:15px;  /* subtítulo más grande */
       color:#444;
       font-weight:700;
     }
@@ -73,12 +82,13 @@
     }
     #nombre{text-transform:uppercase}
 
+    /* Instrucciones sin recuadro, solo texto centrado */
     .instr-card{
-      margin-top:8px;
-      background:#fff;
-      border:1px solid #eee;
-      border-radius:10px;
-      padding:8px;
+      margin-top:6px;
+      background:transparent;
+      border:none;
+      border-radius:0;
+      padding:0;
       font-size:12px;
     }
     .instr-card h3{
@@ -121,6 +131,7 @@
     }
     .row:last-child{border-bottom:none}
     .n{font-weight:700;text-align:center;font-size:13px;}
+
     .team{
       text-align:center;
       font-weight:700;
@@ -129,6 +140,16 @@
       line-height:1.15;
       white-space:normal;
       word-break:keep-all;
+    }
+    .team span{display:block;}
+
+    /* Escudo encima del nombre (sin cambiar mucho el alto) */
+    .team-logo{
+      display:block;
+      margin:0 auto 2px;
+      max-height:22px;
+      width:auto;
+      object-fit:contain;
     }
 
     .pick{
@@ -143,12 +164,10 @@
       user-select:none;
       cursor:pointer;
       background:#fff;
+      color:var(--e); /* L, E y V siempre gris */
       transition:transform .06s ease,border-color .06s ease,background .06s ease,color .06s ease;
       -webkit-tap-highlight-color:transparent;
     }
-    .pick.L{color:var(--l);}
-    .pick.V{color:var(--v);}
-    .pick.E{color:var(--e);}
     .pick.on{background:var(--ok);color:#fff;border-color:var(--ok);}
     .pick:active{transform:scale(.97);}
 
@@ -440,6 +459,13 @@ let PARTIDOS   = [];
 let carrito    = JSON.parse(localStorage.getItem('quiniela_carrito_v4') || '[]');
 let telCache   = localStorage.getItem('quiniela_tel') || '';
 
+// Mapa de escudos (rellena con tus URLs reales)
+const TEAM_LOGOS = {
+  // Ejemplos:
+  // 'BURNLEY':'https://tu-servidor.com/escudos/burnley.png',
+  // 'CHELSEA':'https://tu-servidor.com/escudos/chelsea.png',
+};
+
 const $  = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
 const fmtMoney = n => '$' + (n || 0).toLocaleString('es-MX');
@@ -485,14 +511,23 @@ function renderRows() {
   const partidos = PARTIDOS.slice(0, 9);
   partidos.forEach((p, idx) => {
     const num = idx + 1;
+    const localLogo  = TEAM_LOGOS[p.local]  || '';
+    const visitaLogo = TEAM_LOGOS[p.visita] || '';
+
     const row = document.createElement('div');
     row.className = 'row';
     row.innerHTML = `
       <div class="n">${num}</div>
       <div class="pick L" data-i="${idx}" data-k="L">L</div>
-      <div class="team">${p.local}</div>
+      <div class="team">
+        ${localLogo ? `<img class="team-logo" src="${localLogo}" alt="${p.local}">` : ''}
+        <span>${p.local}</span>
+      </div>
       <div class="pick E" data-i="${idx}" data-k="E">E</div>
-      <div class="team">${p.visita}</div>
+      <div class="team">
+        ${visitaLogo ? `<img class="team-logo" src="${visitaLogo}" alt="${p.visita}">` : ''}
+        <span>${p.visita}</span>
+      </div>
       <div class="pick V" data-i="${idx}" data-k="V">V</div>
     `;
     rows.appendChild(row);
@@ -732,7 +767,7 @@ $('#btnAgregar').addEventListener('click', () => {
   updateCurrentTotals();
 });
 
-/* Helper para mensaje de WhatsApp: 1:L 2:LV² 3:V³ ... */
+/* Selecciones para WhatsApp: 1:L 2:LV² 3:V³ ... (sin comas, solo espacios) */
 function formatWhatsSelections(sels) {
   const parts = [];
   sels.forEach((val, idx) => {
@@ -793,14 +828,12 @@ $('#btnEnviar').addEventListener('click', () => {
   const lines = [];
   const titulo   = $('#titleTxt').innerText.trim() || 'QUINIELA AZTECA';
   const subtitulo= $('#subtitleTxt').textContent;
-  const cierre   = $('#cierreTxt').textContent;
-  const dias     = $('#diasTxt').textContent;
+  // const cierre   = $('#cierreTxt').textContent;
+  // const dias     = $('#diasTxt').textContent;
 
+  // Encabezado simplificado (sin días, costo ni cierre)
   lines.push(`🏆 *${titulo}*`);
   if (subtitulo) lines.push(`📆 ${subtitulo}`);
-  if (dias)      lines.push(dias);
-  lines.push(`Costo por quiniela: *${fmtMoney(BASE_PRICE)}*`);
-  if (cierre) lines.push(`Cierre: *${cierre}*`);
   lines.push('');
 
   // Agrupar por nombre
@@ -890,22 +923,36 @@ function applyConfig(cfg) {
   renderCarrito();
 }
 
+// Caché básica de configuración para que cargue más rápido
 function loadConfig() {
+  const stored = localStorage.getItem('quiniela_cfg_cache_v1');
+  if (stored) {
+    try {
+      const cfg = JSON.parse(stored);
+      applyConfig(cfg);
+    } catch(e){}
+  }
+
   fetch(SHEET_ENDPOINT_PUBLIC + '?mode=config')
     .then(r => r.json())
     .then(data => {
       if (!data.ok || !data.cfg) throw new Error('Config inválida');
       applyConfig(data.cfg);
+      try{
+        localStorage.setItem('quiniela_cfg_cache_v1', JSON.stringify(data.cfg));
+      }catch(e){}
     })
     .catch(() => {
-      applyConfig({
-        titulo:'QUINIELA AZTECA',
-        subtitulo:'Jornada',
-        cierre:'',
-        precio:25,
-        diasPartido:'',
-        partidos:[]
-      });
+      if (!stored) {
+        applyConfig({
+          titulo:'QUINIELA AZTECA',
+          subtitulo:'Jornada',
+          cierre:'',
+          precio:25,
+          diasPartido:'',
+          partidos:[]
+        });
+      }
     });
 }
 
