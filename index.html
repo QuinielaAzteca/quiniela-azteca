@@ -5,8 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Quiniela Azteca</title>
 
-  <!-- Miniatura / favicon (cambia las rutas a tus imágenes reales) -->
-  <link rel="icon" href="favicon.png" type="image/png" />
+  <!-- Favicon y miniatura usando GitHub Pages -->
+  <link rel="icon" href="https://quinielaazteca.github.io/quiniela-azteca/favicon.png" type="image/png" />
+
   <meta property="og:title" content="Quiniela Azteca" />
   <meta property="og:description" content="Llena y envía tus quinielas desde el celular." />
   <meta property="og:image" content="https://quinielaazteca.github.io/quiniela-azteca/miniatura.png" />
@@ -45,7 +46,7 @@
       text-align:center;
     }
     .title h1{
-      font-size:24px; /* más grande */
+      font-size:24px; /* título más grande */
       margin:0;
       letter-spacing:.04em;
     }
@@ -81,24 +82,6 @@
       font-size:15px;
     }
     #nombre{text-transform:uppercase}
-
-    /* Instrucciones sin recuadro, solo texto centrado */
-    .instr-card{
-      margin-top:6px;
-      background:transparent;
-      border:none;
-      border-radius:0;
-      padding:0;
-      font-size:12px;
-    }
-    .instr-card h3{
-      margin:0 0 4px;
-      font-size:13px;
-      text-transform:uppercase;
-      letter-spacing:.06em;
-      color:#555;
-    }
-    .instr-card small{color:#777;font-size:11px;}
 
     .card{
       background:var(--card);
@@ -397,17 +380,6 @@
         <input id="telefono" placeholder="Teléfono del cliente (10–15 dígitos)" inputmode="numeric" pattern="[0-9]*" autocomplete="tel" />
         <input id="nombre" placeholder="NOMBRE O ALIAS DE LA QUINIELA" inputmode="text" autocomplete="off" autocapitalize="characters" enterkeyhint="done">
       </div>
-
-      <div class="instr-card">
-        <h3>INSTRUCCIONES</h3>
-        <small>
-          1) Elige L/E/V en cada partido (puedes marcar más de uno para dobles y triples).<br>
-          2) Revisa combinaciones y costo.<br>
-          3) Toca <b>Agregar</b> para guardar la quiniela en la lista.<br>
-          4) <b>Limpiar</b> borra solo el cupón actual; <b>Borrar lista</b> elimina todas las guardadas.<br>
-          5) Al final toca <b>Enviar por WhatsApp</b> para mandar todas las quinielas de la lista.
-        </small>
-      </div>
     </div>
 
     <div class="card">
@@ -459,11 +431,14 @@ let PARTIDOS   = [];
 let carrito    = JSON.parse(localStorage.getItem('quiniela_carrito_v4') || '[]');
 let telCache   = localStorage.getItem('quiniela_tel') || '';
 
-// Mapa de escudos (rellena con tus URLs reales)
+// 🔰 Mapa de escudos de equipos
+// 1) Sube tus imágenes al mismo repo de GitHub (por ejemplo, en /escudos/)
+// 2) Usa URLs absolutas o relativas a GitHub Pages
+// 3) La clave SIEMPRE en MAYÚSCULAS, igual que el nombre del equipo en la hoja
 const TEAM_LOGOS = {
   // Ejemplos:
-  // 'BURNLEY':'https://tu-servidor.com/escudos/burnley.png',
-  // 'CHELSEA':'https://tu-servidor.com/escudos/chelsea.png',
+  // 'AMÉRICA': 'https://quinielaazteca.github.io/quiniela-azteca/escudos/america.png',
+  // 'CHIVAS':  'https://quinielaazteca.github.io/quiniela-azteca/escudos/chivas.png',
 };
 
 const $  = s => document.querySelector(s);
@@ -511,8 +486,12 @@ function renderRows() {
   const partidos = PARTIDOS.slice(0, 9);
   partidos.forEach((p, idx) => {
     const num = idx + 1;
-    const localLogo  = TEAM_LOGOS[p.local]  || '';
-    const visitaLogo = TEAM_LOGOS[p.visita] || '';
+
+    const keyLocal  = (p.local  || '').toUpperCase().trim();
+    const keyVisita = (p.visita || '').toUpperCase().trim();
+
+    const localLogo  = TEAM_LOGOS[keyLocal]  || '';
+    const visitaLogo = TEAM_LOGOS[keyVisita] || '';
 
     const row = document.createElement('div');
     row.className = 'row';
@@ -828,8 +807,6 @@ $('#btnEnviar').addEventListener('click', () => {
   const lines = [];
   const titulo   = $('#titleTxt').innerText.trim() || 'QUINIELA AZTECA';
   const subtitulo= $('#subtitleTxt').textContent;
-  // const cierre   = $('#cierreTxt').textContent;
-  // const dias     = $('#diasTxt').textContent;
 
   // Encabezado simplificado (sin días, costo ni cierre)
   lines.push(`🏆 *${titulo}*`);
