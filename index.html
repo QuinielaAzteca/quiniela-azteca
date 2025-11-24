@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Quiniela Azteca</title>
 
-  <!-- Favicon y miniatura usando GitHub Pages -->
+  <!-- Favicon y miniatura (de momento estática, luego vemos la dinámica) -->
   <link rel="icon" href="https://quinielaazteca.github.io/quiniela-azteca/favicon.png" type="image/png" />
 
   <meta property="og:title" content="Quiniela Azteca" />
@@ -46,14 +46,14 @@
       text-align:center;
     }
     .title h1{
-      font-size:24px; /* título más grande */
+      font-size:24px;
       margin:0;
       letter-spacing:.04em;
     }
     .title h1 .title-q{color:var(--l);}
     .title h1 .title-a{color:var(--v);}
     .title small{
-      font-size:15px;  /* subtítulo más grande */
+      font-size:15px;
       color:#444;
       font-weight:700;
     }
@@ -89,6 +89,8 @@
       border-radius:14px;
       overflow:hidden;
       margin-top:10px;
+      display:flex;
+      flex-direction:column;
     }
     .bar{
       height:8px;
@@ -102,13 +104,26 @@
         var(--v) 100%
       );
     }
-    .card .inner{padding:6px 6px 10px}
+    .card .inner{
+      padding:4px 6px 4px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    /* wrapper de filas centrado verticalmente entre las franjas */
+    #rows{
+      width:100%;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+    }
 
     .row{
       display:grid;
       grid-template-columns:24px var(--pick) 1.2fr var(--pick) 1.2fr var(--pick);
-      gap:4px;
-      padding:8px 4px;
+      gap:3px;
+      padding:4px 2px;
       border-bottom:1px solid var(--line);
       align-items:center;
     }
@@ -126,7 +141,6 @@
     }
     .team span{display:block;}
 
-    /* Escudo encima del nombre (sin cambiar mucho el alto) */
     .team-logo{
       display:block;
       margin:0 auto 2px;
@@ -147,7 +161,7 @@
       user-select:none;
       cursor:pointer;
       background:#fff;
-      color:var(--e); /* L, E y V siempre gris */
+      color:var(--e);
       transition:transform .06s ease,border-color .06s ease,background .06s ease,color .06s ease;
       -webkit-tap-highlight-color:transparent;
     }
@@ -202,7 +216,6 @@
       padding:10px;
     }
 
-    /* Tarjetas de grupos en la lista */
     .groupCard{
       background:#fff;
       border:1px solid #eee;
@@ -377,8 +390,8 @@
       </div>
 
       <div class="namebox">
-        <input id="telefono" placeholder="Teléfono del cliente (10–15 dígitos)" inputmode="numeric" pattern="[0-9]*" autocomplete="tel" />
-        <input id="nombre" placeholder="NOMBRE O ALIAS DE LA QUINIELA" inputmode="text" autocomplete="off" autocapitalize="characters" enterkeyhint="done">
+        <input id="telefono" placeholder="Teléfono" inputmode="numeric" pattern="[0-9]*" autocomplete="tel" />
+        <input id="nombre" placeholder="Nombre" inputmode="text" autocomplete="off" autocapitalize="characters" enterkeyhint="done">
       </div>
     </div>
 
@@ -387,6 +400,7 @@
       <div class="inner">
         <div id="rows"></div>
       </div>
+      <div class="bar"></div>
     </div>
 
     <div class="panel">
@@ -431,34 +445,26 @@ let PARTIDOS   = [];
 let carrito    = JSON.parse(localStorage.getItem('quiniela_carrito_v4') || '[]');
 let telCache   = localStorage.getItem('quiniela_tel') || '';
 
-// 🔰 Mapa de escudos de equipos
-// 1) Sube tus imágenes al mismo repo de GitHub (por ejemplo, en /escudos/)
-// 2) Usa URLs absolutas o relativas a GitHub Pages
-// 3) La clave SIEMPRE en MAYÚSCULAS, igual que el nombre del equipo en la hoja
+// Mapa de escudos
 const TEAM_LOGOS = {
   'TIGRES':             'https://quinielaazteca.github.io/quiniela-azteca/escudos/tigres.png',
   'TIJUANA':            'https://quinielaazteca.github.io/quiniela-azteca/escudos/tijuana.png',
   'TOLUCA':             'https://quinielaazteca.github.io/quiniela-azteca/escudos/toluca.png',
   'JUÁREZ':             'https://quinielaazteca.github.io/quiniela-azteca/escudos/juarez.png',
-
   'MANCHESTER CITY':    'https://quinielaazteca.github.io/quiniela-azteca/escudos/manchestercity.png',
   'LEEDS UNITED':       'https://quinielaazteca.github.io/quiniela-azteca/escudos/leedsunited.png',
   'TOTTENHAM':          'https://quinielaazteca.github.io/quiniela-azteca/escudos/tottenham.png',
   'FULHAM':             'https://quinielaazteca.github.io/quiniela-azteca/escudos/fulham.png',
   'CRYSTAL PALACE':     'https://quinielaazteca.github.io/quiniela-azteca/escudos/crystalpalace.png',
   'MANCHESTER UNITED':  'https://quinielaazteca.github.io/quiniela-azteca/escudos/manchesterunited.png',
-
   'SEVILLA':            'https://quinielaazteca.github.io/quiniela-azteca/escudos/sevilla.png',
   'BETIS':              'https://quinielaazteca.github.io/quiniela-azteca/escudos/betis.png',
   'CHELSEA':            'https://quinielaazteca.github.io/quiniela-azteca/escudos/chelsea.png',
   'ARSENAL':            'https://quinielaazteca.github.io/quiniela-azteca/escudos/arsenal.png',
-
   'CRUZ AZUL':          'https://quinielaazteca.github.io/quiniela-azteca/escudos/cruzazul.png',
   'CHIVAS':             'https://quinielaazteca.github.io/quiniela-azteca/escudos/chivas.png',
   'AMÉRICA':            'https://quinielaazteca.github.io/quiniela-azteca/escudos/america.png',
   'MONTERREY':          'https://quinielaazteca.github.io/quiniela-azteca/escudos/monterrey.png',
-
-  // Ya listo para cuando lo uses en la quiniela:
   'PACHUCA':            'https://quinielaazteca.github.io/quiniela-azteca/escudos/pachuca.png',
 };
 
@@ -507,10 +513,8 @@ function renderRows() {
   const partidos = PARTIDOS.slice(0, 9);
   partidos.forEach((p, idx) => {
     const num = idx + 1;
-
     const keyLocal  = (p.local  || '').toUpperCase().trim();
     const keyVisita = (p.visita || '').toUpperCase().trim();
-
     const localLogo  = TEAM_LOGOS[keyLocal]  || '';
     const visitaLogo = TEAM_LOGOS[keyVisita] || '';
 
@@ -684,7 +688,7 @@ function validarBase(tel, nombre, sels, combos, err) {
 
   if (!tel) {
     setTimeout(() => {
-      err.textContent = 'Captura el teléfono del cliente.';
+      err.textContent = 'Captura el teléfono.';
       err.style.display = 'block';
     }, 0);
     telInput.focus();
@@ -700,7 +704,7 @@ function validarBase(tel, nombre, sels, combos, err) {
   }
   if (!nombre) {
     setTimeout(() => {
-      err.textContent = 'Captura el nombre o alias de la quiniela.';
+      err.textContent = 'Captura el nombre.';
       err.style.display = 'block';
     }, 0);
     nombreInput.focus();
@@ -724,7 +728,6 @@ function validarBase(tel, nombre, sels, combos, err) {
   return true;
 }
 
-// Cerrar recuadro de error al tocar afuera
 document.addEventListener('click', e => {
   const err = $('#errMsg');
   if (err.style.display === 'block' && !e.target.closest('#errMsg')) {
@@ -767,7 +770,6 @@ $('#btnAgregar').addEventListener('click', () => {
   updateCurrentTotals();
 });
 
-/* Selecciones para WhatsApp: 1:L 2:LV² 3:V³ ... (sin comas, solo espacios) */
 function formatWhatsSelections(sels) {
   const parts = [];
   sels.forEach((val, idx) => {
@@ -792,7 +794,6 @@ $('#btnEnviar').addEventListener('click', () => {
 
   let itemsToSend = carrito.slice();
 
-  // Si no hay nada en la lista pero sí hay una quiniela activa, la añadimos
   if (!itemsToSend.length && nombre && combos > 0) {
     const selsCopy = sels.slice();
     if (!validarBase(tel, nombre, selsCopy, combos, err)) return;
@@ -801,7 +802,7 @@ $('#btnEnviar').addEventListener('click', () => {
 
   if (!tel) {
     setTimeout(() => {
-      err.textContent = 'Captura el teléfono del cliente.';
+      err.textContent = 'Captura el teléfono.';
       err.style.display = 'block';
     }, 0);
     telInput.focus();
@@ -829,12 +830,10 @@ $('#btnEnviar').addEventListener('click', () => {
   const titulo   = $('#titleTxt').innerText.trim() || 'QUINIELA AZTECA';
   const subtitulo= $('#subtitleTxt').textContent;
 
-  // Encabezado simplificado (sin días, costo ni cierre)
   lines.push(`🏆 *${titulo}*`);
   if (subtitulo) lines.push(`📆 ${subtitulo}`);
   lines.push('');
 
-  // Agrupar por nombre
   const groups = [];
   const indexByName = {};
   itemsToSend.forEach(q => {
@@ -921,7 +920,6 @@ function applyConfig(cfg) {
   renderCarrito();
 }
 
-// Caché básica de configuración para que cargue más rápido
 function loadConfig() {
   const stored = localStorage.getItem('quiniela_cfg_cache_v1');
   if (stored) {
