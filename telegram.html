@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quiniela Azteca - Telegram</title>
+
+  <link rel="icon" href="favicon.png" type="image/png" />
+  <meta property="og:title" content="Quiniela Azteca" />
+  <meta property="og:description" content="Llena y envía tus quinielas desde el celular." />
+  <meta property="og:image" content="https://quinielaazteca.github.io/quiniela-azteca/miniatura.png" />
+  <meta property="og:type" content="website" />
+
+  <style>
+    /* TODO: Pega aquí tu mismo CSS completo */
+  </style>
+
+</head>
+<body>
+
+  <!-- Pega aquí EXACTAMENTE el mismo HTML del cupón -->
+  <!-- Solo cambia el texto del botón a: Enviar por Telegram -->
+  
+<script>
+/* -------------------------------------------------------
+   CONFIG Y VENDEDOR
+------------------------------------------------------- */
+
+const SHEET_ENDPOINT_PUBLIC = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec";
+
+// NO hay teléfono porque Telegram NO usa número.
+
+const rawQuery = window.location.search.replace(/^\?/, '');
+const VENDEDOR = rawQuery
+  ? decodeURIComponent(rawQuery).toUpperCase()
+  : '';
+
+// *** ESTE ES EL CANAL DE TELEGRAM ***
+const CANAL = 'TELEGRAM';
+
+/* -------------------------------------------------------
+   TODO TU JS ORIGINAL – SIN CAMBIOS
+------------------------------------------------------- */
+
+/* ... pega aquí tu script JS completo ... */
+
+/* -------------------------------------------------------
+   ENVÍO POR TELEGRAM
+------------------------------------------------------- */
+
+document.getElementById('btnEnviar').addEventListener('click', () => {
+
+  /* TODO: armado de mensaje igualito */
+
+  const tgUrl = `https://t.me/share/url?text=${encodeURIComponent(lines.join('\n'))}`;
+  window.open(tgUrl, '_blank');
+  showSnack('Abriendo Telegram...');
+
+  const payload = {
+    tel,
+    vendedor: VENDEDOR,
+    canal: CANAL,     // ← ← ← IMPORTANTE
+    items: itemsToSend.map(q => ({ nombre: q.nombre, sels: q.sels }))
+  };
+
+  fetch(SHEET_ENDPOINT_PUBLIC, {
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify(payload)
+  }).catch(()=>{}).finally(()=>{
+    carrito = [];
+    localStorage.setItem('quiniela_carrito_v4', JSON.stringify(carrito));
+    renderCarrito();
+  });
+});
+</script>
+</body>
+</html>
