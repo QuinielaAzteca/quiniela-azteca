@@ -828,10 +828,10 @@ $('#btnEnviar').addEventListener('click', () => {
   localStorage.setItem('quiniela_tel', tel);
 
   const lines = [];
-  const titulo   = $('#titleTxt').innerText.trim() || 'QUINIELA AZTECA';
+    const titulo   = $('#titleTxt').innerText.trim() || 'QUINIELA AZTECA';
   const subtitulo= $('#subtitleTxt').textContent;
 
-  lines.push(`🏆 *${titulo}*`);
+  lines.push('PRUEBA TELEGRAM SIN LINK');  // ← línea de prueba
   if (subtitulo) lines.push(`📆 ${subtitulo}`);
   lines.push('');
 
