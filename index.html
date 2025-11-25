@@ -84,7 +84,6 @@
     #nombre{
       text-transform:uppercase;
     }
-    /* placeholder del nombre en minúsculas normales */
     #nombre::placeholder{ text-transform:none; }
     #nombre::-webkit-input-placeholder{ text-transform:none; }
     #nombre::-moz-placeholder{ text-transform:none; }
@@ -440,9 +439,6 @@ const rawQuery = window.location.search.replace(/^\?/, '');
 const VENDEDOR = rawQuery
   ? decodeURIComponent(rawQuery).toUpperCase()
   : '';
-
-// Canal de este HTML
-const CANAL = 'WHATSAPP';
 
 let BASE_PRICE = 25;
 let PARTIDOS   = [];
@@ -880,7 +876,6 @@ $('#btnEnviar').addEventListener('click', () => {
   const payload = {
     tel,
     vendedor: VENDEDOR,
-    canal: CANAL,
     items: itemsToSend.map(q => ({ nombre: q.nombre, sels: q.sels }))
   };
 
