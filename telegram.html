@@ -447,7 +447,7 @@ let PARTIDOS   = [];
 let carrito    = JSON.parse(localStorage.getItem('quiniela_carrito_v4') || '[]');
 let telCache   = localStorage.getItem('quiniela_tel') || '';
 
-// Escudos (igual que en index.html)
+// Escudos (mismos que en index.html)
 const TEAM_LOGOS = {
   'TIGRES':             'https://quinielaazteca.github.io/quiniela-azteca/escudos/tigres.png',
   'TIJUANA':            'https://quinielaazteca.github.io/quiniela-azteca/escudos/tijuana.png',
@@ -828,10 +828,10 @@ $('#btnEnviar').addEventListener('click', () => {
   localStorage.setItem('quiniela_tel', tel);
 
   const lines = [];
-    const titulo   = $('#titleTxt').innerText.trim() || 'QUINIELA AZTECA';
+  const titulo   = $('#titleTxt').innerText.trim() || 'QUINIELA AZTECA';
   const subtitulo= $('#subtitleTxt').textContent;
 
-  lines.push('PRUEBA TELEGRAM SIN LINK');  // ← línea de prueba
+  lines.push(`🏆 *${titulo}*`);
   if (subtitulo) lines.push(`📆 ${subtitulo}`);
   lines.push('');
 
@@ -870,8 +870,9 @@ $('#btnEnviar').addEventListener('click', () => {
   lines.push(`*TOTAL LISTA: ${totalQuinielas} ${labelLista} ${totalGlobalCombos} combinaciones.*`);
   lines.push(`*TOTAL A PAGAR: ${fmtMoney(totalGlobalMoney)}.*`);
 
-  // URL para compartir por Telegram
-  const shareUrl = `${TELEGRAM_SHARE_URL}?text=${encodeURIComponent(lines.join('\n'))}`;
+  // URL para compartir por Telegram (versión original)
+  const shareUrl = `${TELEGRAM_SHARE_URL}?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(lines.join('\n'))}`;
+
   window.open(shareUrl,'_blank');
   showSnack('Abriendo Telegram...');
 
