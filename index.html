@@ -5,9 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Quiniela Azteca</title>
 
-  <!-- Favicon y miniatura -->
-  <link rel="icon" href="https://quinielaazteca.github.io/quiniela-azteca/favicon.png" type="image/png" />
+  <!-- Favicon -->
+  <link rel="icon" href="favicon.png" type="image/png" />
 
+  <!-- Metadatos básicos (sin imagen para que no fuerce miniatura) -->
   <meta property="og:title" content="Quiniela Azteca" />
   <meta property="og:description" content="Llena y envía tus quinielas desde el celular." />
   <meta property="og:type" content="website" />
@@ -80,14 +81,7 @@
       border-radius:8px;
       font-size:15px;
     }
-    #nombre{
-      text-transform:uppercase;
-    }
-    #nombre::placeholder{ text-transform:none; }
-    #nombre::-webkit-input-placeholder{ text-transform:none; }
-    #nombre::-moz-placeholder{ text-transform:none; }
-    #nombre:-ms-input-placeholder{ text-transform:none; }
-    #nombre:-moz-placeholder{ text-transform:none; }
+    #nombre{text-transform:uppercase}
 
     .card{
       background:var(--card);
@@ -109,7 +103,9 @@
       );
     }
     .card .inner{
-      padding:6px 6px 10px;
+      padding:4px 2px 4px 0;
+      display:flex;
+      align-items:center;
     }
 
     .row{
@@ -190,6 +186,7 @@
       border-radius:10px;
       font-weight:800;
       font-size:13px;
+      cursor:pointer;
     }
     .btn.alt{
       background:#fff;
@@ -199,7 +196,10 @@
       background:var(--l);
       border-color:var(--l);
     }
-    .btn:disabled{opacity:.6}
+    .btn:disabled{
+      opacity:.6;
+      cursor:not-allowed;
+    }
 
     .section{
       margin-top:10px;
@@ -357,6 +357,17 @@
       animation:bump .18s ease-out;
     }
 
+    /* Banner de cupo cerrado */
+    .closed-banner{
+      background:#ffecec;
+      color:#c62828;
+      text-align:center;
+      padding:8px 10px;
+      font-size:14px;
+      font-weight:700;
+      border-bottom:1px solid #f5b5b5;
+    }
+
     @media (max-width:520px){
       .namebox{grid-template-columns:1fr}
     }
@@ -371,6 +382,11 @@
   </style>
 </head>
 <body>
+  <!-- Banner de cerrado, se controla desde CONFIG.aceptando_respuestas -->
+  <div class="closed-banner" id="closedBanner" style="display:none;">
+    🔒 La quiniela ya no está aceptando respuestas.
+  </div>
+
   <div class="wrap">
     <div class="title">
       <h1 id="titleTxt">
@@ -383,7 +399,7 @@
       </div>
 
       <div class="namebox">
-        <input id="telefono" placeholder="Teléfono" inputmode="numeric" pattern="[0-9]*" autocomplete="tel" />
+        <input id="telefono" placeholder="Teléfono del cliente (10–15 dígitos)" inputmode="numeric" pattern="[0-9]*" autocomplete="tel" />
         <input id="nombre" placeholder="Nombre" inputmode="text" autocomplete="off" autocapitalize="characters" enterkeyhint="done">
       </div>
     </div>
@@ -393,7 +409,6 @@
       <div class="inner">
         <div id="rows"></div>
       </div>
-      <div class="bar"></div>
     </div>
 
     <div class="panel">
@@ -430,41 +445,46 @@
   <div class="snack" id="snack"></div>
 
 <script>
-const SHEET_ENDPOINT_PUBLIC = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec";
+const SHEET_ENDPOINT_PUBLIC = "https://script.google.com/macros/s/AKfycbyXR_nSdzcOTd5pfj9LcmsEG2gyZUoYzZUvFxRufMGP7HfrmhlIqEtVBKTAcmUSB1F-/exec";
 const PHONE_NUMBER = "5213333911690";
 
-// Vendedor desde la URL (?OSVALDO)
-const rawQuery = window.location.search.replace(/^\?/, '');
-const VENDEDOR = rawQuery
-  ? decodeURIComponent(rawQuery).toUpperCase()
-  : '';
+/* Vendedor desde la URL: ?VEND o ?vendedor=VEND */
+function getVendedorFromQuery() {
+  const search = window.location.search.replace(/^\?/, '').trim();
+  if (!search) return '';
+  if (!search.includes('=')) {
+    return decodeURIComponent(search).toUpperCase();
+  }
+  const params = new URLSearchParams(window.location.search);
+  return (params.get('vendedor') || '').toUpperCase();
+}
+const VENDEDOR = getVendedorFromQuery();
 
 let BASE_PRICE = 25;
 let PARTIDOS   = [];
 let carrito    = JSON.parse(localStorage.getItem('quiniela_carrito_v4') || '[]');
 let telCache   = localStorage.getItem('quiniela_tel') || '';
 
-// Escudos
 const TEAM_LOGOS = {
-  'TIGRES':             'https://quinielaazteca.github.io/quiniela-azteca/escudos/tigres.png',
-  'TIJUANA':            'https://quinielaazteca.github.io/quiniela-azteca/escudos/tijuana.png',
-  'TOLUCA':             'https://quinielaazteca.github.io/quiniela-azteca/escudos/toluca.png',
-  'JUÁREZ':             'https://quinielaazteca.github.io/quiniela-azteca/escudos/juarez.png',
-  'MANCHESTER CITY':    'https://quinielaazteca.github.io/quiniela-azteca/escudos/manchestercity.png',
-  'LEEDS UNITED':       'https://quinielaazteca.github.io/quiniela-azteca/escudos/leedsunited.png',
-  'TOTTENHAM':          'https://quinielaazteca.github.io/quiniela-azteca/escudos/tottenham.png',
-  'FULHAM':             'https://quinielaazteca.github.io/quiniela-azteca/escudos/fulham.png',
-  'CRYSTAL PALACE':     'https://quinielaazteca.github.io/quiniela-azteca/escudos/crystalpalace.png',
-  'MANCHESTER UNITED':  'https://quinielaazteca.github.io/quiniela-azteca/escudos/manchesterunited.png',
-  'SEVILLA':            'https://quinielaazteca.github.io/quiniela-azteca/escudos/sevilla.png',
-  'BETIS':              'https://quinielaazteca.github.io/quiniela-azteca/escudos/betis.png',
-  'CHELSEA':            'https://quinielaazteca.github.io/quiniela-azteca/escudos/chelsea.png',
-  'ARSENAL':            'https://quinielaazteca.github.io/quiniela-azteca/escudos/arsenal.png',
-  'CRUZ AZUL':          'https://quinielaazteca.github.io/quiniela-azteca/escudos/cruzazul.png',
-  'CHIVAS':             'https://quinielaazteca.github.io/quiniela-azteca/escudos/chivas.png',
-  'AMÉRICA':            'https://quinielaazteca.github.io/quiniela-azteca/escudos/america.png',
-  'MONTERREY':          'https://quinielaazteca.github.io/quiniela-azteca/escudos/monterrey.png',
-  'PACHUCA':            'https://quinielaazteca.github.io/quiniela-azteca/escudos/pachuca.png'
+  'TIGRES':'escudos/tigres.png',
+  'TIJUANA':'escudos/tijuana.png',
+  'TOLUCA':'escudos/toluca.png',
+  'JUÁREZ':'escudos/juarez.png',
+  'PACHUCA':'escudos/pachuca.png',
+  'MANCHESTER CITY':'escudos/manchestercity.png',
+  'LEEDS UNITED':'escudos/leedsunited.png',
+  'TOTTENHAM':'escudos/tottenham.png',
+  'FULHAM':'escudos/fulham.png',
+  'CRYSTAL PALACE':'escudos/crystalpalace.png',
+  'MANCHESTER UNITED':'escudos/manchesterunited.png',
+  'SEVILLA':'escudos/sevilla.png',
+  'BETIS':'escudos/betis.png',
+  'CHELSEA':'escudos/chelsea.png',
+  'ARSENAL':'escudos/arsenal.png',
+  'CRUZ AZUL':'escudos/cruzazul.png',
+  'CHIVAS':'escudos/chivas.png',
+  'AMÉRICA':'escudos/america.png',
+  'MONTERREY':'escudos/monterrey.png'
 };
 
 const $  = s => document.querySelector(s);
@@ -480,6 +500,7 @@ function showSnack(msg) {
 
 const telInput    = $('#telefono');
 const nombreInput = $('#nombre');
+
 if (telCache) telInput.value = telCache;
 
 function cleanTel() {
@@ -511,10 +532,8 @@ function renderRows() {
   const partidos = PARTIDOS.slice(0, 9);
   partidos.forEach((p, idx) => {
     const num = idx + 1;
-    const keyLocal  = (p.local  || '').toUpperCase().trim();
-    const keyVisita = (p.visita || '').toUpperCase().trim();
-    const localLogo  = TEAM_LOGOS[keyLocal]  || '';
-    const visitaLogo = TEAM_LOGOS[keyVisita] || '';
+    const localLogo  = TEAM_LOGOS[p.local]  || '';
+    const visitaLogo = TEAM_LOGOS[p.visita] || '';
 
     const row = document.createElement('div');
     row.className = 'row';
@@ -686,7 +705,7 @@ function validarBase(tel, nombre, sels, combos, err) {
 
   if (!tel) {
     setTimeout(() => {
-      err.textContent = 'Captura el teléfono.';
+      err.textContent = 'Captura el teléfono del cliente.';
       err.style.display = 'block';
     }, 0);
     telInput.focus();
@@ -702,7 +721,7 @@ function validarBase(tel, nombre, sels, combos, err) {
   }
   if (!nombre) {
     setTimeout(() => {
-      err.textContent = 'Captura el nombre.';
+      err.textContent = 'Captura el nombre o alias de la quiniela.';
       err.style.display = 'block';
     }, 0);
     nombreInput.focus();
@@ -800,7 +819,7 @@ $('#btnEnviar').addEventListener('click', () => {
 
   if (!tel) {
     setTimeout(() => {
-      err.textContent = 'Captura el teléfono.';
+      err.textContent = 'Captura el teléfono del cliente.';
       err.style.display = 'block';
     }, 0);
     telInput.focus();
@@ -917,6 +936,33 @@ function applyConfig(cfg) {
   renderRows();
   updateCurrentTotals();
   renderCarrito();
+
+  const aceptando = String(cfg.aceptando_respuestas || 'SI').toUpperCase();
+  const cerrado   = (aceptando !== 'SI');
+
+  const banner    = $('#closedBanner');
+  const btnEnviar = $('#btnEnviar');
+  const btnAgregar= $('#btnAgregar');
+
+  if (cerrado) {
+    if (banner) banner.style.display = 'block';
+    if (btnEnviar) {
+      btnEnviar.disabled = true;
+      btnEnviar.textContent = 'Cupo cerrado';
+    }
+    if (btnAgregar) {
+      btnAgregar.disabled = true;
+    }
+  } else {
+    if (banner) banner.style.display = 'none';
+    if (btnEnviar) {
+      btnEnviar.disabled = false;
+      btnEnviar.textContent = 'Enviar por WhatsApp';
+    }
+    if (btnAgregar) {
+      btnAgregar.disabled = false;
+    }
+  }
 }
 
 function loadConfig() {
@@ -945,6 +991,7 @@ function loadConfig() {
           cierre:'',
           precio:25,
           diasPartido:'',
+          aceptando_respuestas:'SI',
           partidos:[]
         });
       }
@@ -955,6 +1002,3 @@ document.addEventListener('DOMContentLoaded', loadConfig);
 </script>
 </body>
 </html>
-
-
-
