@@ -3,14 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Quiniela Azteca – Telegram</title>
+  <title>Quiniela Azteca - Telegram</title>
 
-  <!-- Favicon y miniatura -->
-  <link rel="icon" href="https://quinielaazteca.github.io/quiniela-azteca/favicon.png" type="image/png" />
+  <link rel="icon" href="favicon.png" type="image/png" />
 
   <meta property="og:title" content="Quiniela Azteca" />
   <meta property="og:description" content="Llena y envía tus quinielas desde el celular." />
-    <meta property="og:type" content="website" />
+  <meta property="og:type" content="website" />
   <meta property="og:url" content="https://quinielaazteca.github.io/quiniela-azteca/telegram.html" />
 
   <style>
@@ -80,14 +79,7 @@
       border-radius:8px;
       font-size:15px;
     }
-    #nombre{
-      text-transform:uppercase;
-    }
-    #nombre::placeholder{ text-transform:none; }
-    #nombre::-webkit-input-placeholder{ text-transform:none; }
-    #nombre::-moz-placeholder{ text-transform:none; }
-    #nombre:-ms-input-placeholder{ text-transform:none; }
-    #nombre:-moz-placeholder{ text-transform:none; }
+    #nombre{text-transform:uppercase}
 
     .card{
       background:var(--card);
@@ -109,7 +101,9 @@
       );
     }
     .card .inner{
-      padding:6px 6px 10px;
+      padding:4px 2px 4px 0;
+      display:flex;
+      align-items:center;
     }
 
     .row{
@@ -190,16 +184,20 @@
       border-radius:10px;
       font-weight:800;
       font-size:13px;
+      cursor:pointer;
     }
     .btn.alt{
       background:#fff;
       color:var(--fg);
     }
     #btnEnviar{
-      background:#229ED9; /* Azul Telegram */
-      border-color:#229ED9;
+      background:var(--l);
+      border-color:var(--l);
     }
-    .btn:disabled{opacity:.6}
+    .btn:disabled{
+      opacity:.6;
+      cursor:not-allowed;
+    }
 
     .section{
       margin-top:10px;
@@ -357,6 +355,17 @@
       animation:bump .18s ease-out;
     }
 
+    /* Banner de cupo cerrado */
+    .closed-banner{
+      background:#ffecec;
+      color:#c62828;
+      text-align:center;
+      padding:8px 10px;
+      font-size:14px;
+      font-weight:700;
+      border-bottom:1px solid #f5b5b5;
+    }
+
     @media (max-width:520px){
       .namebox{grid-template-columns:1fr}
     }
@@ -371,6 +380,11 @@
   </style>
 </head>
 <body>
+  <!-- Banner de cerrado, se controla desde CONFIG.aceptando_respuestas -->
+  <div class="closed-banner" id="closedBanner" style="display:none;">
+    🔒 La quiniela ya no está aceptando respuestas.
+  </div>
+
   <div class="wrap">
     <div class="title">
       <h1 id="titleTxt">
@@ -383,7 +397,7 @@
       </div>
 
       <div class="namebox">
-        <input id="telefono" placeholder="Teléfono" inputmode="numeric" pattern="[0-9]*" autocomplete="tel" />
+        <input id="telefono" placeholder="Teléfono del cliente (10–15 dígitos)" inputmode="numeric" pattern="[0-9]*" autocomplete="tel" />
         <input id="nombre" placeholder="Nombre" inputmode="text" autocomplete="off" autocapitalize="characters" enterkeyhint="done">
       </div>
     </div>
@@ -393,7 +407,6 @@
       <div class="inner">
         <div id="rows"></div>
       </div>
-      <div class="bar"></div>
     </div>
 
     <div class="panel">
@@ -430,43 +443,45 @@
   <div class="snack" id="snack"></div>
 
 <script>
-const SHEET_ENDPOINT_PUBLIC = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec";
+const SHEET_ENDPOINT_PUBLIC = "https://script.google.com/macros/s/AKfycbyXR_nSdzcOTd5pfj9LcmsEG2gyZUoYzZUvFxRufMGP7HfrmhlIqEtVBKTAcmUSB1F-/exec";
 
-// URL base de compartir de Telegram
-const TELEGRAM_SHARE_URL = "https://t.me/share/url";
-
-// Vendedor desde la URL (?OSVALDO)
-const rawQuery = window.location.search.replace(/^\?/, '');
-const VENDEDOR = rawQuery
-  ? decodeURIComponent(rawQuery).toUpperCase()
-  : '';
+/* Vendedor desde la URL: ?VEND o ?vendedor=VEND */
+function getVendedorFromQuery() {
+  const search = window.location.search.replace(/^\?/, '').trim();
+  if (!search) return '';
+  if (!search.includes('=')) {
+    return decodeURIComponent(search).toUpperCase();
+  }
+  const params = new URLSearchParams(window.location.search);
+  return (params.get('vendedor') || '').toUpperCase();
+}
+const VENDEDOR = getVendedorFromQuery();
 
 let BASE_PRICE = 25;
 let PARTIDOS   = [];
-let carrito    = JSON.parse(localStorage.getItem('quiniela_carrito_v4') || '[]');
+let carrito    = JSON.parse(localStorage.getItem('quiniela_carrito_v4_tel') || '[]');
 let telCache   = localStorage.getItem('quiniela_tel') || '';
 
-// Escudos (mismos que en index.html)
 const TEAM_LOGOS = {
-  'TIGRES':             'https://quinielaazteca.github.io/quiniela-azteca/escudos/tigres.png',
-  'TIJUANA':            'https://quinielaazteca.github.io/quiniela-azteca/escudos/tijuana.png',
-  'TOLUCA':             'https://quinielaazteca.github.io/quiniela-azteca/escudos/toluca.png',
-  'JUÁREZ':             'https://quinielaazteca.github.io/quiniela-azteca/escudos/juarez.png',
-  'MANCHESTER CITY':    'https://quinielaazteca.github.io/quiniela-azteca/escudos/manchestercity.png',
-  'LEEDS UNITED':       'https://quinielaazteca.github.io/quiniela-azteca/escudos/leedsunited.png',
-  'TOTTENHAM':          'https://quinielaazteca.github.io/quiniela-azteca/escudos/tottenham.png',
-  'FULHAM':             'https://quinielaazteca.github.io/quiniela-azteca/escudos/fulham.png',
-  'CRYSTAL PALACE':     'https://quinielaazteca.github.io/quiniela-azteca/escudos/crystalpalace.png',
-  'MANCHESTER UNITED':  'https://quinielaazteca.github.io/quiniela-azteca/escudos/manchesterunited.png',
-  'SEVILLA':            'https://quinielaazteca.github.io/quiniela-azteca/escudos/sevilla.png',
-  'BETIS':              'https://quinielaazteca.github.io/quiniela-azteca/escudos/betis.png',
-  'CHELSEA':            'https://quinielaazteca.github.io/quiniela-azteca/escudos/chelsea.png',
-  'ARSENAL':            'https://quinielaazteca.github.io/quiniela-azteca/escudos/arsenal.png',
-  'CRUZ AZUL':          'https://quinielaazteca.github.io/quiniela-azteca/escudos/cruzazul.png',
-  'CHIVAS':             'https://quinielaazteca.github.io/quiniela-azteca/escudos/chivas.png',
-  'AMÉRICA':            'https://quinielaazteca.github.io/quiniela-azteca/escudos/america.png',
-  'MONTERREY':          'https://quinielaazteca.github.io/quiniela-azteca/escudos/monterrey.png',
-  'PACHUCA':            'https://quinielaazteca.github.io/quiniela-azteca/escudos/pachuca.png'
+  'TIGRES':'escudos/tigres.png',
+  'TIJUANA':'escudos/tijuana.png',
+  'TOLUCA':'escudos/toluca.png',
+  'JUÁREZ':'escudos/juarez.png',
+  'PACHUCA':'escudos/pachuca.png',
+  'MANCHESTER CITY':'escudos/manchestercity.png',
+  'LEEDS UNITED':'escudos/leedsunited.png',
+  'TOTTENHAM':'escudos/tottenham.png',
+  'FULHAM':'escudos/fulham.png',
+  'CRYSTAL PALACE':'escudos/crystalpalace.png',
+  'MANCHESTER UNITED':'escudos/manchesterunited.png',
+  'SEVILLA':'escudos/sevilla.png',
+  'BETIS':'escudos/betis.png',
+  'CHELSEA':'escudos/chelsea.png',
+  'ARSENAL':'escudos/arsenal.png',
+  'CRUZ AZUL':'escudos/cruzazul.png',
+  'CHIVAS':'escudos/chivas.png',
+  'AMÉRICA':'escudos/america.png',
+  'MONTERREY':'escudos/monterrey.png'
 };
 
 const $  = s => document.querySelector(s);
@@ -482,6 +497,7 @@ function showSnack(msg) {
 
 const telInput    = $('#telefono');
 const nombreInput = $('#nombre');
+
 if (telCache) telInput.value = telCache;
 
 function cleanTel() {
@@ -513,10 +529,8 @@ function renderRows() {
   const partidos = PARTIDOS.slice(0, 9);
   partidos.forEach((p, idx) => {
     const num = idx + 1;
-    const keyLocal  = (p.local  || '').toUpperCase().trim();
-    const keyVisita = (p.visita || '').toUpperCase().trim();
-    const localLogo  = TEAM_LOGOS[keyLocal]  || '';
-    const visitaLogo = TEAM_LOGOS[keyVisita] || '';
+    const localLogo  = TEAM_LOGOS[p.local]  || '';
+    const visitaLogo = TEAM_LOGOS[p.visita] || '';
 
     const row = document.createElement('div');
     row.className = 'row';
@@ -678,7 +692,7 @@ document.addEventListener('click', e => {
   if (!btn) return;
   const idx = parseInt(btn.dataset.del, 10);
   carrito.splice(idx, 1);
-  localStorage.setItem('quiniela_carrito_v4', JSON.stringify(carrito));
+  localStorage.setItem('quiniela_carrito_v4_tel', JSON.stringify(carrito));
   renderCarrito();
 });
 
@@ -688,7 +702,7 @@ function validarBase(tel, nombre, sels, combos, err) {
 
   if (!tel) {
     setTimeout(() => {
-      err.textContent = 'Captura el teléfono.';
+      err.textContent = 'Captura el teléfono del cliente.';
       err.style.display = 'block';
     }, 0);
     telInput.focus();
@@ -704,7 +718,7 @@ function validarBase(tel, nombre, sels, combos, err) {
   }
   if (!nombre) {
     setTimeout(() => {
-      err.textContent = 'Captura el nombre.';
+      err.textContent = 'Captura el nombre o alias de la quiniela.';
       err.style.display = 'block';
     }, 0);
     nombreInput.focus();
@@ -746,31 +760,12 @@ $('#btnLimpiar').addEventListener('click', () => {
 
 $('#btnVaciar').addEventListener('click', () => {
   carrito = [];
-  localStorage.setItem('quiniela_carrito_v4', JSON.stringify(carrito));
+  localStorage.setItem('quiniela_carrito_v4_tel', JSON.stringify(carrito));
   renderCarrito();
 });
 
-$('#btnAgregar').addEventListener('click', () => {
-  const tel     = telInput.value.trim();
-  const nombre  = nombreInput.value.trim().toUpperCase();
-  const sels    = getSelections();
-  const combos  = combosFromSelections(sels);
-  const err     = $('#errMsg');
-
-  if (!validarBase(tel, nombre, sels, combos, err)) return;
-
-  localStorage.setItem('quiniela_tel', tel);
-
-  carrito.push({ nombre, sels, combos });
-  localStorage.setItem('quiniela_carrito_v4', JSON.stringify(carrito));
-  renderCarrito();
-  showSnack('Quiniela agregada a la lista');
-
-  setSelectionsFromArray(Array(9).fill(''));
-  updateCurrentTotals();
-});
-
-function formatWhatsSelections(sels) {
+/* Selecciones formateadas tipo 1:L 2:LV²... */
+function formatSelectionsInline(sels) {
   const parts = [];
   sels.forEach((val, idx) => {
     if (!val) return;
@@ -782,7 +777,7 @@ function formatWhatsSelections(sels) {
   return parts.join(' ');
 }
 
-$('#btnEnviar').addEventListener('click', () => {
+function enviarPorTelegram() {
   const tel     = telInput.value.trim();
   const nombre  = nombreInput.value.trim().toUpperCase();
   const sels    = getSelections();
@@ -802,7 +797,7 @@ $('#btnEnviar').addEventListener('click', () => {
 
   if (!tel) {
     setTimeout(() => {
-      err.textContent = 'Captura el teléfono.';
+      err.textContent = 'Captura el teléfono del cliente.';
       err.style.display = 'block';
     }, 0);
     telInput.focus();
@@ -827,10 +822,11 @@ $('#btnEnviar').addEventListener('click', () => {
   localStorage.setItem('quiniela_tel', tel);
 
   const lines = [];
-  const titulo   = $('#titleTxt').innerText.trim() || 'QUINIELA AZTECA';
-  const subtitulo= $('#subtitleTxt').textContent;
+  const titulo    = $('#titleTxt').innerText.trim() || 'QUINIELA AZTECA';
+  const subtitulo = $('#subtitleTxt').textContent;
 
-  lines.push(`🏆 *${titulo}*`);
+  // Negritas estilo Telegram: **texto**
+  lines.push(`🏆 **${titulo}**`);
   if (subtitulo) lines.push(`📆 ${subtitulo}`);
   lines.push('');
 
@@ -850,13 +846,13 @@ $('#btnEnviar').addEventListener('click', () => {
   groups.forEach(group => {
     const count = group.items.length;
     const label = count === 1 ? 'quiniela' : 'quinielas';
-    lines.push(`👤 *${group.nombre}* (${count} ${label})`);
+    lines.push(`👤 **${group.nombre}** (${count} ${label})`);
     group.items.forEach(q => {
-      const selLine = formatWhatsSelections(q.sels);
+      const selLine = formatSelectionsInline(q.sels);
       const comb    = q.combos;
       const total   = comb * BASE_PRICE;
-      lines.push(`   • ${selLine}`);
-      lines.push(`     Comb: ${comb} · ${fmtMoney(total)}`);
+      lines.push(` • ${selLine}`);
+      lines.push(`   Comb: ${comb} · ${fmtMoney(total)}`);
     });
     lines.push('');
   });
@@ -866,13 +862,16 @@ $('#btnEnviar').addEventListener('click', () => {
   const totalQuinielas    = itemsToSend.length;
   const labelLista        = totalQuinielas === 1 ? 'Quiniela' : 'Quinielas';
 
-  lines.push(`*TOTAL LISTA: ${totalQuinielas} ${labelLista} ${totalGlobalCombos} combinaciones.*`);
-  lines.push(`*TOTAL A PAGAR: ${fmtMoney(totalGlobalMoney)}.*`);
+  lines.push(`**TOTAL LISTA:** ${totalQuinielas} ${labelLista} ${totalGlobalCombos} combinaciones.`);
+  lines.push(`**TOTAL A PAGAR:** ${fmtMoney(totalGlobalMoney)}.`);
 
-  // URL para compartir por Telegram (versión original)
-  const shareUrl = `${TELEGRAM_SHARE_URL}?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(lines.join('\n'))}`;
+  const baseUrl = 'https://t.me/share/url';
+  const urlCup  = window.location.href.split('?')[0];
+  const txt     = lines.join('\n');
 
-  window.open(shareUrl,'_blank');
+  const tgUrl = `${baseUrl}?url=${encodeURIComponent(urlCup)}&text=${encodeURIComponent(txt)}`;
+
+  window.open(tgUrl, '_blank');
   showSnack('Abriendo Telegram...');
 
   const payload = {
@@ -887,10 +886,32 @@ $('#btnEnviar').addEventListener('click', () => {
     body: JSON.stringify(payload)
   }).catch(()=>{}).finally(()=>{
     carrito = [];
-    localStorage.setItem('quiniela_carrito_v4', JSON.stringify(carrito));
+    localStorage.setItem('quiniela_carrito_v4_tel', JSON.stringify(carrito));
     renderCarrito();
   });
+}
+
+$('#btnAgregar').addEventListener('click', () => {
+  const tel     = telInput.value.trim();
+  const nombre  = nombreInput.value.trim().toUpperCase();
+  const sels    = getSelections();
+  const combos  = combosFromSelections(sels);
+  const err     = $('#errMsg');
+
+  if (!validarBase(tel, nombre, sels, combos, err)) return;
+
+  localStorage.setItem('quiniela_tel', tel);
+
+  carrito.push({ nombre, sels, combos });
+  localStorage.setItem('quiniela_carrito_v4_tel', JSON.stringify(carrito));
+  renderCarrito();
+  showSnack('Quiniela agregada a la lista');
+
+  setSelectionsFromArray(Array(9).fill(''));
+  updateCurrentTotals();
 });
+
+$('#btnEnviar').addEventListener('click', enviarPorTelegram);
 
 function applyConfig(cfg) {
   BASE_PRICE = cfg.precio || 25;
@@ -920,10 +941,37 @@ function applyConfig(cfg) {
   renderRows();
   updateCurrentTotals();
   renderCarrito();
+
+  const aceptando = String(cfg.aceptando_respuestas || 'SI').toUpperCase();
+  const cerrado   = (aceptando !== 'SI');
+
+  const banner    = $('#closedBanner');
+  const btnEnviar = $('#btnEnviar');
+  const btnAgregar= $('#btnAgregar');
+
+  if (cerrado) {
+    if (banner) banner.style.display = 'block';
+    if (btnEnviar) {
+      btnEnviar.disabled = true;
+      btnEnviar.textContent = 'Cupo cerrado';
+    }
+    if (btnAgregar) {
+      btnAgregar.disabled = true;
+    }
+  } else {
+    if (banner) banner.style.display = 'none';
+    if (btnEnviar) {
+      btnEnviar.disabled = false;
+      btnEnviar.textContent = 'Enviar por Telegram';
+    }
+    if (btnAgregar) {
+      btnAgregar.disabled = false;
+    }
+  }
 }
 
 function loadConfig() {
-  const stored = localStorage.getItem('quiniela_cfg_cache_v1');
+  const stored = localStorage.getItem('quiniela_cfg_cache_v1_tel');
   if (stored) {
     try {
       const cfg = JSON.parse(stored);
@@ -937,7 +985,7 @@ function loadConfig() {
       if (!data.ok || !data.cfg) throw new Error('Config inválida');
       applyConfig(data.cfg);
       try{
-        localStorage.setItem('quiniela_cfg_cache_v1', JSON.stringify(data.cfg));
+        localStorage.setItem('quiniela_cfg_cache_v1_tel', JSON.stringify(data.cfg));
       }catch(e){}
     })
     .catch(() => {
@@ -948,6 +996,7 @@ function loadConfig() {
           cierre:'',
           precio:25,
           diasPartido:'',
+          aceptando_respuestas:'SI',
           partidos:[]
         });
       }
