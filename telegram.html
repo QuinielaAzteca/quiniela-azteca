@@ -6,11 +6,11 @@
   <title>Quiniela Azteca - Telegram</title>
 
   <link rel="icon" href="favicon.png" type="image/png" />
-
   <meta property="og:title" content="Quiniela Azteca" />
   <meta property="og:description" content="Llena y envía tus quinielas desde el celular." />
+  <meta property="og:image" content="https://quinielaazteca.github.io/quiniela-azteca/miniatura.png" />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://quinielaazteca.github.io/quiniela-azteca/telegram.html" />
+  <meta property="og:url" content="https://quinielaazteca.github.io/quiniela-azteca/" />
 
   <style>
     :root{
@@ -29,6 +29,7 @@
       max-width:760px;
       margin:0 auto;
       padding:12px;
+      position:relative;
     }
 
     .title{
@@ -191,13 +192,14 @@
       color:var(--fg);
     }
     #btnEnviar{
-      background:var(--l);
-      border-color:var(--l);
+      background:#0088cc;
+      border-color:#0088cc;
     }
-    .btn:disabled{
-      opacity:.6;
-      cursor:not-allowed;
+    #btnEnviar:active{
+      background:#006fa3;
+      border-color:#006fa3;
     }
+    .btn:disabled{opacity:.6;cursor:not-allowed;}
 
     .section{
       margin-top:10px;
@@ -355,15 +357,27 @@
       animation:bump .18s ease-out;
     }
 
-    /* Banner de cupo cerrado */
-    .closed-banner{
-      background:#ffecec;
-      color:#c62828;
+    #registroCerrado{
+      display:none;
+      position:absolute;
+      top:50%;
+      left:50%;
+      transform:translate(-50%,-50%);
+      width:90%;
+      max-width:400px;
+      background:rgba(255,255,255,0.96);
+      color:#c70000;
       text-align:center;
-      padding:8px 10px;
-      font-size:14px;
-      font-weight:700;
-      border-bottom:1px solid #f5b5b5;
+      font-size:20px;
+      font-weight:bold;
+      padding:25px 16px;
+      border-radius:12px;
+      box-shadow:0 0 12px rgba(0,0,0,0.25);
+      z-index:9999;
+    }
+    .disabled-cupon{
+      pointer-events:none;
+      opacity:0.25;
     }
 
     @media (max-width:520px){
@@ -380,11 +394,6 @@
   </style>
 </head>
 <body>
-  <!-- Banner de cerrado, se controla desde CONFIG.aceptando_respuestas -->
-  <div class="closed-banner" id="closedBanner" style="display:none;">
-    🔒 La quiniela ya no está aceptando respuestas.
-  </div>
-
   <div class="wrap">
     <div class="title">
       <h1 id="titleTxt">
@@ -392,97 +401,76 @@
       </h1>
       <small id="subtitleTxt">Jornada</small>
       <div class="hint">
-        <span>Costo por quiniela: <b id="precioTxt">$25</b> · Cierre: <b id="cierreTxt">–</b></span><br>
+        <span> Costo por quiniela: <b id="precioTxt">$25</b> · Cierre: <b id="cierreTxt">–</b></span><br>
         <span id="diasTxt" class="dias">-</span>
       </div>
 
       <div class="namebox">
-        <input id="telefono" placeholder="Teléfono del cliente (10–15 dígitos)" inputmode="numeric" pattern="[0-9]*" autocomplete="tel" />
-        <input id="nombre" placeholder="Nombre" inputmode="text" autocomplete="off" autocapitalize="characters" enterkeyhint="done">
+        <input id="telefono" placeholder="Teléfono" inputmode="numeric" pattern="[0-9]*" autocomplete="tel" />
+        <input id="nombre" placeholder="nombre" inputmode="text" autocomplete="off" autocapitalize="characters" enterkeyhint="done">
       </div>
     </div>
 
-    <div class="card">
-      <div class="bar"></div>
-      <div class="inner">
-        <div id="rows"></div>
-      </div>
+    <div id="registroCerrado">
+      Registro cerrado<br>para esta quiniela.
     </div>
 
-    <div class="panel">
-      <div class="totals">
-        <div>
-          <div style="font-size:12px;color:#555">Combinaciones actuales</div>
-          <div style="font-size:20px;font-weight:800" id="combosTxt">1</div>
-        </div>
-        <div>
-          <div style="font-size:12px;color:#555">Total a pagar</div>
-          <div style="font-size:20px;font-weight:800" id="totalTxt">$25</div>
+    <div id="cupon">
+      <div class="card">
+        <div class="bar"></div>
+        <div class="inner">
+          <div id="rows"></div>
         </div>
       </div>
 
-      <div class="controls">
-        <button class="btn alt" id="btnAgregar">Agregar</button>
-        <button class="btn alt" id="btnLimpiar">Limpiar</button>
-        <button class="btn" id="btnEnviar">Enviar por Telegram</button>
-      </div>
-
-      <div class="section">
-        <div class="listHeader">
-          <span>LISTA DE QUINIELAS</span>
-          <button class="mini danger" id="btnVaciar">Borrar lista</button>
+      <div class="panel">
+        <div class="totals">
+          <div>
+            <div style="font-size:12px;color:#555">Combinaciones actuales</div>
+            <div style="font-size:20px;font-weight:800" id="combosTxt">1</div>
+          </div>
+          <div>
+            <div style="font-size:12px;color:#555">Total a pagar</div>
+            <div style="font-size:20px;font-weight:800" id="totalTxt">$25</div>
+          </div>
         </div>
-        <div id="listaWrap"></div>
-        <div id="listaFooter" class="footerTotal">TOTAL LISTA: 0 comb. · $0</div>
-      </div>
 
-      <div class="err" id="errMsg" style="display:none;"></div>
+        <div class="controls">
+          <button class="btn alt" id="btnAgregar">Agregar</button>
+          <button class="btn alt" id="btnLimpiar">Limpiar</button>
+          <button class="btn" id="btnEnviar">Enviar por Telegram</button>
+        </div>
+
+        <div class="section">
+          <div class="listHeader">
+            <span>LISTA DE QUINIELAS</span>
+            <button class="mini danger" id="btnVaciar">Borrar lista</button>
+          </div>
+          <div id="listaWrap"></div>
+          <div id="listaFooter" class="footerTotal">TOTAL LISTA: 0 comb. · $0</div>
+        </div>
+
+        <div class="err" id="errMsg" style="display:none;"></div>
+      </div>
     </div>
   </div>
 
   <div class="snack" id="snack"></div>
 
 <script>
-const SHEET_ENDPOINT_PUBLIC = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec";
-
-/* Vendedor desde la URL: ?VEND o ?vendedor=VEND */
-function getVendedorFromQuery() {
-  const search = window.location.search.replace(/^\?/, '').trim();
-  if (!search) return '';
-  if (!search.includes('=')) {
-    return decodeURIComponent(search).toUpperCase();
-  }
-  const params = new URLSearchParams(window.location.search);
-  return (params.get('vendedor') || '').toUpperCase();
-}
-const VENDEDOR = getVendedorFromQuery();
+const SHEET_ENDPOINT_PUBLIC = "AQUI_TU_URL_WEBAPP"; // misma URL /exec
+const CANAL = "TELEGRAM";
 
 let BASE_PRICE = 25;
 let PARTIDOS   = [];
-let carrito    = JSON.parse(localStorage.getItem('quiniela_carrito_v4_tel') || '[]');
-let telCache   = localStorage.getItem('quiniela_tel') || '';
+let carrito    = JSON.parse(localStorage.getItem('quiniela_carrito_v4_telegram') || '[]');
+let telCache   = localStorage.getItem('quiniela_tel_telegram') || '';
+let CFG_ACEPTA = true;
 
-const TEAM_LOGOS = {
-  'TIGRES':'escudos/tigres.png',
-  'TIJUANA':'escudos/tijuana.png',
-  'TOLUCA':'escudos/toluca.png',
-  'JUÁREZ':'escudos/juarez.png',
-  'PACHUCA':'escudos/pachuca.png',
-  'MANCHESTER CITY':'escudos/manchestercity.png',
-  'LEEDS UNITED':'escudos/leedsunited.png',
-  'TOTTENHAM':'escudos/tottenham.png',
-  'FULHAM':'escudos/fulham.png',
-  'CRYSTAL PALACE':'escudos/crystalpalace.png',
-  'MANCHESTER UNITED':'escudos/manchesterunited.png',
-  'SEVILLA':'escudos/sevilla.png',
-  'BETIS':'escudos/betis.png',
-  'CHELSEA':'escudos/chelsea.png',
-  'ARSENAL':'escudos/arsenal.png',
-  'CRUZ AZUL':'escudos/cruzazul.png',
-  'CHIVAS':'escudos/chivas.png',
-  'AMÉRICA':'escudos/america.png',
-  'MONTERREY':'escudos/monterrey.png'
-};
+const urlParams = new URLSearchParams(location.search);
+const VENDEDOR_PARAM = (urlParams.get('v') || '').trim().toUpperCase();
+
+const TEAM_LOGOS = {};
 
 const $  = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
@@ -601,9 +589,11 @@ function updateCurrentTotals() {
   totalEl.classList.add('bump-anim');
 }
 
+// clicks en picks
 document.addEventListener('click', e => {
   const el = e.target.closest('.pick');
   if (!el) return;
+  if (!CFG_ACEPTA) return;
   el.classList.toggle('on');
   updateCurrentTotals();
 });
@@ -690,9 +680,10 @@ function renderCarrito() {
 document.addEventListener('click', e => {
   const btn = e.target.closest('button.mini.danger[data-del]');
   if (!btn) return;
+  if (!CFG_ACEPTA) return;
   const idx = parseInt(btn.dataset.del, 10);
   carrito.splice(idx, 1);
-  localStorage.setItem('quiniela_carrito_v4_tel', JSON.stringify(carrito));
+  localStorage.setItem('quiniela_carrito_v4_telegram', JSON.stringify(carrito));
   renderCarrito();
 });
 
@@ -751,6 +742,7 @@ document.addEventListener('click', e => {
 });
 
 $('#btnLimpiar').addEventListener('click', () => {
+  if (!CFG_ACEPTA) return;
   setSelectionsFromArray(Array(9).fill(''));
   updateCurrentTotals();
   const err = $('#errMsg');
@@ -759,13 +751,34 @@ $('#btnLimpiar').addEventListener('click', () => {
 });
 
 $('#btnVaciar').addEventListener('click', () => {
+  if (!CFG_ACEPTA) return;
   carrito = [];
-  localStorage.setItem('quiniela_carrito_v4_tel', JSON.stringify(carrito));
+  localStorage.setItem('quiniela_carrito_v4_telegram', JSON.stringify(carrito));
   renderCarrito();
 });
 
-/* Selecciones formateadas tipo 1:L 2:LV²... */
-function formatSelectionsInline(sels) {
+$('#btnAgregar').addEventListener('click', () => {
+  if (!CFG_ACEPTA) return;
+  const tel     = telInput.value.trim();
+  const nombre  = nombreInput.value.trim().toUpperCase();
+  const sels    = getSelections();
+  const combos  = combosFromSelections(sels);
+  const err     = $('#errMsg');
+
+  if (!validarBase(tel, nombre, sels, combos, err)) return;
+
+  localStorage.setItem('quiniela_tel_telegram', tel);
+
+  carrito.push({ nombre, sels, combos });
+  localStorage.setItem('quiniela_carrito_v4_telegram', JSON.stringify(carrito));
+  renderCarrito();
+  showSnack('Quiniela agregada a la lista');
+
+  setSelectionsFromArray(Array(9).fill(''));
+  updateCurrentTotals();
+});
+
+function formatTelegramSelections(sels) {
   const parts = [];
   sels.forEach((val, idx) => {
     if (!val) return;
@@ -777,7 +790,12 @@ function formatSelectionsInline(sels) {
   return parts.join(' ');
 }
 
-function enviarPorTelegram() {
+$('#btnEnviar').addEventListener('click', () => {
+  if (!CFG_ACEPTA) {
+    showSnack('La quiniela ya no acepta registros.');
+    return;
+  }
+
   const tel     = telInput.value.trim();
   const nombre  = nombreInput.value.trim().toUpperCase();
   const sels    = getSelections();
@@ -819,14 +837,13 @@ function enviarPorTelegram() {
     return;
   }
 
-  localStorage.setItem('quiniela_tel', tel);
+  localStorage.setItem('quiniela_tel_telegram', tel);
 
   const lines = [];
-  const titulo    = $('#titleTxt').innerText.trim() || 'QUINIELA AZTECA';
-  const subtitulo = $('#subtitleTxt').textContent;
+  const titulo   = $('#titleTxt').innerText.trim() || 'QUINIELA AZTECA';
+  const subtitulo= $('#subtitleTxt').textContent;
 
-  // Negritas estilo Telegram: **texto**
-  lines.push(`🏆 **${titulo}**`);
+  lines.push(`🏆 ${titulo}`);
   if (subtitulo) lines.push(`📆 ${subtitulo}`);
   lines.push('');
 
@@ -846,13 +863,13 @@ function enviarPorTelegram() {
   groups.forEach(group => {
     const count = group.items.length;
     const label = count === 1 ? 'quiniela' : 'quinielas';
-    lines.push(`👤 **${group.nombre}** (${count} ${label})`);
+    lines.push(`👤 ${group.nombre} (${count} ${label})`);
     group.items.forEach(q => {
-      const selLine = formatSelectionsInline(q.sels);
+      const selLine = formatTelegramSelections(q.sels);
       const comb    = q.combos;
       const total   = comb * BASE_PRICE;
-      lines.push(` • ${selLine}`);
-      lines.push(`   Comb: ${comb} · ${fmtMoney(total)}`);
+      lines.push(`   • ${selLine}`);
+      lines.push(`     Comb: ${comb} · ${fmtMoney(total)}`);
     });
     lines.push('');
   });
@@ -862,21 +879,19 @@ function enviarPorTelegram() {
   const totalQuinielas    = itemsToSend.length;
   const labelLista        = totalQuinielas === 1 ? 'Quiniela' : 'Quinielas';
 
-  lines.push(`**TOTAL LISTA:** ${totalQuinielas} ${labelLista} ${totalGlobalCombos} combinaciones.`);
-  lines.push(`**TOTAL A PAGAR:** ${fmtMoney(totalGlobalMoney)}.`);
+  lines.push(`TOTAL LISTA: ${totalQuinielas} ${labelLista} ${totalGlobalCombos} combinaciones.`);
+  lines.push(`TOTAL A PAGAR: ${fmtMoney(totalGlobalMoney)}.`);
 
-  const baseUrl = 'https://t.me/share/url';
-  const urlCup  = window.location.href.split('?')[0];
-  const txt     = lines.join('\n');
+  const text = lines.join('\n');
 
-  const tgUrl = `${baseUrl}?url=${encodeURIComponent(urlCup)}&text=${encodeURIComponent(txt)}`;
-
-  window.open(tgUrl, '_blank');
+  const tgUrl = `https://t.me/share/url?url=${encodeURIComponent(location.href)}&text=${encodeURIComponent(text)}`;
+  window.open(tgUrl,'_blank');
   showSnack('Abriendo Telegram...');
 
   const payload = {
     tel,
-    vendedor: VENDEDOR,
+    vendedor: VENDEDOR_PARAM,
+    canal: CANAL,
     items: itemsToSend.map(q => ({ nombre: q.nombre, sels: q.sels }))
   };
 
@@ -886,39 +901,31 @@ function enviarPorTelegram() {
     body: JSON.stringify(payload)
   }).catch(()=>{}).finally(()=>{
     carrito = [];
-    localStorage.setItem('quiniela_carrito_v4_tel', JSON.stringify(carrito));
+    localStorage.setItem('quiniela_carrito_v4_telegram', JSON.stringify(carrito));
     renderCarrito();
   });
-}
-
-$('#btnAgregar').addEventListener('click', () => {
-  const tel     = telInput.value.trim();
-  const nombre  = nombreInput.value.trim().toUpperCase();
-  const sels    = getSelections();
-  const combos  = combosFromSelections(sels);
-  const err     = $('#errMsg');
-
-  if (!validarBase(tel, nombre, sels, combos, err)) return;
-
-  localStorage.setItem('quiniela_tel', tel);
-
-  carrito.push({ nombre, sels, combos });
-  localStorage.setItem('quiniela_carrito_v4_tel', JSON.stringify(carrito));
-  renderCarrito();
-  showSnack('Quiniela agregada a la lista');
-
-  setSelectionsFromArray(Array(9).fill(''));
-  updateCurrentTotals();
 });
 
-$('#btnEnviar').addEventListener('click', enviarPorTelegram);
+function aplicarCierreVisual(cerrar){
+  const overlay = $('#registroCerrado');
+  const cup = $('#cupon');
+  CFG_ACEPTA = !cerrar;
+  if (!overlay || !cup) return;
+  if (cerrar){
+    overlay.style.display = 'block';
+    cup.classList.add('disabled-cupon');
+  } else {
+    overlay.style.display = 'none';
+    cup.classList.remove('disabled-cupon');
+  }
+}
 
 function applyConfig(cfg) {
   BASE_PRICE = cfg.precio || 25;
   PARTIDOS   = cfg.partidos || [];
 
   const titleEl = $('#titleTxt');
-  const titulo  = (cfg.titulo || 'QUINIELA AZTECA').toUpperCase();
+  const titulo  = ((cfg.titulo || 'QUINIELA AZTECA') + '').toUpperCase();
 
   if (titulo === 'QUINIELA AZTECA') {
     titleEl.innerHTML = '<span class="title-q">QUINIELA</span> <span class="title-a">AZTECA</span>';
@@ -930,48 +937,25 @@ function applyConfig(cfg) {
   $('#precioTxt').textContent   = fmtMoney(BASE_PRICE);
   $('#cierreTxt').textContent   = cfg.cierre    || '';
   const diasEl = $('#diasTxt');
-  if (cfg.diasPartido) {
-    diasEl.textContent = cfg.diasPartido;
+  if (cfg.dias_partido || cfg.diasPartido) {
+    diasEl.textContent = cfg.dias_partido || cfg.diasPartido;
     diasEl.style.display = 'block';
   } else {
     diasEl.textContent = '';
     diasEl.style.display = 'none';
   }
 
+  const flag = String(cfg.aceptando_respuestas || '').trim().toUpperCase();
+  const cerrar = (flag === 'NO' || flag === 'FALSE' || flag === '0');
+  aplicarCierreVisual(cerrar);
+
   renderRows();
   updateCurrentTotals();
   renderCarrito();
-
-  const aceptando = String(cfg.aceptando_respuestas || 'SI').toUpperCase();
-  const cerrado   = (aceptando !== 'SI');
-
-  const banner    = $('#closedBanner');
-  const btnEnviar = $('#btnEnviar');
-  const btnAgregar= $('#btnAgregar');
-
-  if (cerrado) {
-    if (banner) banner.style.display = 'block';
-    if (btnEnviar) {
-      btnEnviar.disabled = true;
-      btnEnviar.textContent = 'Cupo cerrado';
-    }
-    if (btnAgregar) {
-      btnAgregar.disabled = true;
-    }
-  } else {
-    if (banner) banner.style.display = 'none';
-    if (btnEnviar) {
-      btnEnviar.disabled = false;
-      btnEnviar.textContent = 'Enviar por Telegram';
-    }
-    if (btnAgregar) {
-      btnAgregar.disabled = false;
-    }
-  }
 }
 
 function loadConfig() {
-  const stored = localStorage.getItem('quiniela_cfg_cache_v1_tel');
+  const stored = localStorage.getItem('quiniela_cfg_cache_v1_telegram');
   if (stored) {
     try {
       const cfg = JSON.parse(stored);
@@ -985,7 +969,7 @@ function loadConfig() {
       if (!data.ok || !data.cfg) throw new Error('Config inválida');
       applyConfig(data.cfg);
       try{
-        localStorage.setItem('quiniela_cfg_cache_v1_tel', JSON.stringify(data.cfg));
+        localStorage.setItem('quiniela_cfg_cache_v1_telegram', JSON.stringify(data.cfg));
       }catch(e){}
     })
     .catch(() => {
@@ -995,8 +979,7 @@ function loadConfig() {
           subtitulo:'Jornada',
           cierre:'',
           precio:25,
-          diasPartido:'',
-          aceptando_respuestas:'SI',
+          dias_partido:'',
           partidos:[]
         });
       }
