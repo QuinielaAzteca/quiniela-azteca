@@ -955,36 +955,25 @@ function applyConfig(cfg) {
 }
 
 function loadConfig() {
-  const stored = localStorage.getItem('quiniela_cfg_cache_v1_telegram');
-  if (stored) {
-    try {
-      const cfg = JSON.parse(stored);
-      applyConfig(cfg);
-    } catch(e){}
-  }
-
   fetch(SHEET_ENDPOINT_PUBLIC + '?mode=config')
     .then(r => r.json())
     .then(data => {
       if (!data.ok || !data.cfg) throw new Error('Config inválida');
       applyConfig(data.cfg);
-      try{
-        localStorage.setItem('quiniela_cfg_cache_v1_telegram', JSON.stringify(data.cfg));
-      }catch(e){}
     })
     .catch(() => {
-      if (!stored) {
-        applyConfig({
-          titulo:'QUINIELA AZTECA',
-          subtitulo:'Jornada',
-          cierre:'',
-          precio:25,
-          dias_partido:'',
-          partidos:[]
-        });
-      }
+      // Config por defecto si algo falla
+      applyConfig({
+        titulo:'QUINIELA AZTECA',
+        subtitulo:'Jornada',
+        cierre:'',
+        precio:25,
+        dias_partido:'',
+        partidos:[]
+      });
     });
 }
+
 
 document.addEventListener('DOMContentLoaded', loadConfig);
 </script>
