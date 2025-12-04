@@ -843,9 +843,10 @@ $('#btnEnviar').addEventListener('click', () => {
   const titulo   = $('#titleTxt').innerText.trim() || 'QUINIELA AZTECA';
   const subtitulo= $('#subtitleTxt').textContent;
 
-  lines.push(`🏆 ${titulo}`);
-  if (subtitulo) lines.push(`📆 ${subtitulo}`);
-  lines.push('');
+  // Título en negritas
+lines.push(`🏆 **${titulo}**`);
+if (subtitulo) lines.push(`📆 ${subtitulo}`);
+lines.push('');
 
   const groups = [];
   const indexByName = {};
@@ -863,7 +864,7 @@ $('#btnEnviar').addEventListener('click', () => {
   groups.forEach(group => {
     const count = group.items.length;
     const label = count === 1 ? 'quiniela' : 'quinielas';
-    lines.push(`👤 ${group.nombre} (${count} ${label})`);
+    lines.push(`👤 **${group.nombre}** (${count} ${label})`);
     group.items.forEach(q => {
       const selLine = formatTelegramSelections(q.sels);
       const comb    = q.combos;
@@ -879,8 +880,8 @@ $('#btnEnviar').addEventListener('click', () => {
   const totalQuinielas    = itemsToSend.length;
   const labelLista        = totalQuinielas === 1 ? 'Quiniela' : 'Quinielas';
 
-  lines.push(`TOTAL LISTA: ${totalQuinielas} ${labelLista} ${totalGlobalCombos} combinaciones.`);
-  lines.push(`TOTAL A PAGAR: ${fmtMoney(totalGlobalMoney)}.`);
+  lines.push(`**TOTAL LISTA:** ${totalQuinielas} ${labelLista} ${totalGlobalCombos} combinaciones.`);
+lines.push(`**TOTAL A PAGAR:** ${fmtMoney(totalGlobalMoney)}.`);
 
   const text = lines.join('\n');
 
