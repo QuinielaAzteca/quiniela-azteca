@@ -84,12 +84,14 @@
     #nombre{text-transform:uppercase}
 
     .card{
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:14px;
-      overflow:hidden;
-      margin-top:10px;
-    }
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:14px;
+  margin-top:10px;
+  /* se adapta al ancho del teléfono, sin scroll lateral */
+  overflow:hidden;
+}
+
     .bar{
       height:8px;
       background:linear-gradient(
@@ -1146,6 +1148,7 @@ document.addEventListener('DOMContentLoaded', loadConfig);
 </script>
 </body>
 </html>
+
 
 
 
