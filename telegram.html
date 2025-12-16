@@ -392,8 +392,41 @@
       }
       .pick{border-radius:10px;font-size:16px}
       .team{font-size:11px;}
-    }
-  </style>
+      /* ================================
+   AJUSTE PARA TELÉFONOS CHICOS
+   (evita scroll horizontal)
+================================ */
+@media (max-width: 420px) {
+
+  :root{
+    --pick: 44px;   /* botones más chicos */
+  }
+
+  .row{
+    grid-template-columns:
+      22px          /* número */
+      var(--pick)   /* L */
+      1fr           /* equipo local */
+      var(--pick)   /* E */
+      1fr           /* equipo visita */
+      var(--pick);  /* V */
+    gap: 3px;
+  }
+
+  .team{
+    font-size: 11px;
+  }
+
+  .team-logo{
+    max-height: 18px;
+  }
+
+  .pick{
+    font-size: 16px;
+    border-radius: 10px;
+  }
+}
+</style>
 </head>
 <body>
   <div class="wrap">
