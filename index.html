@@ -17,52 +17,54 @@
     html, body { overflow-x: hidden; }
 
     :root{
-      --fg:#111;
-      --bg:#f2f6f3;
-      --card:#fff;
-      --line:#e6e6e6;
+      /* ======= TEMA VERDE (discreto/elegante) ======= */
+      --fg:#0f172a;
+      --bg:#eaf3ee;             /* fondo verdoso suave */
+      --bg2:#dfeee7;            /* para degradado */
+      --card:#ffffff;
+      --line:#d7e6dc;
 
-      --ok:#111;
-      --l:#137b28;
-      --v:#c62828;
-      --e:#777777;
+      --ok:#0a6b3a;             /* verde acierto / selección */
+      --ok2:#0f8a4b;
+      --l:#0a6b3a;              /* QUINIELA (verde) */
+      --v:#c62828;              /* AZTECA (rojo) */
+      --e:#6b7280;
 
       --pick:54px;
       --list-blue:#0b6cff;
 
-      /* verdes “elegantes” */
-      --gA:#e7f3ea;   /* claro */
-      --gB:#d7eadc;   /* un poco más oscuro */
-      --gHeader:#137b28; /* mismo verde del degradado (tu tono) */
+      --rowA:#f6fbf8;           /* filas con leve verde */
+      --rowB:#eff7f2;
+
+      --shadow: 0 8px 20px rgba(2, 44, 20, .10);
     }
 
     *{box-sizing:border-box}
     body{
       margin:0;
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
-      background:var(--bg);
+      background: radial-gradient(1200px 520px at 50% -140px, #ffffff 0%, var(--bg) 55%, var(--bg2) 100%);
       color:var(--fg);
     }
     .wrap{
       max-width:760px;
       margin:0 auto;
-      padding:10px;           /* un poco más compacto */
+      padding:12px;
       position:relative;
     }
 
-    /* HEADER: solo fondo verde, sin cambiar color de letras ni inputs */
     .title{
       display:flex;
       flex-direction:column;
       align-items:center;
       gap:4px;
-      padding:12px;
-      background: var(--ok);  /* verde oscuro de partidos */
-      border:1px solid rgba(0,0,0,.08);
+      padding:14px 12px 12px;
+      background: linear-gradient(180deg, #ffffff 0%, #f6fbf8 100%);
+      border:1px solid var(--line);
       border-radius:14px;
       margin-bottom:10px;
       text-align:center;
-      box-shadow:0 4px 14px rgba(0,0,0,.08);
+      box-shadow: var(--shadow);
     }
     .title h1{
       font-size:24px;
@@ -73,21 +75,13 @@
     .title h1 .title-a{color:var(--v);}
     .title small{
       font-size:15px;
-      color:#444;
-      font-weight:700;
-      background:rgba(255,255,255,.75);
-      padding:3px 10px;
-      border-radius:999px;
-      border:1px solid rgba(0,0,0,.06);
+      color:#334155;
+      font-weight:800;
     }
     .hint{
       font-size:13px;
-      color:#444;
+      color:#334155;
       font-weight:700;
-      background:rgba(255,255,255,.75);
-      padding:6px 10px;
-      border-radius:12px;
-      border:1px solid rgba(0,0,0,.06);
     }
     .hint .dias{
       display:block;
@@ -103,25 +97,28 @@
     }
     .namebox input{
       width:100%;
-      padding:10px;
+      padding:11px 10px;
       border:1px solid var(--line);
       border-radius:10px;
       font-size:15px;
-      background:#fff; /* sin cambiar */
-      color:var(--fg); /* sin cambiar */
+      background:#fff;
+      outline:none;
+      box-shadow: 0 1px 0 rgba(0,0,0,.02);
+    }
+    .namebox input:focus{
+      border-color:#b8d9c5;
+      box-shadow: 0 0 0 3px rgba(10,107,58,.10);
     }
     #nombre{text-transform:uppercase}
 
     .card{
-      background:var(--card);
-      border:1px solid rgba(0,0,0,.08);
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdfc 100%);
+      border:1px solid var(--line);
       border-radius:16px;
       margin-top:10px;
-      overflow:hidden; /* sin scroll lateral */
-      box-shadow:0 6px 18px rgba(0,0,0,.08);
+      overflow:hidden;
+      box-shadow: var(--shadow);
     }
-
-    /* quitamos degradado y dejamos “bandera” discreta */
     .bar{
       height:8px;
       background:linear-gradient(
@@ -134,45 +131,45 @@
         var(--v) 100%
       );
     }
-
     .card .inner{
-      padding:0; /* más compacto (cupon más corto) */
-      display:block;
+      padding:4px 2px 4px 0;
+      display:flex;
+      align-items:center;
     }
 
-    /* Partidos: intercalados en dos tonos (sin degradado) */
     .row{
       display:grid;
       grid-template-columns:24px var(--pick) 1.2fr var(--pick) 1.2fr var(--pick);
       gap:4px;
-      padding:7px 4px;            /* un poco más bajo (cupon más corto) */
+      padding:10px 4px;
       border-bottom:1px solid var(--line);
       align-items:center;
-      background:var(--gA);
     }
-    .row:nth-child(even){ background:var(--gB); }
+    .row:nth-child(odd){ background:var(--rowA); }
+    .row:nth-child(even){ background:var(--rowB); }
     .row:last-child{border-bottom:none}
-    .n{font-weight:700;text-align:center;font-size:13px;}
+    .n{font-weight:800;text-align:center;font-size:13px;color:#334155;}
 
     .team{
       text-align:center;
-      font-weight:700;
+      font-weight:800;
       padding:2px 2px;
       font-size:12px;
       line-height:1.15;
       white-space:normal;
       word-break:keep-all;
+      color:#0f172a;
     }
     .team span{display:block;}
 
-    /* Escudos más protagonistas */
+    /* ======= ESCUDOS MÁS GRANDES / CON PROTAGONISMO ======= */
     .team-logo{
       display:block;
-      margin:0 auto 2px;
-      max-height:28px;   /* antes 22 */
-      width:auto;
+      margin:0 auto 4px;
+      height:32px;        /* 👈 más grande */
+      width:32px;         /* 👈 cuadrado para que se vea consistente */
       object-fit:contain;
-      filter: drop-shadow(0 1px 1px rgba(0,0,0,.15));
+      filter: drop-shadow(0 2px 2px rgba(0,0,0,.12));
     }
 
     .pick{
@@ -180,18 +177,24 @@
       place-items:center;
       width:var(--pick);
       height:var(--pick);
-      border:2px solid rgba(0,0,0,.18);
-      border-radius:12px;
-      font-weight:800;
+      border:2px solid rgba(15,23,42,.18);
+      border-radius:14px;
+      font-weight:900;
       font-size:18px;
       user-select:none;
       cursor:pointer;
-      background:#fff;
+      background: rgba(255,255,255,.92);
       color:var(--e);
-      transition:transform .06s ease,border-color .06s ease,background .06s ease,color .06s ease;
+      transition:transform .06s ease,border-color .06s ease,background .06s ease,color .06s ease, box-shadow .06s ease;
       -webkit-tap-highlight-color:transparent;
+      box-shadow: 0 1px 0 rgba(0,0,0,.04);
     }
-    .pick.on{background:var(--ok);color:#fff;border-color:var(--ok);}
+    .pick.on{
+      background: linear-gradient(180deg, var(--ok2) 0%, var(--ok) 100%);
+      color:#fff;
+      border-color:var(--ok);
+      box-shadow: 0 6px 14px rgba(10,107,58,.22);
+    }
     .pick:active{transform:scale(.97);}
 
     .panel{display:flex;flex-direction:column;gap:8px;margin-top:10px}
@@ -201,11 +204,11 @@
       flex-wrap:wrap;
       align-items:center;
       justify-content:space-between;
-      background:var(--card);
-      border:1px solid rgba(0,0,0,.08);
+      background: linear-gradient(180deg, #ffffff 0%, #f6fbf8 100%);
+      border:1px solid var(--line);
       border-radius:14px;
       padding:10px 12px;
-      box-shadow:0 4px 14px rgba(0,0,0,.06);
+      box-shadow: var(--shadow);
     }
 
     .controls{
@@ -217,40 +220,45 @@
     .btn{
       flex:1;
       appearance:none;
-      border:2px solid var(--fg);
-      background:var(--fg);
+      border:2px solid #0f172a;
+      background:#0f172a;
       color:#fff;
       padding:12px 10px;
       border-radius:12px;
-      font-weight:800;
+      font-weight:900;
       font-size:13px;
       cursor:pointer;
+      box-shadow: 0 6px 14px rgba(2,6,23,.14);
     }
     .btn.alt{
       background:#fff;
-      color:var(--fg);
+      color:#0f172a;
+      border-color: rgba(15,23,42,.25);
+      box-shadow: 0 6px 14px rgba(2,6,23,.06);
     }
     #btnEnviar{
-      background:var(--l);
-      border-color:var(--l);
+      background: linear-gradient(180deg, var(--ok2) 0%, var(--ok) 100%);
+      border-color: var(--ok);
+      box-shadow: 0 10px 18px rgba(10,107,58,.18);
     }
     .btn:disabled{opacity:.6;cursor:not-allowed;}
 
     .section{
       margin-top:10px;
-      background:#fafafa;
-      border:1px dashed rgba(0,0,0,.15);
+      background: linear-gradient(180deg, #ffffff 0%, #f6fbf8 100%);
+      border:1px solid var(--line);
       border-radius:14px;
       padding:10px;
+      box-shadow: var(--shadow);
     }
 
     .groupCard{
       background:#fff;
-      border:1px solid #eee;
-      border-radius:12px;
+      border:1px solid #eef2f2;
+      border-radius:14px;
       padding:10px 10px 6px;
       margin:10px 0;
-      box-shadow:0 1px 3px rgba(0,0,0,.04);
+      box-shadow:0 6px 14px rgba(2, 44, 20, .06);
     }
     .groupHeader{
       display:flex;
@@ -261,7 +269,7 @@
     }
     .groupTitle{
       font-size:15px;
-      font-weight:800;
+      font-weight:900;
     }
     .groupBadges{
       display:flex;
@@ -272,10 +280,11 @@
     .badge{
       padding:3px 7px;
       border-radius:999px;
-      border:1px solid #ddd;
+      border:1px solid #dde7df;
       font-size:11px;
-      font-weight:700;
-      background:#f7f7f7;
+      font-weight:800;
+      background:#f6fbf8;
+      color:#0f172a;
     }
     .badge.money{
       border-color:#c62828;
@@ -289,14 +298,15 @@
       justify-content:space-between;
       gap:8px;
       padding-top:6px;
-      border-top:1px dashed #eee;
+      border-top:1px dashed #e8efe9;
       margin-top:4px;
     }
-    .groupItemMain{ flex:1; }
+    .groupItemMain{flex:1;}
     .groupItemMeta{
       font-size:11px;
-      color:#555;
+      color:#475569;
       margin-top:2px;
+      font-weight:700;
     }
 
     .listHeader{
@@ -304,7 +314,8 @@
       justify-content:space-between;
       align-items:center;
       font-size:13px;
-      font-weight:700;
+      font-weight:900;
+      color:#0f172a;
     }
 
     .sel-inline{
@@ -313,10 +324,12 @@
     }
     .sel-inline span{
       margin-right:4px;
-      font-weight:700;
-      color:#000;
+      font-weight:900;
+      color:#0f172a;
     }
-    .sel-inline span.multi{ color:var(--list-blue); }
+    .sel-inline span.multi{
+      color:var(--list-blue);
+    }
     .sel-inline sup{
       font-size:10px;
       vertical-align:super;
@@ -324,24 +337,25 @@
 
     .mini{
       appearance:none;
-      border:1px solid #ccc;
-      background:#f9f9f9;
+      border:1px solid #cbd5e1;
+      background:#fff;
       padding:4px 7px;
-      border-radius:8px;
-      font-weight:700;
+      border-radius:10px;
+      font-weight:900;
       font-size:11px;
       cursor:pointer;
       white-space:nowrap;
+      box-shadow: 0 4px 10px rgba(2,6,23,.06);
     }
     .mini.danger{border-color:#c62828;color:#c62828;background:#fff}
 
     .footerTotal{
       margin-top:8px;
-      font-weight:800;
+      font-weight:900;
       text-align:right;
       background:#fff;
-      border:1px solid #eee;
-      border-radius:10px;
+      border:1px solid #e8efe9;
+      border-radius:12px;
       padding:10px 12px;
     }
 
@@ -358,9 +372,10 @@
       border:1px solid #f5b5b5;
       color:#c62828;
       font-size:13px;
-      border-radius:10px;
-      box-shadow:0 6px 16px rgba(0,0,0,.25);
+      border-radius:12px;
+      box-shadow:0 10px 24px rgba(0,0,0,.25);
       text-align:center;
+      font-weight:800;
     }
 
     .snack{
@@ -368,7 +383,7 @@
       left:50%;
       bottom:12px;
       transform:translateX(-50%);
-      background:#111;
+      background:#0f172a;
       color:#fff;
       padding:6px 10px;
       border-radius:999px;
@@ -376,6 +391,8 @@
       opacity:0;
       pointer-events:none;
       transition:opacity .15s ease,transform .15s ease;
+      box-shadow: 0 10px 24px rgba(2,6,23,.22);
+      font-weight:800;
     }
     .snack.show{opacity:1;transform:translate(-50%,-4px)}
 
@@ -405,23 +422,25 @@
       box-shadow:0 0 12px rgba(0,0,0,0.25);
       z-index:9999;
     }
-    .disabled-cupon{ pointer-events:none; opacity:0.25; }
+    .disabled-cupon{
+      pointer-events:none;
+      opacity:0.25;
+    }
 
     @media (max-width:520px){
       .namebox{grid-template-columns:1fr}
     }
 
-    /* teléfonos chicos */
-    @media (max-width: 420px) {
+    /* AJUSTE PARA TELÉFONOS CHICOS (evita scroll horizontal) */
+    @media (max-width:420px){
       :root{ --pick: 44px; }
       .row{
-        grid-template-columns: 22px var(--pick) 1fr var(--pick) 1fr var(--pick);
+        grid-template-columns:22px var(--pick) 1fr var(--pick) 1fr var(--pick);
         gap:3px;
-        padding:7px 4px;
       }
-      .team{ font-size: 11px; }
-      .team-logo{ max-height: 22px; } /* se reduce un poco en cel chico */
-      .pick{ font-size:16px; border-radius:10px; }
+      .team{ font-size:11px; }
+      .team-logo{ height:28px; width:28px; } /* 👈 también más grande en móvil */
+      .pick{ border-radius:12px; font-size:16px; }
     }
   </style>
 </head>
@@ -461,12 +480,12 @@
       <div class="panel">
         <div class="totals">
           <div>
-            <div style="font-size:12px;color:#555">Combinaciones actuales</div>
-            <div style="font-size:20px;font-weight:800" id="combosTxt">1</div>
+            <div style="font-size:12px;color:#475569;font-weight:800;">Combinaciones actuales</div>
+            <div style="font-size:20px;font-weight:900" id="combosTxt">1</div>
           </div>
           <div>
-            <div style="font-size:12px;color:#555">Total a pagar</div>
-            <div style="font-size:20px;font-weight:800" id="totalTxt">$25</div>
+            <div style="font-size:12px;color:#475569;font-weight:800;">Total a pagar</div>
+            <div style="font-size:20px;font-weight:900" id="totalTxt">$25</div>
           </div>
         </div>
 
@@ -493,8 +512,8 @@
   <div class="snack" id="snack"></div>
 
 <script>
-const SHEET_ENDPOINT_PUBLIC = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec";
-const PHONE_NUMBER = "5213333911690";
+const SHEET_ENDPOINT_PUBLIC = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec"; // <-- pon aquí tu URL /exec
+const PHONE_NUMBER = "5213333911690"; // WhatsApp
 const CANAL = "WHATSAPP";
 
 let BASE_PRICE = 25;
@@ -507,153 +526,158 @@ let CFG_ACEPTA = true;
 const urlParams = new URLSearchParams(location.search);
 const VENDEDOR_PARAM = (urlParams.get('v') || '').trim().toUpperCase();
 
-// Mapa de escudos (tu estructura original)
+// Mapa de escudos
 const TEAM_LOGOS = {
-  'AMÉRICA': 'escudos/america.png',
-  'ATLAS': 'escudos/atlas.png',
-  'ATLÉTICO DE SAN LUIS': 'escudos/sanluis.png',
-  'ATLETICO LA PAZ': 'escudos/atleticolapaz.png',
-  'ATLÉTICO MORELIA': 'escudos/atleticomorelia.png',
-  'CANCÚN': 'escudos/cancun.png',
-  'CRUZ AZUL': 'escudos/cruzazul.png',
-  'CHIVAS': 'escudos/chivas.png',
-  'JUÁREZ': 'escudos/fcjuarez.png',
-  'LEÓN': 'escudos/leon.png',
-  'MAZATLÁN': 'escudos/mazatlan.png',
-  'MONTERREY': 'escudos/monterrey.png',
-  'NECAXA': 'escudos/necaxa.png',
-  'PACHUCA': 'escudos/pachuca.png',
-  'PUEBLA': 'escudos/puebla.png',
-  'PUMAS': 'escudos/pumas.png',
-  'QUERÉTARO': 'escudos/queretaro.png',
-  'SANTOS': 'escudos/santos.png',
-  'TIGRES': 'escudos/tigres.png',
-  'TOLUCA': 'escudos/toluca.png',
-  'VENADOS': 'escudos/venados.png',
+    // Liga MX
+    'AMÉRICA': 'escudos/america.png',
+    'ATLAS': 'escudos/atlas.png',
+    'ATLÉTICO DE SAN LUIS': 'escudos/sanluis.png',
+    'ATLETICO LA PAZ': 'escudos/atleticolapaz.png',
+    'ATLÉTICO MORELIA': 'escudos/atleticomorelia.png',
+    'CANCÚN': 'escudos/cancun.png',
+    'CRUZ AZUL': 'escudos/cruzazul.png',
+    'CHIVAS': 'escudos/chivas.png',
+    'JUÁREZ': 'escudos/fcjuarez.png',
+    'LEÓN': 'escudos/leon.png',
+    'MAZATLÁN': 'escudos/mazatlan.png',
+    'MONTERREY': 'escudos/monterrey.png',
+    'NECAXA': 'escudos/necaxa.png',
+    'PACHUCA': 'escudos/pachuca.png',
+    'PUEBLA': 'escudos/puebla.png',
+    'PUMAS': 'escudos/pumas.png',
+    'QUERÉTARO': 'escudos/queretaro.png',
+    'SANTOS': 'escudos/santos.png',
+    'TIGRES': 'escudos/tigres.png',
+    'TOLUCA': 'escudos/toluca.png',
+    'VENADOS': 'escudos/venados.png',
 
-  'ALAVÉS': 'escudos/alaves.png',
-  'ATHLETIC CLUB': 'escudos/athleticclub.png',
-  'ATLÉTICO MADRID': 'escudos/atleticomadrid.png',
-  'BARCELONA': 'escudos/barcelona.png',
-  'BETIS': 'escudos/betis.png',
-  'CELTA': 'escudos/celta.png',
-  'ELCHE': 'escudos/elche.png',
-  'ESPANYOL': 'escudos/espanyol.png',
-  'GETAFE': 'escudos/getafe.png',
-  'GIRONA': 'escudos/girona.png',
-  'MALLORCA': 'escudos/mallorca.png',
-  'OSASUNA': 'escudos/osasuna.png',
-  'RAYO VALLECANO': 'escudos/rayovallecano.png',
-  'REAL MADRID': 'escudos/realmadrid.png',
-  'REAL SOCIEDAD': 'escudos/realsociedad.png',
-  'SEVILLA': 'escudos/sevilla.png',
-  'VALENCIA': 'escudos/valencia.png',
-  'VILLARREAL': 'escudos/villarreal.png',
+    // España
+    'ALAVÉS': 'escudos/alaves.png',
+    'ATHLETIC CLUB': 'escudos/athleticclub.png',
+    'ATLÉTICO MADRID': 'escudos/atleticomadrid.png',
+    'BARCELONA': 'escudos/barcelona.png',
+    'BETIS': 'escudos/betis.png',
+    'CELTA': 'escudos/celta.png',
+    'ELCHE': 'escudos/elche.png',
+    'ESPANYOL': 'escudos/espanyol.png',
+    'GETAFE': 'escudos/getafe.png',
+    'GIRONA': 'escudos/girona.png',
+    'MALLORCA': 'escudos/mallorca.png',
+    'OSASUNA': 'escudos/osasuna.png',
+    'RAYO VALLECANO': 'escudos/rayovallecano.png',
+    'REAL MADRID': 'escudos/realmadrid.png',
+    'REAL SOCIEDAD': 'escudos/realsociedad.png',
+    'SEVILLA': 'escudos/sevilla.png',
+    'VALENCIA': 'escudos/valencia.png',
+    'VILLARREAL': 'escudos/villarreal.png',
 
-  'ARSENAL': 'escudos/arsenal.png',
-  'ASTON VILLA': 'escudos/astonvilla.png',
-  'BOURNEMOUTH': 'escudos/bournemouth.png',
-  'BRENTFORD': 'escudos/brentford.png',
-  'BRIGHTON': 'escudos/brighton.png',
-  'BURNLEY': 'escudos/burnley.png',
-  'CHELSEA': 'escudos/chelsea.png',
-  'CRYSTAL PALACE': 'escudos/crystalpalace.png',
-  'EVERTON': 'escudos/everton.png',
-  'FULHAM': 'escudos/fulham.png',
-  'LEEDS UNITED': 'escudos/leedsunited.png',
-  'LIVERPOOL': 'escudos/liverpool.png',
-  'MANCHESTER CITY': 'escudos/manchestercity.png',
-  'MANCHESTER UNITED': 'escudos/manchesterunited.png',
-  'NEWCASTLE': 'escudos/newcastle.png',
-  'NOTTINGHAM FOREST': 'escudos/nottinghamforest.png',
-  'SUNDERLAND': 'escudos/sunderland.png',
-  'TOTTENHAM': 'escudos/tottenham.png',
-  'WEST HAM': 'escudos/westham.png',
-  'WOLVERHAMPTON': 'escudos/wolverhampton.png',
+    // Premier League / Championship
+    'ARSENAL': 'escudos/arsenal.png',
+    'ASTON VILLA': 'escudos/astonvilla.png',
+    'BOURNEMOUTH': 'escudos/bournemouth.png',
+    'BRENTFORD': 'escudos/brentford.png',
+    'BRIGHTON': 'escudos/brighton.png',
+    'BURNLEY': 'escudos/burnley.png',
+    'CHELSEA': 'escudos/chelsea.png',
+    'CRYSTAL PALACE': 'escudos/crystalpalace.png',
+    'EVERTON': 'escudos/everton.png',
+    'FULHAM': 'escudos/fulham.png',
+    'LEEDS UNITED': 'escudos/leedsunited.png',
+    'LIVERPOOL': 'escudos/liverpool.png',
+    'MANCHESTER CITY': 'escudos/manchestercity.png',
+    'MANCHESTER UNITED': 'escudos/manchesterunited.png',
+    'NEWCASTLE': 'escudos/newcastle.png',
+    'NOTTINGHAM FOREST': 'escudos/nottinghamforest.png',
+    'SUNDERLAND': 'escudos/sunderland.png',
+    'TOTTENHAM': 'escudos/tottenham.png',
+    'WEST HAM': 'escudos/westham.png',
+    'WOLVERHAMPTON': 'escudos/wolverhampton.png',
 
-  'ATLANTA UNITED': 'escudos/atlantaunited.png',
-  'AUSTIN': 'escudos/austin.png',
-  'CHARLOTTE': 'escudos/charlotte.png',
-  'CHICAGO FIRE': 'escudos/chicagofire.png',
-  'CINCINNATI': 'escudos/cincinnati.png',
-  'COLORADO RAPIDS': 'escudos/coloradorapids.png',
-  'COLUMBUS CREW': 'escudos/columbuscrew.png',
-  'D.C. UNITED': 'escudos/dcunited.png',
-  'FC DALLAS': 'escudos/fcdallas.png',
-  'HOUSTON DYNAMO': 'escudos/houstondynamo.png',
-  'INTER MIAMI': 'escudos/intermiami.png',
-  'LA GALAXY': 'escudos/losangelesgalaxy.png',
-  'LAFC': 'escudos/losangelesfc.png',
-  'MINNESOTA UNITED': 'escudos/minnesotaunited.png',
-  'MONTRÉAL': 'escudos/cfmontreal.png',
-  'NASHVILLE': 'escudos/nashville.png',
-  'NEW ENGLAND REVOLUTION': 'escudos/newenglandrevolution.png',
-  'NEW YORK CITY': 'escudos/newyorkcity.png',
-  'NEW YORK RED BULLS': 'escudos/newyorkredbulls.png',
-  'ORLANDO CITY': 'escudos/orlandocity.png',
-  'PHILADELPHIA UNION': 'escudos/philadelphiaunion.png',
-  'PORTLAND TIMBERS': 'escudos/portlandtimbers.png',
-  'REAL SALT LAKE': 'escudos/realsaltlake.png',
-  'SAN DIEGO FC': 'escudos/sandiegofc.png',
-  'SAN JOSE EARTHQUAKES': 'escudos/sanjoseearthquakes.png',
-  'SEATTLE SOUNDERS': 'escudos/seattlesounders.png',
-  'SPORTING KANSAS CITY': 'escudos/sportingkansascity.png',
-  'ST LOUIS CITY': 'escudos/stlouissc.png',
-  'TORONTO FC': 'escudos/torontofc.png',
-  'VANCOUVER WHITECAPS': 'escudos/vancouverwhitecaps.png',
+    // MLS
+    'ATLANTA UNITED': 'escudos/atlantaunited.png',
+    'AUSTIN': 'escudos/austin.png',
+    'CHARLOTTE': 'escudos/charlotte.png',
+    'CHICAGO FIRE': 'escudos/chicagofire.png',
+    'CINCINNATI': 'escudos/cincinnati.png',
+    'COLORADO RAPIDS': 'escudos/coloradorapids.png',
+    'COLUMBUS CREW': 'escudos/columbuscrew.png',
+    'D.C. UNITED': 'escudos/dcunited.png',
+    'FC DALLAS': 'escudos/fcdallas.png',
+    'HOUSTON DYNAMO': 'escudos/houstondynamo.png',
+    'INTER MIAMI': 'escudos/intermiami.png',
+    'LA GALAXY': 'escudos/losangelesgalaxy.png',
+    'LAFC': 'escudos/losangelesfc.png',
+    'MINNESOTA UNITED': 'escudos/minnesotaunited.png',
+    'MONTRÉAL': 'escudos/cfmontreal.png',
+    'NASHVILLE': 'escudos/nashville.png',
+    'NEW ENGLAND REVOLUTION': 'escudos/newenglandrevolution.png',
+    'NEW YORK CITY': 'escudos/newyorkcity.png',
+    'NEW YORK RED BULLS': 'escudos/newyorkredbulls.png',
+    'ORLANDO CITY': 'escudos/orlandocity.png',
+    'PHILADELPHIA UNION': 'escudos/philadelphiaunion.png',
+    'PORTLAND TIMBERS': 'escudos/portlandtimbers.png',
+    'REAL SALT LAKE': 'escudos/realsaltlake.png',
+    'SAN DIEGO FC': 'escudos/sandiegofc.png',
+    'SAN JOSE EARTHQUAKES': 'escudos/sanjoseearthquakes.png',
+    'SEATTLE SOUNDERS': 'escudos/seattlesounders.png',
+    'SPORTING KANSAS CITY': 'escudos/sportingkansascity.png',
+    'ST LOUIS CITY': 'escudos/stlouissc.png',
+    'TORONTO FC': 'escudos/torontofc.png',
+    'VANCOUVER WHITECAPS': 'escudos/vancouverwhitecaps.png',
 
-  'ALEMANIA': 'escudos/alemania.png',
-  'ARABIA SAUDITA': 'escudos/arabiasaudita.png',
-  'ARGENTINA': 'escudos/argentina.png',
-  'AUSTRALIA': 'escudos/australia.png',
-  'AUSTRIA': 'escudos/austria.png',
-  'BÉLGICA': 'escudos/belgica.png',
-  'BOLIVIA': 'escudos/bolivia.png',
-  'BOSNIA Y HERZEGOVINA': 'escudos/bosniayherzegovina.png',
-  'BRASIL': 'escudos/brasil.png',
-  'CAMERÚN': 'escudos/camerun.png',
-  'CANADÁ': 'escudos/canada.png',
-  'CATAR': 'escudos/catar.png',
-  'CHEQUIA': 'escudos/chequia.png',
-  'COLOMBIA': 'escudos/colombia.png',
-  'COREA DEL SUR': 'escudos/coreadelsur.png',
-  'CROACIA': 'escudos/croacia.png',
-  'CURAZAO': 'escudos/curazao.png',
-  'DINAMARCA': 'escudos/dinamarca.png',
-  'ECUADOR': 'escudos/ecuador.png',
-  'ESCOCIA': 'escudos/escocia.png',
-  'ESLOVAQUIA': 'escudos/eslovaquia.png',
-  'ESPAÑA': 'escudos/espana.png',
-  'ESTADOS UNIDOS': 'escudos/estadosunidos.png',
-  'FRANCIA': 'escudos/francia.png',
-  'GALES': 'escudos/gales.png',
-  'GHANA': 'escudos/ghana.png',
-  'HAITÍ': 'escudos/haiti.png',
-  'INGLATERRA': 'escudos/inglaterra.png',
-  'IRAQ': 'escudos/iraq.png',
-  'IRLANDA DEL NORTE': 'escudos/irlandadelnorte.png',
-  'ITALIA': 'escudos/italia.png',
-  'JAMAICA': 'escudos/jamaica.png',
-  'MARRUECOS': 'escudos/marruecos.png',
-  'MÉXICO': 'escudos/mexico.png',
-  'NORUEGA': 'escudos/noruega.png',
-  'NUEVA ZELANDA': 'escudos/nuevazelanda.png',
-  'PAÍSES BAJOS': 'escudos/paisesbajos.png',
-  'PANAMÁ': 'escudos/panama.png',
-  'PARAGUAY': 'escudos/paraguay.png',
-  'POLONIA': 'escudos/polonia.png',
-  'PORTUGAL': 'escudos/portugal.png',
-  'REPÚBLICA DE IRLANDA': 'escudos/republicadeirlanda.png',
-  'REPÚBLICA DEL CONGO': 'escudos/republicadelcongo.png',
-  'RUMANIA': 'escudos/rumania.png',
-  'SENEGAL': 'escudos/senegal.png',
-  'SUECIA': 'escudos/suecia.png',
-  'SUIZA': 'escudos/suiza.png',
-  'SURINAM': 'escudos/surinam.png',
-  'TURQUÍA': 'escudos/turquia.png',
-  'UCRANIA': 'escudos/ucrania.png',
-  'URUGUAY': 'escudos/uruguay.png',
-  'UZBEKISTÁN': 'escudos/uzbekistan.png'
+    // Selecciones
+    'ALEMANIA': 'escudos/alemania.png',
+    'ARABIA SAUDITA': 'escudos/arabiasaudita.png',
+    'ARGENTINA': 'escudos/argentina.png',
+    'AUSTRALIA': 'escudos/australia.png',
+    'AUSTRIA': 'escudos/austria.png',
+    'BÉLGICA': 'escudos/belgica.png',
+    'BOLIVIA': 'escudos/bolivia.png',
+    'BOSNIA Y HERZEGOVINA': 'escudos/bosniayherzegovina.png',
+    'BRASIL': 'escudos/brasil.png',
+    'CAMERÚN': 'escudos/camerun.png',
+    'CANADÁ': 'escudos/canada.png',
+    'CATAR': 'escudos/catar.png',
+    'CHEQUIA': 'escudos/chequia.png',
+    'COLOMBIA': 'escudos/colombia.png',
+    'COREA DEL SUR': 'escudos/coreadelsur.png',
+    'CROACIA': 'escudos/croacia.png',
+    'CURAZAO': 'escudos/curazao.png',
+    'DINAMARCA': 'escudos/dinamarca.png',
+    'ECUADOR': 'escudos/ecuador.png',
+    'ESCOCIA': 'escudos/escocia.png',
+    'ESLOVAQUIA': 'escudos/eslovaquia.png',
+    'ESPAÑA': 'escudos/espana.png',
+    'ESTADOS UNIDOS': 'escudos/estadosunidos.png',
+    'FRANCIA': 'escudos/francia.png',
+    'GALES': 'escudos/gales.png',
+    'GHANA': 'escudos/ghana.png',
+    'HAITÍ': 'escudos/haiti.png',
+    'INGLATERRA': 'escudos/inglaterra.png',
+    'IRAQ': 'escudos/iraq.png',
+    'IRLANDA DEL NORTE': 'escudos/irlandadelnorte.png',
+    'ITALIA': 'escudos/italia.png',
+    'JAMAICA': 'escudos/jamaica.png',
+    'MARRUECOS': 'escudos/marruecos.png',
+    'MÉXICO': 'escudos/mexico.png',
+    'NORUEGA': 'escudos/noruega.png',
+    'NUEVA ZELANDA': 'escudos/nuevazelanda.png',
+    'PAÍSES BAJOS': 'escudos/paisesbajos.png',
+    'PANAMÁ': 'escudos/panama.png',
+    'PARAGUAY': 'escudos/paraguay.png',
+    'POLONIA': 'escudos/polonia.png',
+    'PORTUGAL': 'escudos/portugal.png',
+    'REPÚBLICA DE IRLANDA': 'escudos/republicadeirlanda.png',
+    'REPÚBLICA DEL CONGO': 'escudos/republicadelcongo.png',
+    'RUMANIA': 'escudos/rumania.png',
+    'SENEGAL': 'escudos/senegal.png',
+    'SUECIA': 'escudos/suecia.png',
+    'SUIZA': 'escudos/suiza.png',
+    'SURINAM': 'escudos/surinam.png',
+    'TURQUÍA': 'escudos/turquia.png',
+    'UCRANIA': 'escudos/ucrania.png',
+    'URUGUAY': 'escudos/uruguay.png',
+    'UZBEKISTÁN': 'escudos/uzbekistan.png'
 };
 
 const $  = s => document.querySelector(s);
@@ -777,7 +801,7 @@ function updateCurrentTotals() {
 document.addEventListener('click', e => {
   const el = e.target.closest('.pick');
   if (!el) return;
-  if (!CFG_ACEPTA) return;
+  if (!CFG_ACEPTA) return; // si está cerrado, no permitir cambios
   el.classList.toggle('on');
   updateCurrentTotals();
 });
@@ -1086,7 +1110,7 @@ $('#btnEnviar').addEventListener('click', () => {
     method:'POST',
     headers:{'Content-Type':'text/plain;charset=utf-8'},
     body: JSON.stringify(payload)
-  }).catch(()=>{}).finally(()=>{
+  }).catch(()=>{}).finally(()=> {
     carrito = [];
     localStorage.setItem('quiniela_carrito_v4', JSON.stringify(carrito));
     renderCarrito();
@@ -1179,4 +1203,3 @@ document.addEventListener('DOMContentLoaded', loadConfig);
 </script>
 </body>
 </html>
-
