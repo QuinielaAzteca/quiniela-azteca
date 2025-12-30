@@ -14,16 +14,37 @@
 
   <style>
     html, body { overflow-x: hidden; }
+
     :root{
-      --fg:#111;--bg:#f7f7f7;--card:#fff;--line:#e6e6e6;
-      --ok:#111;--l:#137b28;--v:#c62828;--e:#777777;--pick:54px;
+      /* ======= TEMA VERDE (igual al WhatsApp) ======= */
+      --fg:#0f172a;
+      --bg:#eaf3ee;
+      --bg2:#dfeee7;
+      --card:#ffffff;
+      --line:#d7e6dc;
+
+      --ok:#0a6b3a;     /* selección (no es el verde de filas) */
+      --ok2:#0f8a4b;
+
+      --l:#0a6b3a;      /* QUINIELA */
+      --v:#c62828;      /* AZTECA */
+      --e:#6b7280;
+
+      --pick:54px;
       --list-blue:#0b6cff;
+
+      /* filas intercaladas */
+      --rowA:#f6fbf8;   /* más claro */
+      --rowB:#eff7f2;   /* “más oscuro” (el que querías) */
+
+      --shadow: 0 8px 20px rgba(2, 44, 20, .10);
     }
+
     *{box-sizing:border-box}
     body{
       margin:0;
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
-      background:var(--bg);
+      background: radial-gradient(1200px 520px at 50% -140px, #ffffff 0%, var(--bg) 55%, var(--bg2) 100%);
       color:var(--fg);
     }
     .wrap{
@@ -33,17 +54,19 @@
       position:relative;
     }
 
+    /* ✅ Header como WhatsApp: el “verde oscuro” de filas (rowB) */
     .title{
       display:flex;
       flex-direction:column;
       align-items:center;
       gap:4px;
       padding:12px;
-      background:var(--card);
+      background: var(--rowB);
       border:1px solid var(--line);
       border-radius:12px;
       margin-bottom:10px;
       text-align:center;
+      box-shadow: var(--shadow);
     }
     .title h1{
       font-size:24px;
@@ -80,17 +103,18 @@
       border:1px solid var(--line);
       border-radius:8px;
       font-size:15px;
+      background:#fff;
     }
     #nombre{text-transform:uppercase}
 
     .card{
-  background:var(--card);
-  border:1px solid var(--line);
-  border-radius:14px;
-  margin-top:10px;
-  /* se adapta al ancho del teléfono, sin scroll lateral */
-  overflow:hidden;
-}
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:14px;
+      margin-top:10px;
+      overflow:hidden;
+      box-shadow: var(--shadow);
+    }
     .bar{
       height:8px;
       background:linear-gradient(
@@ -117,6 +141,8 @@
       border-bottom:1px solid var(--line);
       align-items:center;
     }
+    .row:nth-child(odd){ background: var(--rowA); }
+    .row:nth-child(even){ background: var(--rowB); }
     .row:last-child{border-bottom:none}
     .n{font-weight:700;text-align:center;font-size:13px;}
 
@@ -144,18 +170,23 @@
       place-items:center;
       width:var(--pick);
       height:var(--pick);
-      border:2px solid #bbb;
+      border:2px solid rgba(15,23,42,.18);
       border-radius:12px;
       font-weight:800;
       font-size:18px;
       user-select:none;
       cursor:pointer;
-      background:#fff;
+      background: rgba(255,255,255,.92);
       color:var(--e);
       transition:transform .06s ease,border-color .06s ease,background .06s ease,color .06s ease;
       -webkit-tap-highlight-color:transparent;
+      box-shadow: 0 1px 0 rgba(0,0,0,.04);
     }
-    .pick.on{background:var(--ok);color:#fff;border-color:var(--ok);}
+    .pick.on{
+      background: linear-gradient(180deg, var(--ok2) 0%, var(--ok) 100%);
+      color:#fff;
+      border-color:var(--ok);
+    }
     .pick:active{transform:scale(.97);}
 
     .panel{display:flex;flex-direction:column;gap:8px;margin-top:10px}
@@ -165,10 +196,11 @@
       flex-wrap:wrap;
       align-items:center;
       justify-content:space-between;
-      background:var(--card);
+      background: var(--rowA);
       border:1px solid var(--line);
       border-radius:12px;
       padding:10px 12px;
+      box-shadow: var(--shadow);
     }
 
     .controls{
@@ -188,10 +220,13 @@
       font-weight:800;
       font-size:13px;
       cursor:pointer;
+      box-shadow: 0 6px 14px rgba(2,6,23,.14);
     }
     .btn.alt{
       background:#fff;
       color:var(--fg);
+      border-color: rgba(15,23,42,.25);
+      box-shadow: 0 6px 14px rgba(2,6,23,.06);
     }
     #btnEnviar{
       background:#0088cc;
@@ -205,10 +240,11 @@
 
     .section{
       margin-top:10px;
-      background:#fafafa;
-      border:1px dashed var(--line);
+      background: var(--rowA);
+      border:1px solid var(--line);
       border-radius:12px;
       padding:10px;
+      box-shadow: var(--shadow);
     }
 
     .groupCard{
@@ -217,7 +253,7 @@
       border-radius:12px;
       padding:10px 10px 6px;
       margin:10px 0;
-      box-shadow:0 1px 3px rgba(0,0,0,.04);
+      box-shadow:0 6px 14px rgba(2, 44, 20, .06);
     }
     .groupHeader{
       display:flex;
@@ -239,10 +275,10 @@
     .badge{
       padding:3px 7px;
       border-radius:999px;
-      border:1px solid #ddd;
+      border:1px solid #dde7df;
       font-size:11px;
       font-weight:700;
-      background:#f7f7f7;
+      background:#f6fbf8;
     }
     .badge.money{
       border-color:#c62828;
@@ -256,12 +292,10 @@
       justify-content:space-between;
       gap:8px;
       padding-top:6px;
-      border-top:1px dashed #eee;
+      border-top:1px dashed #e8efe9;
       margin-top:4px;
     }
-    .groupItemMain{
-      flex:1;
-    }
+    .groupItemMain{ flex:1; }
     .groupItemMeta{
       font-size:11px;
       color:#555;
@@ -303,6 +337,7 @@
       font-size:11px;
       cursor:pointer;
       white-space:nowrap;
+      box-shadow: 0 4px 10px rgba(2,6,23,.06);
     }
     .mini.danger{border-color:#c62828;color:#c62828;background:#fff}
 
@@ -347,6 +382,7 @@
       opacity:0;
       pointer-events:none;
       transition:opacity .15s ease,transform .15s ease;
+      box-shadow: 0 10px 24px rgba(2,6,23,.22);
     }
     .snack.show{opacity:1;transform:translate(-50%,-4px)}
 
@@ -355,9 +391,7 @@
       30%{transform:scale(1.12);}
       100%{transform:scale(1);}
     }
-    .bump-anim{
-      animation:bump .18s ease-out;
-    }
+    .bump-anim{ animation:bump .18s ease-out; }
 
     #registroCerrado{
       display:none;
@@ -385,48 +419,26 @@
     @media (max-width:520px){
       .namebox{grid-template-columns:1fr}
     }
-    @media (max-width:420px){
-      :root{--pick:48px}
+
+    /* AJUSTE PARA TELÉFONOS CHICOS (evita scroll horizontal) */
+    @media (max-width: 420px) {
+      :root{ --pick: 44px; }
+
       .row{
-        grid-template-columns:22px var(--pick) 1.2fr var(--pick) 1.2fr var(--pick);
+        grid-template-columns:
+          22px
+          var(--pick)
+          1fr
+          var(--pick)
+          1fr
+          var(--pick);
+        gap: 3px;
       }
-      .pick{border-radius:10px;font-size:16px}
-      .team{font-size:11px;}
-      /* ================================
-   AJUSTE PARA TELÉFONOS CHICOS
-   (evita scroll horizontal)
-================================ */
-@media (max-width: 420px) {
-
-  :root{
-    --pick: 44px;   /* botones más chicos */
-  }
-
-  .row{
-    grid-template-columns:
-      22px          /* número */
-      var(--pick)   /* L */
-      1fr           /* equipo local */
-      var(--pick)   /* E */
-      1fr           /* equipo visita */
-      var(--pick);  /* V */
-    gap: 3px;
-  }
-
-  .team{
-    font-size: 11px;
-  }
-
-  .team-logo{
-    max-height: 18px;
-  }
-
-  .pick{
-    font-size: 16px;
-    border-radius: 10px;
-  }
-}
-</style>
+      .team{ font-size: 11px; }
+      .team-logo{ max-height: 18px; }
+      .pick{ font-size: 16px; border-radius: 10px; }
+    }
+  </style>
 </head>
 <body>
   <div class="wrap">
@@ -776,7 +788,6 @@ function updateCurrentTotals() {
   totalEl.classList.add('bump-anim');
 }
 
-// clicks en picks
 document.addEventListener('click', e => {
   const el = e.target.closest('.pick');
   if (!el) return;
@@ -1030,10 +1041,9 @@ $('#btnEnviar').addEventListener('click', () => {
   const titulo   = $('#titleTxt').innerText.trim() || 'QUINIELA AZTECA';
   const subtitulo= $('#subtitleTxt').textContent;
 
-  // Título en negritas
-lines.push(`🏆 **${titulo}**`);
-if (subtitulo) lines.push(`📆 ${subtitulo}`);
-lines.push('');
+  lines.push(`🏆 **${titulo}**`);
+  if (subtitulo) lines.push(`📆 ${subtitulo}`);
+  lines.push('');
 
   const groups = [];
   const indexByName = {};
@@ -1068,7 +1078,7 @@ lines.push('');
   const labelLista        = totalQuinielas === 1 ? 'Quiniela' : 'Quinielas';
 
   lines.push(`**TOTAL LISTA:** ${totalQuinielas} ${labelLista} ${totalGlobalCombos} combinaciones.`);
-lines.push(`**TOTAL A PAGAR:** ${fmtMoney(totalGlobalMoney)}.`);
+  lines.push(`**TOTAL A PAGAR:** ${fmtMoney(totalGlobalMoney)}.`);
 
   const text = lines.join('\n');
 
@@ -1087,7 +1097,7 @@ lines.push(`**TOTAL A PAGAR:** ${fmtMoney(totalGlobalMoney)}.`);
     method:'POST',
     headers:{'Content-Type':'text/plain;charset=utf-8'},
     body: JSON.stringify(payload)
-  }).catch(()=>{}).finally(()=>{
+  }).catch(()=>{}).finally(()=> {
     carrito = [];
     localStorage.setItem('quiniela_carrito_v4_telegram', JSON.stringify(carrito));
     renderCarrito();
