@@ -145,6 +145,32 @@
       border-bottom:1px solid var(--line);
       align-items:center;
     }
+    /* Separador sutil SOLO en columnas de equipos (no corta picks) */
+.row > .team{
+  position: relative;
+}
+
+/* Línea a la derecha del equipo local (columna 3) */
+.row > .team:nth-of-type(1)::after{
+  content:"";
+  position:absolute;
+  top:10%;
+  bottom:10%;
+  right:-2px;
+  width:1px;
+  background: rgba(15,23,42,.06);
+}
+
+/* Línea a la derecha del equipo visita (columna 5) */
+.row > .team:nth-of-type(2)::after{
+  content:"";
+  position:absolute;
+  top:10%;
+  bottom:10%;
+  right:-2px;
+  width:1px;
+  background: rgba(15,23,42,.06);
+}
     .row:nth-child(odd){ background:var(--rowA); }
     .row:nth-child(even){ background:var(--rowB); }
     .row:last-child{border-bottom:none}
@@ -1234,5 +1260,6 @@ document.addEventListener('DOMContentLoaded', loadConfig);
 </script>
 </body>
 </html>
+
 
 
