@@ -189,7 +189,30 @@
       -webkit-tap-highlight-color:transparent;
       box-shadow: 0 1px 0 rgba(0,0,0,.04);
     }
-        .pick.on{
+    /* Feedback pro (desktop + móvil) SIN cambiar colores */
+.pick{
+  transform: translateZ(0);          /* evita “parpadeos” en algunos móviles */
+  will-change: transform, box-shadow;
+}
+
+/* Hover solo en dispositivos con mouse */
+@media (hover:hover) and (pointer:fine){
+  .pick:hover{
+    border-color: rgba(15,23,42,.28);
+    box-shadow: 0 4px 10px rgba(2,6,23,.10);
+  }
+}
+
+/* Press/tap (móvil y desktop) */
+.pick:active{
+  transform: scale(.96);
+}
+
+/* Si está seleccionado, que el press se sienta más “profundo” */
+.pick.on:active{
+  box-shadow: 0 2px 8px rgba(0,0,0,.22) inset, 0 6px 14px rgba(10,107,58,.22);
+}
+ .pick.on{
       background: linear-gradient(180deg, var(--ok2) 0%, var(--ok) 100%);
       color:#fff;
       border-color:var(--ok);
@@ -1203,3 +1226,4 @@ document.addEventListener('DOMContentLoaded', loadConfig);
 </script>
 </body>
 </html>
+
