@@ -149,6 +149,19 @@
     .row:nth-child(even){ background:var(--rowB); }
     .row:last-child{border-bottom:none}
     .n{font-weight:800;text-align:center;font-size:13px;color:#334155;}
+    /* Separadores verticales sutiles entre columnas */
+.row > :nth-child(2),
+.row > :nth-child(3),
+.row > :nth-child(4),
+.row > :nth-child(5){
+  border-right: 1px solid rgba(15,23,42,.06);
+  padding-right: 4px;
+}
+
+/* No poner separador antes de la V final */
+.row > :nth-child(5){
+  border-right: none;
+}
 
     .team{
       text-align:center;
@@ -189,6 +202,24 @@
       -webkit-tap-highlight-color:transparent;
       box-shadow: 0 1px 0 rgba(0,0,0,.04);
     }
+    /* Hover sutil (desktop) */
+.pick:hover{
+  border-color: rgba(15,23,42,.35);
+  box-shadow: 0 4px 10px rgba(15,23,42,.10);
+}
+
+/* Press más claro en móvil */
+.pick:active{
+  transform: scale(.95);
+  box-shadow: 0 2px 6px rgba(15,23,42,.18) inset;
+}
+
+/* Cuando está seleccionado, refuerza el feedback */
+.pick.on:active{
+  box-shadow:
+    0 2px 6px rgba(0,0,0,.25) inset,
+    0 6px 14px rgba(10,107,58,.22);
+}
     .pick.on{
       background: linear-gradient(180deg, var(--ok2) 0%, var(--ok) 100%);
       color:#fff;
@@ -1203,4 +1234,5 @@ document.addEventListener('DOMContentLoaded', loadConfig);
 </script>
 </body>
 </html>
+
 
