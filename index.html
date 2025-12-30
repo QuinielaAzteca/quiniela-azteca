@@ -3,9 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Quiniela Azteca - WhatsApp</title>
+  <title>Quiniela Azteca - Telegram</title>
 
-  <!-- Miniatura / favicon -->
   <link rel="icon" href="favicon.png" type="image/png" />
   <meta property="og:title" content="Quiniela Azteca" />
   <meta property="og:description" content="Llena y envía tus quinielas desde el celular." />
@@ -17,24 +16,26 @@
     html, body { overflow-x: hidden; }
 
     :root{
-      /* ======= TEMA VERDE (discreto/elegante) ======= */
+      /* ======= TEMA VERDE (igual al WhatsApp) ======= */
       --fg:#0f172a;
-      --bg:#eaf3ee;             /* fondo verdoso suave */
-      --bg2:#dfeee7;            /* para degradado */
+      --bg:#eaf3ee;
+      --bg2:#dfeee7;
       --card:#ffffff;
       --line:#d7e6dc;
 
-      --ok:#0a6b3a;             /* verde acierto / selección */
+      --ok:#0a6b3a;     /* selección (no es el verde de filas) */
       --ok2:#0f8a4b;
-      --l:#0a6b3a;              /* QUINIELA (verde) */
-      --v:#c62828;              /* AZTECA (rojo) */
+
+      --l:#0a6b3a;      /* QUINIELA */
+      --v:#c62828;      /* AZTECA */
       --e:#6b7280;
 
       --pick:54px;
       --list-blue:#0b6cff;
 
-      --rowA:#f6fbf8;           /* filas con leve verde */
-      --rowB:#eff7f2;
+      /* filas intercaladas */
+      --rowA:#f6fbf8;   /* más claro */
+      --rowB:#eff7f2;   /* “más oscuro” (el que querías) */
 
       --shadow: 0 8px 20px rgba(2, 44, 20, .10);
     }
@@ -53,19 +54,20 @@
       position:relative;
     }
 
+    /* ✅ Header como WhatsApp: el “verde oscuro” de filas (rowB) */
     .title{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:4px;
-  padding:12px;
-  background: var(--rowB);   /* 👈 MISMO verde oscuro de las filas */
-  border:1px solid rgba(0,0,0,.08);
-  border-radius:14px;
-  margin-bottom:10px;
-  text-align:center;
-  box-shadow:0 4px 14px rgba(0,0,0,.08);
-}
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:4px;
+      padding:12px;
+      background: var(--rowB);
+      border:1px solid var(--line);
+      border-radius:12px;
+      margin-bottom:10px;
+      text-align:center;
+      box-shadow: var(--shadow);
+    }
     .title h1{
       font-size:24px;
       margin:0;
@@ -75,12 +77,12 @@
     .title h1 .title-a{color:var(--v);}
     .title small{
       font-size:15px;
-      color:#334155;
-      font-weight:800;
+      color:#444;
+      font-weight:700;
     }
     .hint{
       font-size:13px;
-      color:#334155;
+      color:#444;
       font-weight:700;
     }
     .hint .dias{
@@ -97,24 +99,18 @@
     }
     .namebox input{
       width:100%;
-      padding:11px 10px;
+      padding:10px;
       border:1px solid var(--line);
-      border-radius:10px;
+      border-radius:8px;
       font-size:15px;
       background:#fff;
-      outline:none;
-      box-shadow: 0 1px 0 rgba(0,0,0,.02);
-    }
-    .namebox input:focus{
-      border-color:#b8d9c5;
-      box-shadow: 0 0 0 3px rgba(10,107,58,.10);
     }
     #nombre{text-transform:uppercase}
 
     .card{
-      background: linear-gradient(180deg, #ffffff 0%, #fbfdfc 100%);
+      background:var(--card);
       border:1px solid var(--line);
-      border-radius:16px;
+      border-radius:14px;
       margin-top:10px;
       overflow:hidden;
       box-shadow: var(--shadow);
@@ -141,75 +137,34 @@
       display:grid;
       grid-template-columns:24px var(--pick) 1.2fr var(--pick) 1.2fr var(--pick);
       gap:4px;
-      padding:10px 4px;
+      padding:8px 4px;
       border-bottom:1px solid var(--line);
       align-items:center;
     }
-    /* Separador sutil SOLO en columnas de equipos (no corta picks) */
-.row > .team{
-  position: relative;
-}
-
-/* Línea a la derecha del equipo local (columna 3) */
-.row > .team:nth-of-type(1)::after{
-  content:"";
-  position:absolute;
-  top:10%;
-  bottom:10%;
-  right:-2px;
-  width:1px;
-  background: rgba(15,23,42,.06);
-}
-
-/* Línea a la derecha del equipo visita (columna 5) */
-.row > .team:nth-of-type(2)::after{
-  content:"";
-  position:absolute;
-  top:10%;
-  bottom:10%;
-  right:-2px;
-  width:1px;
-  background: rgba(15,23,42,.06);
-}
-    .row:nth-child(odd){ background:var(--rowA); }
-    .row:nth-child(even){ background:var(--rowB); }
+    .row:nth-child(odd){ background: var(--rowA); }
+    .row:nth-child(even){ background: var(--rowB); }
     .row:last-child{border-bottom:none}
-    .n{font-weight:800;text-align:center;font-size:13px;color:#334155;}
-    /* Separadores verticales sutiles entre columnas */
-.row > :nth-child(2),
-.row > :nth-child(3),
-.row > :nth-child(4),
-.row > :nth-child(5){
-  border-right: 1px solid rgba(15,23,42,.06);
-  padding-right: 4px;
-}
-
-/* No poner separador antes de la V final */
-.row > :nth-child(5){
-  border-right: none;
-}
+    .n{font-weight:700;text-align:center;font-size:13px;}
 
     .team{
       text-align:center;
-      font-weight:800;
+      font-weight:700;
       padding:2px 2px;
       font-size:12px;
       line-height:1.15;
       white-space:normal;
       word-break:keep-all;
-      color:#0f172a;
     }
     .team span{display:block;}
 
-    /* ======= ESCUDOS MÁS GRANDES / CON PROTAGONISMO ======= */
     .team-logo{
-      display:block;
-      margin:0 auto 4px;
-      height:32px;        /* 👈 más grande */
-      width:32px;         /* 👈 cuadrado para que se vea consistente */
-      object-fit:contain;
-      filter: drop-shadow(0 2px 2px rgba(0,0,0,.12));
-    }
+  display:block;
+  margin:0 auto 4px;
+  height:32px;        /* más grande */
+  width:32px;         /* cuadrado consistente */
+  object-fit:contain;
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,.12));
+}
 
     .pick{
       display:grid;
@@ -217,40 +172,21 @@
       width:var(--pick);
       height:var(--pick);
       border:2px solid rgba(15,23,42,.18);
-      border-radius:14px;
-      font-weight:900;
+      border-radius:12px;
+      font-weight:800;
       font-size:18px;
       user-select:none;
       cursor:pointer;
       background: rgba(255,255,255,.92);
       color:var(--e);
-      transition:transform .06s ease,border-color .06s ease,background .06s ease,color .06s ease, box-shadow .06s ease;
+      transition:transform .06s ease,border-color .06s ease,background .06s ease,color .06s ease;
       -webkit-tap-highlight-color:transparent;
       box-shadow: 0 1px 0 rgba(0,0,0,.04);
     }
-    /* Hover sutil (desktop) */
-.pick:hover{
-  border-color: rgba(15,23,42,.35);
-  box-shadow: 0 4px 10px rgba(15,23,42,.10);
-}
-
-/* Press más claro en móvil */
-.pick:active{
-  transform: scale(.95);
-  box-shadow: 0 2px 6px rgba(15,23,42,.18) inset;
-}
-
-/* Cuando está seleccionado, refuerza el feedback */
-.pick.on:active{
-  box-shadow:
-    0 2px 6px rgba(0,0,0,.25) inset,
-    0 6px 14px rgba(10,107,58,.22);
-}
     .pick.on{
       background: linear-gradient(180deg, var(--ok2) 0%, var(--ok) 100%);
       color:#fff;
       border-color:var(--ok);
-      box-shadow: 0 6px 14px rgba(10,107,58,.22);
     }
     .pick:active{transform:scale(.97);}
 
@@ -261,9 +197,9 @@
       flex-wrap:wrap;
       align-items:center;
       justify-content:space-between;
-      background: linear-gradient(180deg, #ffffff 0%, #f6fbf8 100%);
+      background: var(--rowA);
       border:1px solid var(--line);
-      border-radius:14px;
+      border-radius:12px;
       padding:10px 12px;
       box-shadow: var(--shadow);
     }
@@ -277,42 +213,45 @@
     .btn{
       flex:1;
       appearance:none;
-      border:2px solid #0f172a;
-      background:#0f172a;
+      border:2px solid var(--fg);
+      background:var(--fg);
       color:#fff;
       padding:12px 10px;
-      border-radius:12px;
-      font-weight:900;
+      border-radius:10px;
+      font-weight:800;
       font-size:13px;
       cursor:pointer;
       box-shadow: 0 6px 14px rgba(2,6,23,.14);
     }
     .btn.alt{
       background:#fff;
-      color:#0f172a;
+      color:var(--fg);
       border-color: rgba(15,23,42,.25);
       box-shadow: 0 6px 14px rgba(2,6,23,.06);
     }
     #btnEnviar{
-      background: linear-gradient(180deg, var(--ok2) 0%, var(--ok) 100%);
-      border-color: var(--ok);
-      box-shadow: 0 10px 18px rgba(10,107,58,.18);
+      background:#0088cc;
+      border-color:#0088cc;
+    }
+    #btnEnviar:active{
+      background:#006fa3;
+      border-color:#006fa3;
     }
     .btn:disabled{opacity:.6;cursor:not-allowed;}
 
     .section{
       margin-top:10px;
-      background: linear-gradient(180deg, #ffffff 0%, #f6fbf8 100%);
+      background: var(--rowA);
       border:1px solid var(--line);
-      border-radius:14px;
+      border-radius:12px;
       padding:10px;
       box-shadow: var(--shadow);
     }
 
     .groupCard{
       background:#fff;
-      border:1px solid #eef2f2;
-      border-radius:14px;
+      border:1px solid #eee;
+      border-radius:12px;
       padding:10px 10px 6px;
       margin:10px 0;
       box-shadow:0 6px 14px rgba(2, 44, 20, .06);
@@ -326,7 +265,7 @@
     }
     .groupTitle{
       font-size:15px;
-      font-weight:900;
+      font-weight:800;
     }
     .groupBadges{
       display:flex;
@@ -339,9 +278,8 @@
       border-radius:999px;
       border:1px solid #dde7df;
       font-size:11px;
-      font-weight:800;
+      font-weight:700;
       background:#f6fbf8;
-      color:#0f172a;
     }
     .badge.money{
       border-color:#c62828;
@@ -358,12 +296,11 @@
       border-top:1px dashed #e8efe9;
       margin-top:4px;
     }
-    .groupItemMain{flex:1;}
+    .groupItemMain{ flex:1; }
     .groupItemMeta{
       font-size:11px;
-      color:#475569;
+      color:#555;
       margin-top:2px;
-      font-weight:700;
     }
 
     .listHeader{
@@ -371,8 +308,7 @@
       justify-content:space-between;
       align-items:center;
       font-size:13px;
-      font-weight:900;
-      color:#0f172a;
+      font-weight:700;
     }
 
     .sel-inline{
@@ -381,8 +317,8 @@
     }
     .sel-inline span{
       margin-right:4px;
-      font-weight:900;
-      color:#0f172a;
+      font-weight:700;
+      color:#000;
     }
     .sel-inline span.multi{
       color:var(--list-blue);
@@ -394,11 +330,11 @@
 
     .mini{
       appearance:none;
-      border:1px solid #cbd5e1;
-      background:#fff;
+      border:1px solid #ccc;
+      background:#f9f9f9;
       padding:4px 7px;
-      border-radius:10px;
-      font-weight:900;
+      border-radius:8px;
+      font-weight:700;
       font-size:11px;
       cursor:pointer;
       white-space:nowrap;
@@ -408,11 +344,11 @@
 
     .footerTotal{
       margin-top:8px;
-      font-weight:900;
+      font-weight:800;
       text-align:right;
       background:#fff;
-      border:1px solid #e8efe9;
-      border-radius:12px;
+      border:1px solid #eee;
+      border-radius:10px;
       padding:10px 12px;
     }
 
@@ -429,10 +365,9 @@
       border:1px solid #f5b5b5;
       color:#c62828;
       font-size:13px;
-      border-radius:12px;
-      box-shadow:0 10px 24px rgba(0,0,0,.25);
+      border-radius:10px;
+      box-shadow:0 6px 16px rgba(0,0,0,.25);
       text-align:center;
-      font-weight:800;
     }
 
     .snack{
@@ -440,7 +375,7 @@
       left:50%;
       bottom:12px;
       transform:translateX(-50%);
-      background:#0f172a;
+      background:#111;
       color:#fff;
       padding:6px 10px;
       border-radius:999px;
@@ -449,7 +384,6 @@
       pointer-events:none;
       transition:opacity .15s ease,transform .15s ease;
       box-shadow: 0 10px 24px rgba(2,6,23,.22);
-      font-weight:800;
     }
     .snack.show{opacity:1;transform:translate(-50%,-4px)}
 
@@ -460,7 +394,6 @@
     }
     .bump-anim{ animation:bump .18s ease-out; }
 
-    /* Overlay de registro cerrado */
     #registroCerrado{
       display:none;
       position:absolute;
@@ -489,19 +422,25 @@
     }
 
     /* AJUSTE PARA TELÉFONOS CHICOS (evita scroll horizontal) */
-    @media (max-width:420px){
+    @media (max-width: 420px) {
       :root{ --pick: 44px; }
+
       .row{
-        grid-template-columns:22px var(--pick) 1fr var(--pick) 1fr var(--pick);
-        gap:3px;
+        grid-template-columns:
+          22px
+          var(--pick)
+          1fr
+          var(--pick)
+          1fr
+          var(--pick);
+        gap: 3px;
       }
-      .team{ font-size:11px; }
-      .team-logo{ height:28px; width:28px; } /* 👈 también más grande en móvil */
-      .pick{ border-radius:12px; font-size:16px; }
+      .team{ font-size: 11px; }
+      .team-logo{ height:28px; width:28px; }
+      .pick{ font-size: 16px; border-radius: 10px; }
     }
   </style>
 </head>
-
 <body>
   <div class="wrap">
     <div class="title">
@@ -520,12 +459,10 @@
       </div>
     </div>
 
-    <!-- Overlay de registro cerrado -->
     <div id="registroCerrado">
       Registro cerrado<br>para esta quiniela.
     </div>
 
-    <!-- Todo el cupón (se desactiva con disabled-cupon) -->
     <div id="cupon">
       <div class="card">
         <div class="bar"></div>
@@ -537,19 +474,19 @@
       <div class="panel">
         <div class="totals">
           <div>
-            <div style="font-size:12px;color:#475569;font-weight:800;">Combinaciones actuales</div>
-            <div style="font-size:20px;font-weight:900" id="combosTxt">1</div>
+            <div style="font-size:12px;color:#555">Combinaciones actuales</div>
+            <div style="font-size:20px;font-weight:800" id="combosTxt">1</div>
           </div>
           <div>
-            <div style="font-size:12px;color:#475569;font-weight:800;">Total a pagar</div>
-            <div style="font-size:20px;font-weight:900" id="totalTxt">$25</div>
+            <div style="font-size:12px;color:#555">Total a pagar</div>
+            <div style="font-size:20px;font-weight:800" id="totalTxt">$25</div>
           </div>
         </div>
 
         <div class="controls">
           <button class="btn alt" id="btnAgregar">Agregar</button>
           <button class="btn alt" id="btnLimpiar">Limpiar</button>
-          <button class="btn" id="btnEnviar">Enviar por WhatsApp</button>
+          <button class="btn" id="btnEnviar">Enviar por Telegram</button>
         </div>
 
         <div class="section">
@@ -569,17 +506,15 @@
   <div class="snack" id="snack"></div>
 
 <script>
-const SHEET_ENDPOINT_PUBLIC = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec"; // <-- pon aquí tu URL /exec
-const PHONE_NUMBER = "5213333911690"; // WhatsApp
-const CANAL = "WHATSAPP";
+const SHEET_ENDPOINT_PUBLIC = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec"; // misma URL /exec
+const CANAL = "TELEGRAM";
 
 let BASE_PRICE = 25;
 let PARTIDOS   = [];
-let carrito    = JSON.parse(localStorage.getItem('quiniela_carrito_v4') || '[]');
-let telCache   = localStorage.getItem('quiniela_tel') || '';
+let carrito    = JSON.parse(localStorage.getItem('quiniela_carrito_v4_telegram') || '[]');
+let telCache   = localStorage.getItem('quiniela_tel_telegram') || '';
 let CFG_ACEPTA = true;
 
-// vendedor desde parámetro ?v=
 const urlParams = new URLSearchParams(location.search);
 const VENDEDOR_PARAM = (urlParams.get('v') || '').trim().toUpperCase();
 
@@ -608,7 +543,7 @@ const TEAM_LOGOS = {
     'TOLUCA': 'escudos/toluca.png',
     'VENADOS': 'escudos/venados.png',
 
-    // España
+     // España
     'ALAVÉS': 'escudos/alaves.png',
     'ATHLETIC CLUB': 'escudos/athleticclub.png',
     'ATLÉTICO MADRID': 'escudos/atleticomadrid.png',
@@ -854,11 +789,10 @@ function updateCurrentTotals() {
   totalEl.classList.add('bump-anim');
 }
 
-// clicks en picks
 document.addEventListener('click', e => {
   const el = e.target.closest('.pick');
   if (!el) return;
-  if (!CFG_ACEPTA) return; // si está cerrado, no permitir cambios
+  if (!CFG_ACEPTA) return;
   el.classList.toggle('on');
   updateCurrentTotals();
 });
@@ -942,14 +876,13 @@ function renderCarrito() {
     `TOTAL LISTA: ${totalComb} comb. · ${fmtMoney(totalCost)}`;
 }
 
-// eliminar de lista
 document.addEventListener('click', e => {
   const btn = e.target.closest('button.mini.danger[data-del]');
   if (!btn) return;
   if (!CFG_ACEPTA) return;
   const idx = parseInt(btn.dataset.del, 10);
   carrito.splice(idx, 1);
-  localStorage.setItem('quiniela_carrito_v4', JSON.stringify(carrito));
+  localStorage.setItem('quiniela_carrito_v4_telegram', JSON.stringify(carrito));
   renderCarrito();
 });
 
@@ -999,7 +932,6 @@ function validarBase(tel, nombre, sels, combos, err) {
   return true;
 }
 
-// cerrar recuadro de error al tocar fuera
 document.addEventListener('click', e => {
   const err = $('#errMsg');
   if (err.style.display === 'block' && !e.target.closest('#errMsg')) {
@@ -1020,7 +952,7 @@ $('#btnLimpiar').addEventListener('click', () => {
 $('#btnVaciar').addEventListener('click', () => {
   if (!CFG_ACEPTA) return;
   carrito = [];
-  localStorage.setItem('quiniela_carrito_v4', JSON.stringify(carrito));
+  localStorage.setItem('quiniela_carrito_v4_telegram', JSON.stringify(carrito));
   renderCarrito();
 });
 
@@ -1034,10 +966,10 @@ $('#btnAgregar').addEventListener('click', () => {
 
   if (!validarBase(tel, nombre, sels, combos, err)) return;
 
-  localStorage.setItem('quiniela_tel', tel);
+  localStorage.setItem('quiniela_tel_telegram', tel);
 
   carrito.push({ nombre, sels, combos });
-  localStorage.setItem('quiniela_carrito_v4', JSON.stringify(carrito));
+  localStorage.setItem('quiniela_carrito_v4_telegram', JSON.stringify(carrito));
   renderCarrito();
   showSnack('Quiniela agregada a la lista');
 
@@ -1045,7 +977,7 @@ $('#btnAgregar').addEventListener('click', () => {
   updateCurrentTotals();
 });
 
-function formatWhatsSelections(sels) {
+function formatTelegramSelections(sels) {
   const parts = [];
   sels.forEach((val, idx) => {
     if (!val) return;
@@ -1057,7 +989,6 @@ function formatWhatsSelections(sels) {
   return parts.join(' ');
 }
 
-// enviar por WhatsApp
 $('#btnEnviar').addEventListener('click', () => {
   if (!CFG_ACEPTA) {
     showSnack('La quiniela ya no acepta registros.');
@@ -1105,13 +1036,13 @@ $('#btnEnviar').addEventListener('click', () => {
     return;
   }
 
-  localStorage.setItem('quiniela_tel', tel);
+  localStorage.setItem('quiniela_tel_telegram', tel);
 
   const lines = [];
   const titulo   = $('#titleTxt').innerText.trim() || 'QUINIELA AZTECA';
   const subtitulo= $('#subtitleTxt').textContent;
 
-  lines.push(`🏆 *${titulo}*`);
+  lines.push(`🏆 **${titulo}**`);
   if (subtitulo) lines.push(`📆 ${subtitulo}`);
   lines.push('');
 
@@ -1131,9 +1062,9 @@ $('#btnEnviar').addEventListener('click', () => {
   groups.forEach(group => {
     const count = group.items.length;
     const label = count === 1 ? 'quiniela' : 'quinielas';
-    lines.push(`👤 *${group.nombre}* (${count} ${label})`);
+    lines.push(`👤 **${group.nombre}** (${count} ${label})`);
     group.items.forEach(q => {
-      const selLine = formatWhatsSelections(q.sels);
+      const selLine = formatTelegramSelections(q.sels);
       const comb    = q.combos;
       const total   = comb * BASE_PRICE;
       lines.push(`   • ${selLine}`);
@@ -1147,14 +1078,14 @@ $('#btnEnviar').addEventListener('click', () => {
   const totalQuinielas    = itemsToSend.length;
   const labelLista        = totalQuinielas === 1 ? 'Quiniela' : 'Quinielas';
 
-  lines.push(`*TOTAL LISTA: ${totalQuinielas} ${labelLista} ${totalGlobalCombos} combinaciones.*`);
-  lines.push(`*TOTAL A PAGAR: ${fmtMoney(totalGlobalMoney)}.*`);
+  lines.push(`**TOTAL LISTA:** ${totalQuinielas} ${labelLista} ${totalGlobalCombos} combinaciones.`);
+  lines.push(`**TOTAL A PAGAR:** ${fmtMoney(totalGlobalMoney)}.`);
 
   const text = lines.join('\n');
-  const waUrl = `https://wa.me/${PHONE_NUMBER}?text=${encodeURIComponent(text)}`;
 
-  window.open(waUrl,'_blank');
-  showSnack('Abriendo WhatsApp...');
+  const tgUrl = `https://t.me/share/url?url=${encodeURIComponent(location.href)}&text=${encodeURIComponent(text)}`;
+  window.open(tgUrl,'_blank');
+  showSnack('Abriendo Telegram...');
 
   const payload = {
     tel,
@@ -1169,12 +1100,11 @@ $('#btnEnviar').addEventListener('click', () => {
     body: JSON.stringify(payload)
   }).catch(()=>{}).finally(()=> {
     carrito = [];
-    localStorage.setItem('quiniela_carrito_v4', JSON.stringify(carrito));
+    localStorage.setItem('quiniela_carrito_v4_telegram', JSON.stringify(carrito));
     renderCarrito();
   });
 });
 
-// aplicar cierre visual
 function aplicarCierreVisual(cerrar){
   const overlay = $('#registroCerrado');
   const cup = $('#cupon');
@@ -1223,9 +1153,8 @@ function applyConfig(cfg) {
   renderCarrito();
 }
 
-// carga de config
 function loadConfig() {
-  const stored = localStorage.getItem('quiniela_cfg_cache_v1');
+  const stored = localStorage.getItem('quiniela_cfg_cache_v1_telegram');
   if (stored) {
     try {
       const cfg = JSON.parse(stored);
@@ -1239,7 +1168,7 @@ function loadConfig() {
       if (!data.ok || !data.cfg) throw new Error('Config inválida');
       applyConfig(data.cfg);
       try{
-        localStorage.setItem('quiniela_cfg_cache_v1', JSON.stringify(data.cfg));
+        localStorage.setItem('quiniela_cfg_cache_v1_telegram', JSON.stringify(data.cfg));
       }catch(e){}
     })
     .catch(() => {
@@ -1260,6 +1189,3 @@ document.addEventListener('DOMContentLoaded', loadConfig);
 </script>
 </body>
 </html>
-
-
-
