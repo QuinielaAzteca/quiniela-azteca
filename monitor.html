@@ -52,6 +52,7 @@
       color: var(--muted);
       font-weight: 700;
     }
+
     .pill{
       display:inline-flex;
       align-items:center;
@@ -70,6 +71,36 @@
     }
     .dot.off{ background:#ef4444; }
 
+    /* ===== Buscador ===== */
+    .searchBar{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
+    }
+    .searchSelect,
+    .searchInput,
+    .searchBtn{
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:999px;
+      padding:8px 10px;
+      font-weight:900;
+      font-size:12px;
+      color:var(--fg);
+      outline:none;
+    }
+    .searchInput{
+      padding:8px 12px;
+      min-width: 220px;
+      font-weight:800;
+    }
+    .searchBtn{
+      cursor:pointer;
+    }
+    .searchBtn:active{ transform:scale(.99); }
+
     .card{
       margin-top: 10px;
       background: var(--card);
@@ -81,15 +112,15 @@
 
     .tableWrap{
       width:100%;
-      overflow:hidden; /* 👈 sin scroll horizontal */
+      overflow:hidden; /* sin scroll horizontal */
     }
 
     table{
       width:100%;
       border-collapse:separate;
       border-spacing:0;
-      table-layout: fixed; /* 👈 clave */
-      min-width: 0;        /* 👈 clave */
+      table-layout: fixed;
+      min-width: 0;
     }
 
     thead th{
@@ -114,8 +145,8 @@
       font-weight:800;
       vertical-align:top;
 
-      white-space: normal;     /* 👈 permite saltos */
-      word-break: break-word;  /* 👈 evita desbordes */
+      white-space: normal;
+      word-break: break-word;
       overflow-wrap:anywhere;
     }
 
@@ -123,21 +154,14 @@
     tbody tr:nth-child(even){ background:#f9fbfa; }
     tbody tr:last-child td{ border-bottom:none; }
 
-    /* Anchos pensados para que SIEMPRE quepa en móvil */
+    /* Anchos */
     th.col-folio,  td.col-folio  { width:72px; }
     th.col-ac,     td.col-ac     { width:80px; }
     th.col-nombre, td.col-nombre { width:180px; }
-    /* selecciones ocupa lo restante */
-    th.col-sels, td.col-sels { width:auto; }
+    th.col-sels,   td.col-sels   { width:auto; }
 
     td.num{ text-align:right; }
     td.center{ text-align:center; }
-
-    .muted{
-      color: var(--muted);
-      font-weight:800;
-      font-size:12px;
-    }
 
     .err{
       padding:12px;
@@ -163,6 +187,7 @@
       .top h1{ font-size:15px; }
       th.col-nombre, td.col-nombre{ width:150px; }
       tbody td{ font-size:12.5px; }
+      .searchInput{ min-width: 170px; }
     }
   </style>
 </head>
@@ -174,9 +199,24 @@
         <h1>Monitor – Clasificación</h1>
         <div class="sub">Sin scroll horizontal (selecciones compactas)</div>
       </div>
-      <div class="pill" id="statusPill">
-        <span class="dot" id="dot"></span>
-        <span id="statusTxt">Cargando…</span>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:flex-start; justify-content:flex-end;">
+        <div class="searchBar">
+          <select id="modeSel" class="searchSelect">
+            <option value="telefono">Teléfono</option>
+            <option value="folio">Folio</option>
+            <option value="nombre">Nombre</option>
+          </select>
+
+          <input id="qInput" class="searchInput" placeholder="Buscar…" autocomplete="off" />
+
+          <button id="clearBtn" class="searchBtn">Limpiar</button>
+        </div>
+
+        <div class="pill" id="statusPill">
+          <span class="dot" id="dot"></span>
+          <span id="statusTxt">Cargando…</span>
+        </div>
       </div>
     </div>
 
@@ -188,12 +228,13 @@
   </div>
 
 <script>
-  // 👇 Pon aquí TU endpoint (ya con mode=clasif)
   const ENDPOINT = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec?mode=clasif";
-
   const REFRESH_MS = 5000;
 
   const $ = s => document.querySelector(s);
+
+  let RAW_HEADERS = [];
+  let RAW_ROWS = [];
 
   function setStatus(ok, msg){
     const dot = $('#dot');
@@ -247,7 +288,6 @@
           key === 'aciertos' ? 'col-ac center' :
           key === 'nombre' ? 'col-nombre' :
           key === 'selecciones' ? 'col-sels' : '';
-
         return `<td class="${cls}">${esc(r?.[i])}</td>`;
       }).join('');
       return `<tr>${tds}</tr>`;
@@ -268,12 +308,12 @@
     const iNombre   = hLower.indexOf('nombre');
     const iAciertos = hLower.indexOf('aciertos');
 
-    // Si no están estas columnas, mostramos tal cual (fallback)
+    // fallback
     if (iFolio < 0 || iNombre < 0 || iAciertos < 0 || iAciertos <= iNombre){
       return { headers, rows };
     }
 
-    // selecciones = todas las columnas entre nombre y aciertos
+    // selecciones = columnas entre nombre y aciertos
     const startSel = iNombre + 1;
     const endSel   = iAciertos;
 
@@ -283,7 +323,6 @@
       const nombre = r[iNombre];
 
       const selsArr = r.slice(startSel, endSel).map(x => (x ?? '').toString().trim());
-      // 1:V 2:L ... 9:E
       const selsCompact = selsArr.map((s, idx) => `${idx+1}:${s || '-'}`).join(' ');
 
       const aciertos = r[iAciertos];
@@ -291,6 +330,29 @@
     });
 
     return { headers: headers2, rows: rows2 };
+  }
+
+  function filtrarRows(headers, rows){
+    const q = ($('#qInput')?.value || '').trim().toUpperCase();
+    const mode = ($('#modeSel')?.value || 'telefono');
+
+    if (!q) return rows;
+
+    const hl = headers.map(h => String(h).toLowerCase().trim());
+    const idxTel   = hl.indexOf('telefono_envio');
+    const idxFolio = hl.indexOf('folio');
+    const idxNom   = hl.indexOf('nombre');
+
+    return (rows || []).filter(r => {
+      const tel = idxTel >= 0 ? String(r[idxTel] || '').toUpperCase() : '';
+      const fol = idxFolio >= 0 ? String(r[idxFolio] || '').toUpperCase() : '';
+      const nom = idxNom >= 0 ? String(r[idxNom] || '').toUpperCase() : '';
+
+      if (mode === 'telefono') return tel.includes(q);
+      if (mode === 'folio')    return fol.includes(q);
+      if (mode === 'nombre')   return nom.includes(q);
+      return false;
+    });
   }
 
   async function load(){
@@ -305,22 +367,38 @@
         throw new Error(json?.error || 'Respuesta inválida');
       }
 
-      // Esperamos formato: { ok:true, data:{ headers:[], rows:[] } }
       const data = json.data || {};
-      const headers = data.headers || [];
-      const rows = data.rows || [];
+      RAW_HEADERS = data.headers || [];
+      RAW_ROWS    = data.rows || [];
 
-      const packed = compactar(headers, rows);
+      const rowsFiltradas = filtrarRows(RAW_HEADERS, RAW_ROWS);
+
+      const packed = compactar(RAW_HEADERS, rowsFiltradas);
       renderTable(packed.headers, packed.rows);
 
       const now = new Date();
       setStatus(true, 'OK · ' + now.toLocaleTimeString('es-MX'));
-      $('#hintTxt').textContent = `Actualiza automáticamente cada ${Math.round(REFRESH_MS/1000)} segundos. Última carga: ${now.toLocaleTimeString('es-MX')}.`;
+      $('#hintTxt').textContent =
+        `Actualiza cada ${Math.round(REFRESH_MS/1000)}s. Mostrando ${rowsFiltradas.length} de ${RAW_ROWS.length}. Última carga: ${now.toLocaleTimeString('es-MX')}.`;
     } catch(err){
       setStatus(false, 'Error');
       showErr(String(err?.message || err));
     }
   }
+
+  // Eventos buscador
+  document.addEventListener('input', (e) => {
+    if (e.target && e.target.id === 'qInput') load();
+  });
+  document.addEventListener('change', (e) => {
+    if (e.target && e.target.id === 'modeSel') load();
+  });
+  document.addEventListener('click', (e) => {
+    if (e.target && e.target.id === 'clearBtn') {
+      $('#qInput').value = '';
+      load();
+    }
+  });
 
   load();
   setInterval(load, REFRESH_MS);
