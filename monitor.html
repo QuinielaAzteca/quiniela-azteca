@@ -1,274 +1,329 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Monitor Quiniela (Clasificación)</title>
+  <title>Monitor – Clasificación Quiniela</title>
   <style>
     :root{
-      --bg:#0b1220;
-      --card:#0f1a2e;
-      --line:rgba(255,255,255,.10);
-      --text:#e5e7eb;
-      --muted:#94a3b8;
+      --bg:#f3f6f4;
+      --card:#ffffff;
+      --fg:#0f172a;
+      --muted:#475569;
+      --line:#e5e7eb;
+      --shadow: 0 10px 24px rgba(2,6,23,.08);
     }
-    *{box-sizing:border-box}
+
+    *{ box-sizing:border-box; }
+    html, body{ overflow-x:hidden; }
     body{
       margin:0;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
-      background: radial-gradient(1000px 520px at 50% -140px, #111827 0%, var(--bg) 55%, #070b14 100%);
-      color:var(--text);
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+      background: var(--bg);
+      color: var(--fg);
     }
+
     .wrap{
-      max-width:1100px;
-      margin:0 auto;
-      padding:14px;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 12px;
     }
+
     .top{
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      padding: 12px;
       display:flex;
-      align-items:flex-end;
-      justify-content:space-between;
       gap:10px;
+      align-items:flex-start;
+      justify-content:space-between;
       flex-wrap:wrap;
-      background: rgba(255,255,255,.03);
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:12px;
     }
-    .title{
-      display:flex;
-      flex-direction:column;
-      gap:4px;
-    }
-    .title h1{
+    .top h1{
       margin:0;
-      font-size:18px;
+      font-size: 16px;
       letter-spacing:.02em;
     }
-    .title .sub{
-      font-size:12px;
-      color:var(--muted);
-      font-weight:700;
+    .sub{
+      margin-top:2px;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
     }
-    .right{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-    .chip{
+    .pill{
       display:inline-flex;
       align-items:center;
       gap:8px;
       padding:8px 10px;
-      border-radius:999px;
-      background: rgba(255,255,255,.04);
       border:1px solid var(--line);
-      font-size:12px;
-      color:var(--muted);
-      font-weight:800;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--muted);
+      background:#fff;
       white-space:nowrap;
     }
-    .chip b{color:var(--text)}
-    .btn{
-      appearance:none;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.06);
-      color:var(--text);
-      padding:9px 10px;
-      border-radius:10px;
-      font-weight:900;
-      font-size:12px;
-      cursor:pointer;
-      transition:transform .06s ease, background .12s ease;
+    .dot{
+      width:8px;height:8px;border-radius:999px;background:#16a34a;
     }
-    .btn:active{transform:scale(.98)}
-    .btn:hover{background: rgba(255,255,255,.10)}
-    .main{
-      margin-top:12px;
-      background: rgba(255,255,255,.03);
-      border:1px solid var(--line);
-      border-radius:14px;
+    .dot.off{ background:#ef4444; }
+
+    .card{
+      margin-top: 10px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
       overflow:hidden;
     }
+
     .tableWrap{
       width:100%;
-      overflow:auto; /* aquí sí queremos scroll si se ocupa en escritorio */
-      max-height:74vh;
+      overflow:hidden; /* 👈 sin scroll horizontal */
     }
+
     table{
       width:100%;
       border-collapse:separate;
       border-spacing:0;
-      min-width:720px;
+      table-layout: fixed; /* 👈 clave */
+      min-width: 0;        /* 👈 clave */
     }
+
     thead th{
       position:sticky;
       top:0;
-      z-index:5;
+      z-index:2;
+      background:#f8fafc;
+      border-bottom:1px solid var(--line);
+      padding:10px 8px;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+      color:#334155;
+      font-weight:900;
       text-align:left;
-      font-size:12px;
-      letter-spacing:.02em;
-      color:#cbd5e1;
-      background: rgba(15,26,46,.95);
-      border-bottom:1px solid var(--line);
-      padding:10px 10px;
-      white-space:nowrap;
     }
+
     tbody td{
-      padding:10px 10px;
       border-bottom:1px solid var(--line);
-      font-size:12px;
-      color:var(--text);
-      white-space:nowrap;
-    }
-    tbody tr:hover td{
-      background: rgba(255,255,255,.03);
-    }
-    td.num{
-      font-variant-numeric:tabular-nums;
-      text-align:right;
-    }
-    td.center{text-align:center}
-    .muted{color:var(--muted)}
-    .err{
-      margin-top:12px;
-      padding:10px 12px;
-      border-radius:12px;
-      border:1px solid rgba(248,113,113,.35);
-      background: rgba(248,113,113,.08);
-      color:#fecaca;
+      padding:10px 8px;
+      font-size:13px;
       font-weight:800;
+      vertical-align:top;
+
+      white-space: normal;     /* 👈 permite saltos */
+      word-break: break-word;  /* 👈 evita desbordes */
+      overflow-wrap:anywhere;
+    }
+
+    tbody tr:nth-child(odd){ background:#ffffff; }
+    tbody tr:nth-child(even){ background:#f9fbfa; }
+    tbody tr:last-child td{ border-bottom:none; }
+
+    /* Anchos pensados para que SIEMPRE quepa en móvil */
+    th.col-folio,  td.col-folio  { width:72px; }
+    th.col-ac,     td.col-ac     { width:80px; }
+    th.col-nombre, td.col-nombre { width:180px; }
+    /* selecciones ocupa lo restante */
+    th.col-sels, td.col-sels { width:auto; }
+
+    td.num{ text-align:right; }
+    td.center{ text-align:center; }
+
+    .muted{
+      color: var(--muted);
+      font-weight:800;
+      font-size:12px;
+    }
+
+    .err{
+      padding:12px;
+      color:#b91c1c;
+      background:#fff1f2;
+      border-top:1px solid #fecdd3;
+      font-weight:900;
+      font-size:13px;
       display:none;
     }
+
     .hint{
-      margin-top:10px;
+      padding:10px 12px;
+      border-top:1px solid var(--line);
+      background:#fff;
+      color: var(--muted);
       font-size:12px;
-      color:var(--muted);
-      font-weight:700;
-      line-height:1.35;
+      font-weight:800;
+    }
+
+    @media (max-width:520px){
+      .top{ padding:10px; }
+      .top h1{ font-size:15px; }
+      th.col-nombre, td.col-nombre{ width:150px; }
+      tbody td{ font-size:12.5px; }
     }
   </style>
 </head>
+
 <body>
   <div class="wrap">
     <div class="top">
-      <div class="title">
-        <h1>Monitor – Clasificación Quiniela</h1>
-        <div class="sub">Fuente: <span class="muted">clasificacion_prueba</span> · Actualiza solo (polling)</div>
+      <div>
+        <h1>Monitor – Clasificación</h1>
+        <div class="sub">Sin scroll horizontal (selecciones compactas)</div>
       </div>
-
-      <div class="right">
-        <div class="chip">Estado: <b id="estadoTxt">—</b></div>
-        <div class="chip">Última actualización: <b id="lastTxt">—</b></div>
-        <button class="btn" id="btnNow">Actualizar ahora</button>
+      <div class="pill" id="statusPill">
+        <span class="dot" id="dot"></span>
+        <span id="statusTxt">Cargando…</span>
       </div>
     </div>
 
-    <div class="main">
-      <div class="tableWrap">
-        <table>
-          <thead id="thead"></thead>
-          <tbody id="tbody"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="err" id="errBox"></div>
-
-    <div class="hint">
-      Tip: este monitor solo <b>lee</b> tu WebApp con <code>?mode=clasif</code>. <br/>
-      Si no ves datos, primero corre <b>generarClasificacionPrueba()</b> en Apps Script para llenar la hoja.
+    <div class="card">
+      <div class="tableWrap" id="tableWrap"></div>
+      <div class="err" id="errBox"></div>
+      <div class="hint" id="hintTxt">Actualiza automáticamente cada 5 segundos.</div>
     </div>
   </div>
 
 <script>
+  // 👇 Pon aquí TU endpoint (ya con mode=clasif)
   const ENDPOINT = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec?mode=clasif";
+
+  const REFRESH_MS = 5000;
 
   const $ = s => document.querySelector(s);
 
-  function fmtTime(d){
-    try{
-      return d.toLocaleString('es-MX', { hour12:false });
-    }catch(e){
-      return d.toISOString();
+  function setStatus(ok, msg){
+    const dot = $('#dot');
+    dot.classList.toggle('off', !ok);
+    $('#statusTxt').textContent = msg;
+  }
+
+  function showErr(msg){
+    const box = $('#errBox');
+    if (!msg){
+      box.style.display = 'none';
+      box.textContent = '';
+      return;
     }
-  }
-
-  function showError(msg){
-    const box = $('#errBox');
     box.style.display = 'block';
-    box.textContent = String(msg || 'Error');
-    $('#estadoTxt').textContent = 'ERROR';
+    box.textContent = msg;
   }
 
-  function clearError(){
-    const box = $('#errBox');
-    box.style.display = 'none';
-    box.textContent = '';
-  }
-
-  function isNum(val){
-    if (val === null || val === undefined) return false;
-    const s = String(val).trim();
-    if (!s) return false;
-    return /^-?\d+(\.\d+)?$/.test(s);
-  }
-
-  function renderTable(headers, rows){
-    const thead = $('#thead');
-    const tbody = $('#tbody');
-
-    thead.innerHTML = '<tr>' + headers.map(h => `<th>${escapeHtml(h)}</th>`).join('') + '</tr>';
-
-    tbody.innerHTML = rows.map(r => {
-      return '<tr>' + r.map((c, idx) => {
-        const v = (c === null || c === undefined) ? '' : c;
-        const cls = (idx === headers.length - 1 || isNum(v)) ? 'num' : '';
-        // Aciertos al centro si quieres: (headers[idx] === 'aciertos') ? 'center' : ''
-        return `<td class="${cls}">${escapeHtml(String(v))}</td>`;
-      }).join('') + '</tr>';
-    }).join('');
-  }
-
-  function escapeHtml(s){
-    return s
+  function esc(s){
+    return String(s ?? '')
       .replaceAll('&','&amp;')
       .replaceAll('<','&lt;')
       .replaceAll('>','&gt;')
       .replaceAll('"','&quot;')
-      .replaceAll("'",'&#039;');
+      .replaceAll("'","&#39;");
+  }
+
+  function renderTable(headers, rows){
+    const wrap = $('#tableWrap');
+
+    if (!headers?.length){
+      wrap.innerHTML = '<div class="hint">No hay encabezados para mostrar.</div>';
+      return;
+    }
+
+    const ths = headers.map(h => {
+      const key = String(h).toLowerCase();
+      const cls =
+        key === 'folio' ? 'col-folio' :
+        key === 'nombre' ? 'col-nombre' :
+        key === 'aciertos' ? 'col-ac' :
+        key === 'selecciones' ? 'col-sels' : '';
+      return `<th class="${cls}">${esc(h)}</th>`;
+    }).join('');
+
+    const trs = (rows || []).map(r => {
+      const tds = headers.map((h, i) => {
+        const key = String(h).toLowerCase();
+        const cls =
+          key === 'folio' ? 'col-folio num' :
+          key === 'aciertos' ? 'col-ac center' :
+          key === 'nombre' ? 'col-nombre' :
+          key === 'selecciones' ? 'col-sels' : '';
+
+        return `<td class="${cls}">${esc(r?.[i])}</td>`;
+      }).join('');
+      return `<tr>${tds}</tr>`;
+    }).join('');
+
+    wrap.innerHTML = `
+      <table>
+        <thead><tr>${ths}</tr></thead>
+        <tbody>${trs}</tbody>
+      </table>
+    `;
+  }
+
+  function compactar(headers, rows){
+    const hLower = headers.map(h => String(h).toLowerCase().trim());
+
+    const iFolio    = hLower.indexOf('folio');
+    const iNombre   = hLower.indexOf('nombre');
+    const iAciertos = hLower.indexOf('aciertos');
+
+    // Si no están estas columnas, mostramos tal cual (fallback)
+    if (iFolio < 0 || iNombre < 0 || iAciertos < 0 || iAciertos <= iNombre){
+      return { headers, rows };
+    }
+
+    // selecciones = todas las columnas entre nombre y aciertos
+    const startSel = iNombre + 1;
+    const endSel   = iAciertos;
+
+    const headers2 = ['folio','nombre','selecciones','aciertos'];
+    const rows2 = (rows || []).map(r => {
+      const folio  = r[iFolio];
+      const nombre = r[iNombre];
+
+      const selsArr = r.slice(startSel, endSel).map(x => (x ?? '').toString().trim());
+      // 1:V 2:L ... 9:E
+      const selsCompact = selsArr.map((s, idx) => `${idx+1}:${s || '-'}`).join(' ');
+
+      const aciertos = r[iAciertos];
+      return [folio, nombre, selsCompact, aciertos];
+    });
+
+    return { headers: headers2, rows: rows2 };
   }
 
   async function load(){
     try{
-      $('#estadoTxt').textContent = 'Cargando...';
-      clearError();
+      setStatus(true, 'Cargando…');
+      showErr('');
 
-      const r = await fetch(ENDPOINT, { cache:'no-store' });
-      const j = await r.json();
+      const res = await fetch(ENDPOINT, { cache: 'no-store' });
+      const json = await res.json();
 
-      if (!j.ok) throw new Error(j.error || 'Respuesta no ok');
+      if (!json || json.ok !== true){
+        throw new Error(json?.error || 'Respuesta inválida');
+      }
 
-      const data = j.data || {};
+      // Esperamos formato: { ok:true, data:{ headers:[], rows:[] } }
+      const data = json.data || {};
       const headers = data.headers || [];
       const rows = data.rows || [];
 
-      renderTable(headers, rows);
+      const packed = compactar(headers, rows);
+      renderTable(packed.headers, packed.rows);
 
-      $('#estadoTxt').textContent = 'OK';
-      $('#lastTxt').textContent = fmtTime(new Date());
-    } catch (e){
-      showError(e && e.message ? e.message : e);
-      $('#lastTxt').textContent = fmtTime(new Date());
+      const now = new Date();
+      setStatus(true, 'OK · ' + now.toLocaleTimeString('es-MX'));
+      $('#hintTxt').textContent = `Actualiza automáticamente cada ${Math.round(REFRESH_MS/1000)} segundos. Última carga: ${now.toLocaleTimeString('es-MX')}.`;
+    } catch(err){
+      setStatus(false, 'Error');
+      showErr(String(err?.message || err));
     }
   }
 
-  $('#btnNow').addEventListener('click', load);
-
   load();
-  setInterval(load, 5000); // refresca cada 5 segundos
+  setInterval(load, REFRESH_MS);
 </script>
 </body>
 </html>
