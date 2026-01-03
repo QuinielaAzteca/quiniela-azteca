@@ -155,6 +155,59 @@ tbody tr:last-child td{border-bottom:none}
   th.col-nombre,td.col-nombre{width:150px}
   td.sel{height:28px}
 }
+/* Evita filas gigantes */
+tbody td{
+  vertical-align: middle;
+}
+
+/* Asegura que la celda del nombre NO se estire raro */
+td.col-nombre{
+  display: table-cell !important;   /* anula flex/grid si existiera */
+  white-space: normal;
+}
+
+/* Pastillas/selecciones: tamaño fijo y centrado real */
+td.selCell{
+  padding: 4px 0 !important;
+  text-align: center;
+}
+.selPill{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 28px;
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  font-weight: 900;
+  line-height: 1;
+}
+
+/* ✅ Ganadores: SOLO folio + nombre + aciertos */
+tr.win1 td{ background: transparent !important; } /* por si estabas pintando toda la fila */
+tr.win2 td{ background: transparent !important; }
+
+tr.win1 td.col-folio,
+tr.win1 td.col-nombre,
+tr.win1 td.col-ac{
+  background: #16a34a !important;
+  color: #ffffff !important;
+}
+
+tr.win2 td.col-folio,
+tr.win2 td.col-nombre,
+tr.win2 td.col-ac{
+  background: #6ee7b7 !important; /* verde más claro */
+  color: #064e3b !important;
+}
+
+/* Aciertos (casillas verdes suaves por acierto) */
+.selHit{
+  background: #bbf7d0 !important;  /* verde suave */
+  border-color: #86efac !important;
+  color:#064e3b !important;
+}
+ 
 </style>
 </head>
 
@@ -314,3 +367,4 @@ setInterval(load, 5000);
 </script>
 </body>
 </html>
+
