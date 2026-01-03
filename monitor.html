@@ -12,11 +12,18 @@
       --muted:#475569;
       --line:#e5e7eb;
       --shadow: 0 10px 24px rgba(2,6,23,.08);
-      --focus: rgba(2,132,199,.18);
+
+      /* verdes */
+      --hit-bg:#dcfce7;     /* acierto suave */
+      --hit-bd:#86efac;
+      --first-bg:#16a34a;   /* ganadores 1er lugar */
+      --first-fg:#ffffff;
+      --second-bg:#86efac;  /* 2do lugar */
+      --second-fg:#064e3b;
     }
 
     *{ box-sizing:border-box; }
-    html, body{ overflow-x:hidden; }
+    html, body{ overflow-x:auto; }
     body{
       margin:0;
       font-family: system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
@@ -24,11 +31,7 @@
       color: var(--fg);
     }
 
-    .wrap{
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 12px;
-    }
+    .wrap{ max-width: 1200px; margin: 0 auto; padding: 12px; }
 
     .top{
       background: var(--card);
@@ -42,25 +45,8 @@
       justify-content:space-between;
       flex-wrap:wrap;
     }
-    .top h1{
-      margin:0;
-      font-size: 16px;
-      letter-spacing:.02em;
-    }
-    .sub{
-      margin-top:2px;
-      font-size: 12px;
-      color: var(--muted);
-      font-weight: 700;
-    }
-
-    .right{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
+    .top h1{ margin:0; font-size: 16px; letter-spacing:.02em; }
+    .sub{ margin-top:2px; font-size: 12px; color: var(--muted); font-weight: 700; }
 
     .pill{
       display:inline-flex;
@@ -78,38 +64,6 @@
     .dot{ width:8px;height:8px;border-radius:999px;background:#16a34a; }
     .dot.off{ background:#ef4444; }
 
-    .search{
-      min-width: 260px;
-      max-width: 520px;
-      width: min(520px, 92vw);
-      display:flex;
-      align-items:center;
-      gap:8px;
-      padding:8px 10px;
-      border:1px solid var(--line);
-      border-radius: 12px;
-      background:#fff;
-    }
-    .search input{
-      border:none;
-      outline:none;
-      width:100%;
-      font-size:13px;
-      font-weight:800;
-      color:var(--fg);
-      background:transparent;
-    }
-    .search:focus-within{
-      border-color:#38bdf8;
-      box-shadow: 0 0 0 4px var(--focus);
-    }
-    .search .hint{
-      font-size:12px;
-      color:var(--muted);
-      font-weight:800;
-      white-space:nowrap;
-    }
-
     .card{
       margin-top: 10px;
       background: var(--card);
@@ -119,24 +73,20 @@
       overflow:hidden;
     }
 
-    /* 👇 vuelve el scroll horizontal */
-    .tableWrap{
-      width:100%;
-      overflow:auto;
-      -webkit-overflow-scrolling: touch;
-    }
+    .tableWrap{ width:100%; overflow:auto; }
 
     table{
       width:100%;
       border-collapse:separate;
       border-spacing:0;
-      min-width: 980px; /* fuerza tabla “tipo sheets” y permite scroll en móviles */
+      table-layout: fixed;
+      min-width: 980px; /* para que las 9 casillas quepan bien */
     }
 
     thead th{
-      position: sticky;
-      top: 0;
-      z-index: 2;
+      position:sticky;
+      top:0;
+      z-index:2;
       background:#f8fafc;
       border-bottom:1px solid var(--line);
       padding:10px 8px;
@@ -145,8 +95,7 @@
       letter-spacing:.04em;
       color:#334155;
       font-weight:900;
-      text-align:left;
-      white-space:nowrap;
+      text-align:center;
     }
 
     tbody td{
@@ -154,13 +103,32 @@
       padding:10px 8px;
       font-size:13px;
       font-weight:800;
-      vertical-align:top;
-      white-space:nowrap; /* como sheets */
+      vertical-align:middle;
+      background:#fff;
+    }
+    tbody tr:nth-child(even) td{ background:#f9fbfa; }
+
+    th.col-folio,  td.col-folio  { width:72px; text-align:right; }
+    th.col-tel,    td.col-tel    { width:130px; text-align:center; }
+    th.col-nombre, td.col-nombre { width:200px; text-align:left; }
+    th.col-ac,     td.col-ac     { width:90px; text-align:center; }
+    th.col-p,      td.col-p      { width:46px; text-align:center; }
+
+    /* casillas de partido */
+    td.pick{
+      border:1px solid #cbd5e1;
+      border-radius:10px;
+      background:#fff;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.6);
+    }
+    td.pick.hit{
+      background: var(--hit-bg);
+      border-color: var(--hit-bd);
     }
 
-    tbody tr:nth-child(odd){ background:#ffffff; }
-    tbody tr:nth-child(even){ background:#f9fbfa; }
-    tbody tr:last-child td{ border-bottom:none; }
+    /* resaltar 1er/2do lugar SOLO en folio/nombre/aciertos */
+    td.first { background: var(--first-bg) !important; color: var(--first-fg) !important; }
+    td.second{ background: var(--second-bg) !important; color: var(--second-fg) !important; }
 
     .err{
       padding:12px;
@@ -171,32 +139,19 @@
       font-size:13px;
       display:none;
     }
-
-    .foot{
+    .hint{
       padding:10px 12px;
       border-top:1px solid var(--line);
       background:#fff;
       color: var(--muted);
       font-size:12px;
       font-weight:800;
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-      justify-content:space-between;
-    }
-
-    .count{
-      font-weight:900;
-      color:#0f172a;
     }
 
     @media (max-width:520px){
       .top{ padding:10px; }
       .top h1{ font-size:15px; }
-      tbody td{ font-size:12.5px; }
-      .search{ width: 100%; }
-      .right{ width:100%; justify-content:space-between; }
+      th.col-nombre, td.col-nombre{ width:170px; }
     }
   </style>
 </head>
@@ -206,54 +161,35 @@
     <div class="top">
       <div>
         <h1>Monitor – Clasificación</h1>
-        <div class="sub">Búsqueda por <b>Nombre</b> o <b>Teléfono</b> (una sola barra)</div>
+        <div class="sub">Casillas 1–9 + aciertos en verde</div>
       </div>
-
-      <div class="right">
-        <div class="search" title="Busca por nombre o teléfono">
-          <input id="q" placeholder="Buscar: nombre o teléfono…" autocomplete="off" />
-          <span class="hint" id="qHint">0</span>
-        </div>
-
-        <div class="pill" id="statusPill">
-          <span class="dot" id="dot"></span>
-          <span id="statusTxt">Cargando…</span>
-        </div>
+      <div class="pill">
+        <span class="dot" id="dot"></span>
+        <span id="statusTxt">Cargando…</span>
       </div>
     </div>
 
     <div class="card">
       <div class="tableWrap" id="tableWrap"></div>
       <div class="err" id="errBox"></div>
-      <div class="foot">
-        <div id="hintTxt">Actualiza automáticamente cada 5 segundos.</div>
-        <div><span class="count" id="countTxt">0</span> filas</div>
-      </div>
+      <div class="hint" id="hintTxt">Actualiza automáticamente cada 5 segundos.</div>
     </div>
   </div>
 
 <script>
-  const ENDPOINT   = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec?mode=clasif";
+  const ENDPOINT = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec?mode=clasif";
   const REFRESH_MS = 5000;
 
   const $ = s => document.querySelector(s);
 
-  let LAST_HEADERS = [];
-  let LAST_ROWS    = [];
-
   function setStatus(ok, msg){
-    const dot = $('#dot');
-    dot.classList.toggle('off', !ok);
+    $('#dot').classList.toggle('off', !ok);
     $('#statusTxt').textContent = msg;
   }
 
   function showErr(msg){
     const box = $('#errBox');
-    if (!msg){
-      box.style.display = 'none';
-      box.textContent = '';
-      return;
-    }
+    if (!msg){ box.style.display = 'none'; box.textContent = ''; return; }
     box.style.display = 'block';
     box.textContent = msg;
   }
@@ -267,65 +203,85 @@
       .replaceAll("'","&#39;");
   }
 
-  function renderTable(headers, rows){
-    const wrap = $('#tableWrap');
+  function toUpperTrim(x){ return String(x ?? '').trim().toUpperCase(); }
 
-    if (!headers?.length){
-      wrap.innerHTML = '<div class="foot">No hay encabezados para mostrar.</div>';
-      $('#countTxt').textContent = '0';
-      $('#qHint').textContent = '0';
+  function renderGrid(data){
+    const wrap = $('#tableWrap');
+    const headers = data?.headers || [];
+    const rows = data?.rows || [];
+    const resultados = (data?.resultados || []).map(toUpperTrim); // L/E/V
+
+    if (!headers.length){
+      wrap.innerHTML = '<div class="hint">No hay encabezados para mostrar.</div>';
       return;
     }
 
-    const ths = headers.map(h => `<th>${esc(h)}</th>`).join('');
+    const hLower = headers.map(h => String(h).toLowerCase().trim());
+    const iFolio = hLower.indexOf('folio');
+    const iTel   = hLower.indexOf('telefono_envio');
+    const iNom   = hLower.indexOf('nombre');
+    const iAci   = hLower.indexOf('aciertos');
 
-    const trs = (rows || []).map(r => {
-      const tds = headers.map((_, i) => `<td>${esc(r?.[i])}</td>`).join('');
-      return `<tr>${tds}</tr>`;
-    }).join('');
+    if (iFolio < 0 || iNom < 0 || iAci < 0){
+      wrap.innerHTML = '<div class="hint">El endpoint no trae columnas folio/nombre/aciertos.</div>';
+      return;
+    }
+
+    const startSel = iNom + 1;
+    const endSel = iAci - 1;
+    const nPartidos = Math.max(0, endSel - startSel + 1);
+
+    // calcular 1er/2do lugar por aciertos (solo con lo que llega)
+    const acVals = rows.map(r => Number(r?.[iAci] ?? 0) || 0);
+    const maxA = acVals.length ? Math.max(...acVals) : 0;
+    let secondA = -1;
+    for (const v of acVals.sort((a,b)=>b-a)){
+      if (v < maxA){ secondA = v; break; }
+    }
+
+    // THEAD
+    let th = '';
+    th += `<th class="col-folio">Folio</th>`;
+    th += `<th class="col-tel">Tel</th>`;
+    th += `<th class="col-nombre" style="text-align:left">Nombre</th>`;
+    for (let p = 1; p <= nPartidos; p++){
+      th += `<th class="col-p">${p}</th>`;
+    }
+    th += `<th class="col-ac">Aciertos</th>`;
+
+    // TBODY
+    let tb = '';
+    rows.forEach((r, idx) => {
+      const folio = r?.[iFolio] ?? '';
+      const tel   = (iTel >= 0) ? (r?.[iTel] ?? '') : '';
+      const nom   = r?.[iNom] ?? '';
+      const ac    = Number(r?.[iAci] ?? 0) || 0;
+
+      const isFirst  = (ac === maxA && maxA > 0);
+      const isSecond = (secondA >= 0 && ac === secondA);
+
+      tb += `<tr>`;
+      tb += `<td class="col-folio ${isFirst?'first':(isSecond?'second':'')}">${esc(folio)}</td>`;
+      tb += `<td class="col-tel">${esc(tel)}</td>`;
+      tb += `<td class="col-nombre ${isFirst?'first':(isSecond?'second':'')}">${esc(nom)}</td>`;
+
+      for (let j = 0; j < nPartidos; j++){
+        const sel = toUpperTrim(r?.[startSel + j]);
+        const res = resultados[j] || ''; // L/E/V
+        const hit = (res && sel && sel === res);
+        tb += `<td class="col-p pick ${hit?'hit':''}">${esc(sel || '-')}</td>`;
+      }
+
+      tb += `<td class="col-ac ${isFirst?'first':(isSecond?'second':'')}">${esc(ac)}</td>`;
+      tb += `</tr>`;
+    });
 
     wrap.innerHTML = `
       <table>
-        <thead><tr>${ths}</tr></thead>
-        <tbody>${trs}</tbody>
+        <thead><tr>${th}</tr></thead>
+        <tbody>${tb}</tbody>
       </table>
     `;
-
-    $('#countTxt').textContent = String((rows || []).length);
-    $('#qHint').textContent = String((rows || []).length);
-  }
-
-  function filterRows(query){
-    const q = String(query || '').trim().toUpperCase();
-    if (!q) return LAST_ROWS;
-
-    const hLower = LAST_HEADERS.map(h => String(h).toLowerCase().trim());
-    const idxTel   = hLower.indexOf('telefono_envio') >= 0 ? hLower.indexOf('telefono_envio')
-                  : hLower.indexOf('telefono') >= 0 ? hLower.indexOf('telefono')
-                  : -1;
-    const idxNom   = hLower.indexOf('nombre');
-
-    // Si no existen columnas clave, no filtramos (fallback)
-    if (idxNom < 0 && idxTel < 0) return LAST_ROWS;
-
-    const isDigits = /^\d+$/.test(q);
-
-    return (LAST_ROWS || []).filter(r => {
-      const tel = idxTel >= 0 ? String(r[idxTel] ?? '').toUpperCase() : '';
-      const nom = idxNom >= 0 ? String(r[idxNom] ?? '').toUpperCase() : '';
-
-      // En la MISMA barra:
-      // - Si escribió solo números: filtra por teléfono
-      // - Si escribió letras: filtra por nombre (y también deja match por tel si pega tel con espacios)
-      if (isDigits) return tel.includes(q);
-      return nom.includes(q) || tel.includes(q);
-    });
-  }
-
-  function applySearch(){
-    const q = $('#q').value;
-    const filtered = filterRows(q);
-    renderTable(LAST_HEADERS, filtered);
   }
 
   async function load(){
@@ -336,29 +292,18 @@
       const res = await fetch(ENDPOINT, { cache: 'no-store' });
       const json = await res.json();
 
-      if (!json || json.ok !== true){
-        throw new Error(json?.error || 'Respuesta inválida');
-      }
+      if (!json || json.ok !== true) throw new Error(json?.error || 'Respuesta inválida');
 
-      const data = json.data || {};
-      LAST_HEADERS = data.headers || [];
-      LAST_ROWS    = data.rows || [];
-
-      // pinta con filtro actual (si el usuario ya estaba buscando, no se pierde)
-      applySearch();
+      renderGrid(json.data);
 
       const now = new Date();
       setStatus(true, 'OK · ' + now.toLocaleTimeString('es-MX'));
-      $('#hintTxt').textContent =
-        `Actualiza automáticamente cada ${Math.round(REFRESH_MS/1000)}s. Última carga: ${now.toLocaleTimeString('es-MX')}.`;
+      $('#hintTxt').textContent = `Actualiza automáticamente cada ${Math.round(REFRESH_MS/1000)} segundos. Última carga: ${now.toLocaleTimeString('es-MX')}.`;
     } catch(err){
       setStatus(false, 'Error');
       showErr(String(err?.message || err));
     }
   }
-
-  // search events
-  $('#q').addEventListener('input', () => applySearch());
 
   load();
   setInterval(load, REFRESH_MS);
