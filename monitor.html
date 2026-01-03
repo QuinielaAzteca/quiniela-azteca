@@ -119,7 +119,6 @@ th.col-ac,td.col-ac{width:32px}
 td.sel{
   border:1px solid #d1d5db;
   border-radius:8px;
-  padding:0;
   height:30px;
 
   /* ✅ centrado real */
@@ -129,12 +128,13 @@ td.sel{
   line-height:1;
 }
 
-td.acierto{
+td.sel.acierto{
   background:var(--verdeCell);
   color:var(--verdeCellText);
   border-color:var(--verde2);
 }
 
+/* ✅ Ganadores: SOLO folio + nombre + aciertos */
 tr.g1 td.col-folio,
 tr.g1 td.col-nombre,
 tr.g1 td.col-ac{
@@ -367,4 +367,5 @@ setInterval(load, 5000);
 </script>
 </body>
 </html>
+
 
