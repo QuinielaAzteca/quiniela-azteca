@@ -80,7 +80,7 @@
       border-collapse:separate;
       border-spacing:0;
       table-layout: fixed;
-      min-width: 980px; /* para que las 9 casillas quepan bien */
+      min-width: 860px; /* un poco menos al quitar teléfono */
     }
 
     thead th{
@@ -109,8 +109,7 @@
     tbody tr:nth-child(even) td{ background:#f9fbfa; }
 
     th.col-folio,  td.col-folio  { width:72px; text-align:right; }
-    th.col-tel,    td.col-tel    { width:130px; text-align:center; }
-    th.col-nombre, td.col-nombre { width:200px; text-align:left; }
+    th.col-nombre, td.col-nombre { width:240px; text-align:left; }
     th.col-ac,     td.col-ac     { width:90px; text-align:center; }
     th.col-p,      td.col-p      { width:46px; text-align:center; }
 
@@ -151,7 +150,7 @@
     @media (max-width:520px){
       .top{ padding:10px; }
       .top h1{ font-size:15px; }
-      th.col-nombre, td.col-nombre{ width:170px; }
+      th.col-nombre, td.col-nombre{ width:190px; }
     }
   </style>
 </head>
@@ -209,7 +208,7 @@
     const wrap = $('#tableWrap');
     const headers = data?.headers || [];
     const rows = data?.rows || [];
-    const resultados = (data?.resultados || []).map(toUpperTrim); // L/E/V
+    const resultados = (data?.resultados || []).map(toUpperTrim);
 
     if (!headers.length){
       wrap.innerHTML = '<div class="hint">No hay encabezados para mostrar.</div>';
@@ -218,7 +217,6 @@
 
     const hLower = headers.map(h => String(h).toLowerCase().trim());
     const iFolio = hLower.indexOf('folio');
-    const iTel   = hLower.indexOf('telefono_envio');
     const iNom   = hLower.indexOf('nombre');
     const iAci   = hLower.indexOf('aciertos');
 
@@ -231,18 +229,17 @@
     const endSel = iAci - 1;
     const nPartidos = Math.max(0, endSel - startSel + 1);
 
-    // calcular 1er/2do lugar por aciertos (solo con lo que llega)
+    // 1er/2do lugar por aciertos
     const acVals = rows.map(r => Number(r?.[iAci] ?? 0) || 0);
     const maxA = acVals.length ? Math.max(...acVals) : 0;
     let secondA = -1;
-    for (const v of acVals.sort((a,b)=>b-a)){
+    for (const v of acVals.slice().sort((a,b)=>b-a)){
       if (v < maxA){ secondA = v; break; }
     }
 
     // THEAD
     let th = '';
     th += `<th class="col-folio">Folio</th>`;
-    th += `<th class="col-tel">Tel</th>`;
     th += `<th class="col-nombre" style="text-align:left">Nombre</th>`;
     for (let p = 1; p <= nPartidos; p++){
       th += `<th class="col-p">${p}</th>`;
@@ -251,9 +248,8 @@
 
     // TBODY
     let tb = '';
-    rows.forEach((r, idx) => {
+    rows.forEach((r) => {
       const folio = r?.[iFolio] ?? '';
-      const tel   = (iTel >= 0) ? (r?.[iTel] ?? '') : '';
       const nom   = r?.[iNom] ?? '';
       const ac    = Number(r?.[iAci] ?? 0) || 0;
 
@@ -262,12 +258,11 @@
 
       tb += `<tr>`;
       tb += `<td class="col-folio ${isFirst?'first':(isSecond?'second':'')}">${esc(folio)}</td>`;
-      tb += `<td class="col-tel">${esc(tel)}</td>`;
       tb += `<td class="col-nombre ${isFirst?'first':(isSecond?'second':'')}">${esc(nom)}</td>`;
 
       for (let j = 0; j < nPartidos; j++){
         const sel = toUpperTrim(r?.[startSel + j]);
-        const res = resultados[j] || ''; // L/E/V
+        const res = resultados[j] || '';
         const hit = (res && sel && sel === res);
         tb += `<td class="col-p pick ${hit?'hit':''}">${esc(sel || '-')}</td>`;
       }
@@ -298,7 +293,8 @@
 
       const now = new Date();
       setStatus(true, 'OK · ' + now.toLocaleTimeString('es-MX'));
-      $('#hintTxt').textContent = `Actualiza automáticamente cada ${Math.round(REFRESH_MS/1000)} segundos. Última carga: ${now.toLocaleTimeString('es-MX')}.`;
+      $('#hintTxt').textContent =
+        `Actualiza automáticamente cada ${Math.round(REFRESH_MS/1000)} segundos. Última carga: ${now.toLocaleTimeString('es-MX')}.`;
     } catch(err){
       setStatus(false, 'Error');
       showErr(String(err?.message || err));
