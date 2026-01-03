@@ -8,9 +8,11 @@
 <style>
 :root{
   --verde:#16a34a;
-  --verde-suave:#86efac;
+  --verde2:#86efac;
+  --verdeCell:#dcfce7;
+  --verdeCellText:#166534;
+
   --bg:#f3f6f4;
-  --card:#ffffff;
   --line:#e5e7eb;
   --txt:#0f172a;
 }
@@ -43,9 +45,9 @@ body{
   font-size:18px;
   letter-spacing:.04em;
 }
-.title span:nth-child(1){color:#006847}
-.title span:nth-child(2){color:#ffffff;background:#006847;padding:0 4px}
-.title span:nth-child(3){color:#ce1126}
+.title .mxg{color:#006847}
+.title .mxr{color:#ce1126}
+.title .mxw{color:#0f172a}
 
 .week{
   font-size:13px;
@@ -55,22 +57,27 @@ body{
 
 .partidos{
   margin-top:6px;
-  font-size:11px;
-  font-weight:700;
-  line-height:1.4;
+  font-size:12px;
+  font-weight:800;
+  line-height:1.35;
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+
+.partidos .p{
+  white-space:normal;
 }
 
 /* ===== BUSCADOR ===== */
-.search{
-  margin-top:8px;
-}
+.search{ margin-top:10px; }
 .search input{
   width:100%;
   padding:8px 10px;
   font-size:14px;
-  font-weight:700;
+  font-weight:800;
   border:1px solid var(--line);
-  border-radius:8px;
+  border-radius:10px;
 }
 
 /* ===== TABLA ===== */
@@ -92,9 +99,9 @@ table{
 }
 
 th,td{
-  padding:6px 4px;
+  padding:7px 6px;
   font-size:13px;
-  font-weight:800;
+  font-weight:900;
   text-align:center;
   border-bottom:1px solid var(--line);
 }
@@ -102,39 +109,52 @@ th,td{
 th{
   background:#f8fafc;
   font-size:11px;
+  letter-spacing:.04em;
 }
 
-th.col-folio,td.col-folio{width:42px}
+th.col-folio,td.col-folio{width:40px}
 th.col-nombre,td.col-nombre{text-align:left;width:170px}
-th.col-ac,td.col-ac{width:36px}
+th.col-ac,td.col-ac{width:32px}
 
 td.sel{
   border:1px solid #d1d5db;
-  border-radius:6px;
-  margin:1px;
+  border-radius:8px;
+  padding:0;
+  height:30px;
+
+  /* ✅ centrado real */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  line-height:1;
 }
 
 td.acierto{
-  background:#dcfce7;
-  color:#166534;
-  border-color:#86efac;
+  background:var(--verdeCell);
+  color:var(--verdeCellText);
+  border-color:var(--verde2);
 }
 
-tr.ganador1 td.col-folio,
-tr.ganador1 td.col-nombre,
-tr.ganador1 td.col-ac{
+tr.g1 td.col-folio,
+tr.g1 td.col-nombre,
+tr.g1 td.col-ac{
   background:var(--verde);
   color:#fff;
 }
 
-tr.ganador2 td.col-folio,
-tr.ganador2 td.col-nombre,
-tr.ganador2 td.col-ac{
-  background:var(--verde-suave);
+tr.g2 td.col-folio,
+tr.g2 td.col-nombre,
+tr.g2 td.col-ac{
+  background:var(--verde2);
   color:#064e3b;
 }
 
 tbody tr:last-child td{border-bottom:none}
+
+@media (max-width:420px){
+  th.col-nombre,td.col-nombre{width:150px}
+  td.sel{height:28px}
+}
 </style>
 </head>
 
@@ -143,10 +163,12 @@ tbody tr:last-child td{border-bottom:none}
 <div class="header">
   <div class="header-inner">
     <div class="title">
-      <span>QUINIELA</span><span> </span><span>AZTECA</span>
+      <span class="mxg">QUINIELA</span> <span class="mxr">AZTECA</span>
     </div>
     <div class="week" id="weekTxt">Semana</div>
+
     <div class="partidos" id="partidosTxt"></div>
+
     <div class="search">
       <input id="searchInput" placeholder="Buscar por nombre, folio o teléfono">
     </div>
@@ -158,10 +180,13 @@ tbody tr:last-child td{border-bottom:none}
 </div>
 
 <script>
-const ENDPOINT = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec?mode=clasif";
-const CONFIG   = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec?mode=config";
+const BASE = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec";
+const ENDPOINT = BASE + "?mode=clasif";
+const CONFIG   = BASE + "?mode=config";
 
-let rawRows = [];
+let raw = [];
+let resultados = []; // L/E/V desde config
+let marcadores = []; // "1-0" desde config
 
 function buildHeader(){
   return `
@@ -177,21 +202,41 @@ function buildHeader(){
   `;
 }
 
+function normaliza(v){
+  return String(v ?? '').trim().toUpperCase();
+}
+
+function computeWinners(rows){
+  const acs = rows.map(r => Number(r.aciertos)||0);
+  const max = Math.max(...acs);
+  let second = -1;
+  for (const a of [...new Set(acs)].sort((a,b)=>b-a)){
+    if (a < max){ second = a; break; }
+  }
+  rows.forEach(r=>{
+    const a = Number(r.aciertos)||0;
+    r._lugar = (a===max) ? 1 : (second>=0 && a===second ? 2 : 0);
+  });
+}
+
 function render(rows){
   const tbody = document.querySelector("#tabla tbody");
   tbody.innerHTML = "";
 
   rows.forEach(r=>{
     const tr = document.createElement("tr");
-    if(r._lugar===1) tr.classList.add("ganador1");
-    if(r._lugar===2) tr.classList.add("ganador2");
+    if(r._lugar===1) tr.classList.add("g1");
+    if(r._lugar===2) tr.classList.add("g2");
+
+    const selsHtml = r.sels.map((s, i)=>{
+      const ok = resultados[i] && normaliza(s) === normaliza(resultados[i]);
+      return `<td class="sel ${ok ? 'acierto' : ''}">${s || '-'}</td>`;
+    }).join("");
 
     tr.innerHTML = `
       <td class="col-folio">${r.folio}</td>
-      <td class="col-nombre">${r.nombre}</td>
-      ${r.sels.map((s,i)=>`
-        <td class="sel ${r.aciertosMap[i]?'acierto':''}">${s||'-'}</td>
-      `).join("")}
+      <td class="col-nombre">${r.nombre_show}</td>
+      ${selsHtml}
       <td class="col-ac">${r.aciertos}</td>
     `;
     tbody.appendChild(tr);
@@ -199,52 +244,73 @@ function render(rows){
 }
 
 function aplicarFiltro(){
-  const q = document.getElementById("searchInput").value.toLowerCase();
-  const f = rawRows.filter(r =>
-    r.nombre.includes(q) ||
+  const q = document.getElementById("searchInput").value.trim().toLowerCase();
+  if(!q){ render(raw); return; }
+
+  const f = raw.filter(r =>
     String(r.folio).includes(q) ||
-    String(r.telefono).includes(q)
+    String(r.telefono).includes(q) ||
+    String(r.nombre).includes(q)
   );
   render(f);
 }
 
 async function load(){
-  const [resC,resD] = await Promise.all([
-    fetch(CONFIG).then(r=>r.json()),
-    fetch(ENDPOINT).then(r=>r.json())
-  ]);
+  // Config
+  const cfgRes = await fetch(CONFIG, {cache:"no-store"}).then(r=>r.json());
+  const cfg = cfgRes.cfg || {};
+  document.getElementById("weekTxt").textContent = cfg.subtitulo || "";
 
-  document.getElementById("weekTxt").textContent = resC.cfg.subtitulo || "";
+  resultados = (cfg.resultados || []).slice(0,9);
+  marcadores = (cfg.marcadores || []).slice(0,9);
 
-  const partidos = resC.cfg.partidos || [];
-  const marcadores = (resC.cfg.marcadores || []);
-  document.getElementById("partidosTxt").innerHTML =
-    partidos.map((p,i)=>`${i+1} ${p.local} vs ${p.visita} (${marcadores[i]||'–'})`).join(" · ");
+  const partidos = (cfg.partidos || []).slice(0,9);
+  const partidosTxt = document.getElementById("partidosTxt");
+  partidosTxt.innerHTML = "";
 
-  const h = resD.data.headers.map(h=>h.toLowerCase());
-  rawRows = resD.data.rows.map(r=>{
-    const iF=h.indexOf("folio"), iN=h.indexOf("nombre"),
-          iT=h.indexOf("telefono_envio"), iA=h.indexOf("aciertos");
-    const start=iN+1,end=iA;
+  partidos.forEach((p,i)=>{
+    const m = (marcadores[i] && String(marcadores[i]).trim()) ? marcadores[i] : "-";
+    const div = document.createElement("div");
+    div.className = "p";
+    div.textContent = `${i+1} ${p.local} vs ${p.visita} (${m})`;
+    partidosTxt.appendChild(div);
+  });
+
+  // Clasificación
+  const resD = await fetch(ENDPOINT, {cache:"no-store"}).then(r=>r.json());
+  const h = resD.data.headers.map(x => String(x).toLowerCase());
+
+  const iF = h.indexOf("folio");
+  const iN = h.indexOf("nombre");
+  const iT = h.indexOf("telefono_envio"); // para búsqueda (no se muestra)
+  const iA = h.indexOf("aciertos");
+
+  const startSel = iN + 1;
+  const endSel = iA;
+
+  raw = resD.data.rows.map(r=>{
+    const nombreShow = String(r[iN] ?? '').trim();
     return {
-      folio:r[iF],
-      nombre:r[iN].toLowerCase(),
-      telefono:r[iT],
-      sels:r.slice(start,end),
-      aciertos:r[iA],
-      aciertosMap:r.slice(start,end).map((v,i)=>v && v===resC.cfg.resultados?.[i]),
-      _lugar:r._lugar||0
+      folio: r[iF],
+      telefono: (iT>=0 ? r[iT] : ""),
+      nombre: nombreShow.toLowerCase(),
+      nombre_show: nombreShow,
+      sels: r.slice(startSel, endSel).slice(0,9),
+      aciertos: r[iA],
+      _lugar: 0
     };
   });
 
+  computeWinners(raw);
+
   document.getElementById("tabla").innerHTML = buildHeader();
-  render(rawRows);
+  render(raw);
 }
 
 document.getElementById("searchInput").addEventListener("input", aplicarFiltro);
 
 load();
-setInterval(load,5000);
+setInterval(load, 5000);
 </script>
 </body>
 </html>
