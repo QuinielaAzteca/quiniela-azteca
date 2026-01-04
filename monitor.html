@@ -38,7 +38,6 @@ body{
   margin:auto;
   padding:10px 12px;
 }
-
 .title{
   font-weight:900;
   font-size:18px;
@@ -46,13 +45,11 @@ body{
 }
 .title .mxg{color:#006847}
 .title .mxr{color:#ce1126}
-
 .week{
   font-size:13px;
   font-weight:800;
   margin-top:2px;
 }
-
 .partidos{
   margin-top:6px;
   font-size:12px;
@@ -104,6 +101,7 @@ th,td{
   font-weight:900;
   text-align:center;
   border-bottom:1px solid var(--line);
+  vertical-align:middle;
 }
 
 th{
@@ -116,22 +114,33 @@ th.col-folio,td.col-folio{width:40px}
 th.col-nombre,td.col-nombre{text-align:left;width:170px}
 th.col-ac,td.col-ac{width:32px}
 
-tbody td{ vertical-align:middle; }
-td.col-nombre{ display:table-cell; white-space:normal; }
-
-/* casillas selección */
-td.sel{
-  border:1px solid #d1d5db;
-  border-radius:8px;
-  height:30px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  line-height:1;
+td.col-nombre{
+  white-space:normal;
+  word-break:break-word;
 }
 
-/* acierto suave */
-td.sel.acierto{
+/* ✅ td SEL ya NO es flex. */
+td.sel{
+  padding:4px 0;
+}
+
+/* “pastilla” centrada dentro del td */
+.selPill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:22px;
+  height:28px;
+  border-radius:12px;
+  border:1px solid #cbd5e1;
+  font-weight:900;
+  line-height:1;
+  background:#fff;
+  color:var(--txt);
+}
+
+/* acierto suave (solo la pastilla) */
+.selPill.acierto{
   background:var(--verdeCell);
   color:var(--verdeCellText);
   border-color:var(--verde2);
@@ -144,6 +153,7 @@ tr.g1 td.col-ac{
   background:var(--verde);
   color:#fff;
 }
+
 tr.g2 td.col-folio,
 tr.g2 td.col-nombre,
 tr.g2 td.col-ac{
@@ -155,7 +165,7 @@ tbody tr:last-child td{border-bottom:none}
 
 @media (max-width:420px){
   th.col-nombre,td.col-nombre{width:150px}
-  td.sel{height:28px}
+  .selPill{width:20px;height:26px}
 }
 </style>
 </head>
@@ -187,8 +197,8 @@ const ENDPOINT = BASE + "?mode=clasif";
 const CONFIG   = BASE + "?mode=config";
 
 let raw = [];
-let resultados = []; // L/E/V desde config (si lo mandas)
-let marcadores = []; // "1-0" desde config (si lo mandas)
+let resultados = []; // L/E/V (si tu mode=config lo manda)
+let marcadores = []; // "1-0" (si tu mode=config lo manda)
 
 function buildHeader(){
   return `
@@ -234,7 +244,11 @@ function render(rows){
 
     const selsHtml = r.sels.map((s, i)=>{
       const ok = resultados[i] && normaliza(s) === normaliza(resultados[i]);
-      return `<td class="sel ${ok ? 'acierto' : ''}">${s || '-'}</td>`;
+      const txt = (s && String(s).trim()) ? String(s).trim() : "-";
+      return `
+        <td class="sel">
+          <span class="selPill ${ok ? 'acierto' : ''}">${txt}</span>
+        </td>`;
     }).join("");
 
     tr.innerHTML = `
@@ -266,7 +280,6 @@ async function load(){
 
   document.getElementById("weekTxt").textContent = cfg.subtitulo || "";
 
-  // OJO: solo habrá aciertos verdes si TU mode=config manda cfg.resultados (L/E/V)
   resultados = Array.isArray(cfg.resultados) ? cfg.resultados.slice(0,9) : [];
   marcadores = Array.isArray(cfg.marcadores) ? cfg.marcadores.slice(0,9) : [];
 
@@ -289,7 +302,7 @@ async function load(){
   const h = (data.headers || []).map(x => String(x).toLowerCase().trim());
   const iF = h.indexOf("folio");
   const iN = h.indexOf("nombre");
-  const iT = h.indexOf("telefono_envio"); // para búsqueda (no se muestra)
+  const iT = h.indexOf("telefono_envio"); // solo para buscar
   const iA = h.indexOf("aciertos");
 
   if (iN < 0 || iA < 0){
@@ -318,7 +331,7 @@ async function load(){
   computeWinners(raw);
 
   document.getElementById("tabla").innerHTML = buildHeader();
-  aplicarFiltro(); // respeta lo que ya esté escrito
+  aplicarFiltro(); // respeta lo tecleado
 }
 
 document.getElementById("searchInput").addEventListener("input", aplicarFiltro);
