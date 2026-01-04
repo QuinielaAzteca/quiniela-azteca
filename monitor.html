@@ -98,6 +98,7 @@ th,td{
   font-weight:900;
   text-align:center;
   border-bottom:1px solid var(--line);
+  vertical-align:middle;
 }
 
 th{
@@ -115,37 +116,56 @@ th.col-ac,td.col-ac{width:32px}
   th.col-nombre,td.col-nombre{width:150px}
 }
 
-/* casillas de selección */
+/* ===== Selecciones (SIN romper la tabla) ===== */
 td.sel{
-  border:1px solid #d1d5db;
-  border-radius:8px;
-  height:30px;
-  display:flex;
+  padding:4px 0;          /* compacto */
+}
+.pill{
+  display:inline-flex;     /* aquí sí usamos flex, pero en el span */
   align-items:center;
   justify-content:center;
+  width:22px;
+  height:30px;
+  border-radius:14px;
+  border:1px solid #d1d5db;
   line-height:1;
 }
-td.sel.hit{
+.pill.hit{
   background:var(--hitBg);
   border-color:var(--hitBd);
   color:var(--hitTx);
 }
 
-/* ===== Ganadores con SOLO BORDE ===== */
-/* (solo en folio, nombre y aciertos) */
+/* ===== Ganadores con SOLO BORDE (folio/nombre/aciertos) ===== */
 td.col-folio.win1, td.col-nombre.win1, td.col-ac.win1{
   border-top:2px solid var(--verde);
   border-bottom:2px solid var(--verde);
 }
-td.col-folio.win1{ border-left:2px solid var(--verde); border-top-left-radius:10px; border-bottom-left-radius:10px; }
-td.col-ac.win1{   border-right:2px solid var(--verde); border-top-right-radius:10px; border-bottom-right-radius:10px; }
+td.col-folio.win1{
+  border-left:2px solid var(--verde);
+  border-top-left-radius:10px;
+  border-bottom-left-radius:10px;
+}
+td.col-ac.win1{
+  border-right:2px solid var(--verde);
+  border-top-right-radius:10px;
+  border-bottom-right-radius:10px;
+}
 
 td.col-folio.win2, td.col-nombre.win2, td.col-ac.win2{
   border-top:2px solid var(--verde2);
   border-bottom:2px solid var(--verde2);
 }
-td.col-folio.win2{ border-left:2px solid var(--verde2); border-top-left-radius:10px; border-bottom-left-radius:10px; }
-td.col-ac.win2{   border-right:2px solid var(--verde2); border-top-right-radius:10px; border-bottom-right-radius:10px; }
+td.col-folio.win2{
+  border-left:2px solid var(--verde2);
+  border-top-left-radius:10px;
+  border-bottom-left-radius:10px;
+}
+td.col-ac.win2{
+  border-right:2px solid var(--verde2);
+  border-top-right-radius:10px;
+  border-bottom-right-radius:10px;
+}
 
 /* mini etiqueta 1° / 2° junto al nombre */
 .badge{
@@ -190,8 +210,8 @@ const ENDPOINT = BASE + "?mode=clasif";
 const CONFIG   = BASE + "?mode=config";
 
 let raw = [];
-let resultados = []; // L/E/V
-let marcadores = []; // "1-0" si existe
+let resultados = [];
+let marcadores = [];
 
 function buildHeader(){
   const cols = Array.from({length:9}, (_,i)=>`<th>${i+1}</th>`).join("");
@@ -245,7 +265,8 @@ function render(rows){
 
     const selsHtml = r.sels.map((s, i)=>{
       const ok = resultados[i] && normaliza(s) === normaliza(resultados[i]);
-      return `<td class="sel ${ok ? 'hit' : ''}">${s || '-'}</td>`;
+      const val = (s && String(s).trim()) ? String(s).trim() : "-";
+      return `<td class="sel"><span class="pill ${ok ? 'hit' : ''}">${val}</span></td>`;
     }).join("");
 
     tr.innerHTML = `
@@ -272,7 +293,7 @@ function aplicarFiltro(){
 }
 
 async function load(){
-  // Config (semana + partidos + marcadores/resultados si existen)
+  // Config
   const cfgRes = await fetch(CONFIG, {cache:"no-store"}).then(r=>r.json());
   const cfg = cfgRes.cfg || {};
 
@@ -301,7 +322,7 @@ async function load(){
 
   const iF = headers.indexOf("folio");
   const iN = headers.indexOf("nombre");
-  const iT = headers.indexOf("telefono_envio"); // solo para buscar, no se muestra
+  const iT = headers.indexOf("telefono_envio"); // solo para buscar
   const iA = headers.indexOf("aciertos");
 
   if (iF < 0 || iN < 0 || iA < 0) throw new Error("Faltan columnas: folio/nombre/aciertos");
