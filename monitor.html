@@ -108,9 +108,14 @@ th{
 }
 
 /* columnas compactas */
-th.col-folio,td.col-folio{width:40px}
-th.col-nombre,td.col-nombre{text-align:left;width:170px}
-th.col-ac,td.col-ac{width:32px}
+th.col-folio,td.col-folio{width:34px}
+th.col-nombre,td.col-nombre{text-align:left;width:180px}
+th.col-ac,td.col-ac{width:30px}
+td.col-folio{
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.02em;
+}
 
 @media (max-width:420px){
   th.col-nombre,td.col-nombre{width:150px}
@@ -118,13 +123,13 @@ th.col-ac,td.col-ac{width:32px}
 
 /* ✅ Nombre en UNA línea (como tu captura) */
 td.col-nombre{
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: clip;
-
-  font-size: 12px;      /* antes estaba grande */
-  font-weight: 800;     /* antes muy pesado */
-  text-transform: lowercase;  /* 👈 esto es lo que hace que “quepa” como en tu captura */
+  display: table-cell !important;
+  white-space: nowrap;     /* 1 renglón */
+  overflow: hidden;        /* no se sale */
+  text-overflow: clip;     /* sin "..." */
+  font-size:12.5px;
+  font-weight:900;
+  text-transform: uppercase; /* 👈 forzar MAYÚSCULA visual */
 }
 
 /* ===== Selecciones ===== */
@@ -336,5 +341,6 @@ setInterval(load, 5000);
 </script>
 </body>
 </html>
+
 
 
