@@ -118,11 +118,14 @@ th.col-ac,td.col-ac{width:32px}
 
 /* ✅ Nombre en UNA línea (como tu captura) */
 td.col-nombre{
-  white-space: nowrap;     /* 1 renglón */
-  overflow: visible;       /* NO recortar */
-  text-overflow: clip;     /* sin "..." */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+
+  font-size: 12px;      /* antes estaba grande */
+  font-weight: 800;     /* antes muy pesado */
+  text-transform: lowercase;  /* 👈 esto es lo que hace que “quepa” como en tu captura */
 }
-table{ overflow: visible; }
 
 /* ===== Selecciones ===== */
 td.sel{
@@ -333,4 +336,5 @@ setInterval(load, 5000);
 </script>
 </body>
 </html>
+
 
