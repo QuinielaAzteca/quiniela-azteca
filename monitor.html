@@ -13,6 +13,9 @@
   --bg:#f3f6f4;
   --line:#e5e7eb;
   --txt:#0f172a;
+
+  --blue1:#1D4ED8;   /* azul rey */
+  --blue2:#7DD3FC;   /* azul cielo */
 }
 
 *{ box-sizing:border-box; }
@@ -28,7 +31,7 @@ body{
 .header{
   position:sticky;
   top:0;
-  z-index:10;
+  z-index:20;
   background:#fff;
   border-bottom:2px solid var(--line);
 }
@@ -74,7 +77,7 @@ body{
   white-space:normal;
 }
 .partidos .p .score{
-  min-width:84px;
+  min-width:92px;
   text-align:right;
   font-variant-numeric: tabular-nums;
   white-space:nowrap;
@@ -82,13 +85,28 @@ body{
 
 /* ===== BUSCADOR ===== */
 .search{ margin-top:10px; }
+.searchBox{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 12px;
+  border:2px solid #cbd5e1;         /* más contraste */
+  border-radius:12px;
+  background:#fff;
+  box-shadow: 0 1px 0 rgba(2,6,23,.03);
+}
+.searchIcon{
+  font-size:14px;
+  line-height:1;
+  opacity:.75;
+}
 .search input{
   width:100%;
-  padding:8px 10px;
+  border:none;
+  outline:none;
   font-size:14px;
   font-weight:800;
-  border:1px solid var(--line);
-  border-radius:10px;
+  background:transparent;
 }
 
 /* ===== TABLA ===== */
@@ -98,15 +116,36 @@ body{
   padding:10px 12px 30px;
 }
 
+.tableShell{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:12px;
+  overflow:hidden;
+}
+
+.tableScroll{
+  /* permite sticky del thead sin que se corte raro */
+  overflow:auto;
+  -webkit-overflow-scrolling: touch;
+  max-height: calc(100vh - 260px);  /* ajusta si quieres más/menos tabla visible */
+}
+
 table{
   width:100%;
   border-collapse:separate;
   border-spacing:0;
   table-layout:fixed;
-  background:#fff;
-  border:1px solid var(--line);
-  border-radius:12px;
-  overflow:hidden;
+}
+
+/* Header de tabla fijo */
+thead th{
+  position:sticky;
+  top:0;
+  z-index:5;
+  background:#f8fafc;
+  font-size:11px;
+  letter-spacing:.04em;
+  border-bottom:1px solid var(--line);
 }
 
 th, td{
@@ -118,32 +157,25 @@ th, td{
   vertical-align:middle;
 }
 
-th{
-  background:#f8fafc;
-  font-size:11px;
-  letter-spacing:.04em;
-}
-
-/* Columnas */
-th.col-folio, td.col-folio{ width:34px; }
-th.col-nombre, td.col-nombre{ text-align:left; width:180px; }
+/* Columnas (más compactas) */
+th.col-folio, td.col-folio{ width:30px; }
+th.col-nombre, td.col-nombre{ text-align:left; width:170px; }
 th.col-ac, td.col-ac{ width:30px; }
 
-/* Folio más chico */
+/* Folio aún más chico */
 td.col-folio{
-  font-size:11px;
+  font-size:10px;
   font-weight:900;
-  letter-spacing:.02em;
+  letter-spacing:.01em;
 }
 
-/* Nombre: 1 renglón, mayúscula visual, sin salirse */
+/* Nombre: una sola línea, minúsculas, sin salirse */
 td.col-nombre{
+  text-transform:lowercase;
   white-space:nowrap;
   overflow:hidden;
-  text-overflow:clip;   /* sin ... */
-  font-size:12.5px;
-  font-weight:900;
-  text-transform:uppercase;
+  text-overflow:clip;  /* sin ... */
+  font-size:13px;
 }
 
 /* Pastilla selección */
@@ -164,15 +196,22 @@ td.sel.acierto{
   border-color:#86efac;
 }
 
-/* Solo colorear Aciertos por lugar */
-tr.g1 td.col-ac{ color:#1D4ED8; }   /* azul rey */
-tr.g2 td.col-ac{ color:#7DD3FC; }   /* azul cielo */
+/* Solo colorear la CELDA de aciertos por lugar (no el número) */
+tr.g1 td.col-ac{
+  background: var(--blue1);
+  color:#fff;
+}
+tr.g2 td.col-ac{
+  background: var(--blue2);
+  color:#0f172a;
+}
 
 tbody tr:last-child td{ border-bottom:none; }
 
 @media (max-width:420px){
-  th.col-nombre, td.col-nombre{ width:170px; }
+  th.col-nombre, td.col-nombre{ width:160px; }
   td.sel{ height:28px; }
+  .tableScroll{ max-height: calc(100vh - 270px); }
 }
 </style>
 </head>
@@ -189,13 +228,20 @@ tbody tr:last-child td{ border-bottom:none; }
     <div class="partidos" id="partidosTxt"></div>
 
     <div class="search">
-      <input id="searchInput" placeholder="Buscar por nombre, folio o teléfono" autocomplete="off">
+      <div class="searchBox">
+        <span class="searchIcon">🔎</span>
+        <input id="searchInput" placeholder="Busca aqui por telefono, nombre o folio" autocomplete="off">
+      </div>
     </div>
   </div>
 </div>
 
 <div class="wrap">
-  <table id="tabla"></table>
+  <div class="tableShell">
+    <div class="tableScroll">
+      <table id="tabla"></table>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -340,6 +386,9 @@ async function load(){
 
   document.getElementById("tabla").innerHTML = buildTable();
   render(raw);
+
+  // re-aplica filtro si el usuario ya estaba buscando
+  aplicarFiltro();
 }
 
 document.getElementById("searchInput").addEventListener("input", aplicarFiltro);
