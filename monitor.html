@@ -118,10 +118,11 @@ th.col-ac,td.col-ac{width:32px}
 
 /* ✅ Nombre en UNA línea (como tu captura) */
 td.col-nombre{
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: nowrap;     /* 1 renglón */
+  overflow: visible;       /* NO recortar */
+  text-overflow: clip;     /* sin "..." */
 }
+table{ overflow: visible; }
 
 /* ===== Selecciones ===== */
 td.sel{
@@ -332,3 +333,4 @@ setInterval(load, 5000);
 </script>
 </body>
 </html>
+
