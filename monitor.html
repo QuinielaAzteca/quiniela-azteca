@@ -7,19 +7,16 @@
 
 <style>
 :root{
-  --verde:#16a34a;
-  --verde2:#6ee7b7;
-
-  --hitBg:#dcfce7;
-  --hitBd:#86efac;
-  --hitTx:#166534;
+  --verdeCell:#dcfce7;
+  --verdeCellText:#166534;
 
   --bg:#f3f6f4;
   --line:#e5e7eb;
   --txt:#0f172a;
 }
 
-*{box-sizing:border-box}
+*{ box-sizing:border-box; }
+
 body{
   margin:0;
   font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
@@ -35,23 +32,27 @@ body{
   background:#fff;
   border-bottom:2px solid var(--line);
 }
+
 .header-inner{
   max-width:1100px;
   margin:auto;
   padding:10px 12px;
 }
+
 .title{
   font-weight:900;
   font-size:18px;
   letter-spacing:.04em;
 }
-.title .mxg{color:#006847}
-.title .mxr{color:#ce1126}
+.title .mxg{ color:#006847; }
+.title .mxr{ color:#ce1126; }
+
 .week{
   font-size:13px;
   font-weight:800;
   margin-top:2px;
 }
+
 .partidos{
   margin-top:6px;
   font-size:12px;
@@ -61,7 +62,23 @@ body{
   flex-direction:column;
   gap:2px;
 }
-.partidos .p{ white-space:normal; }
+
+/* Partido (izq) + Marcador (der) */
+.partidos .p{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+}
+.partidos .p .teams{
+  flex:1;
+  white-space:normal;
+}
+.partidos .p .score{
+  min-width:84px;
+  text-align:right;
+  font-variant-numeric: tabular-nums;
+  white-space:nowrap;
+}
 
 /* ===== BUSCADOR ===== */
 .search{ margin-top:10px; }
@@ -92,7 +109,7 @@ table{
   overflow:hidden;
 }
 
-th,td{
+th, td{
   padding:7px 6px;
   font-size:13px;
   font-weight:900;
@@ -107,62 +124,56 @@ th{
   letter-spacing:.04em;
 }
 
-/* columnas compactas */
-th.col-folio,td.col-folio{width:34px}
-th.col-nombre,td.col-nombre{text-align:left;width:180px}
-th.col-ac,td.col-ac{width:30px}
+/* Columnas */
+th.col-folio, td.col-folio{ width:34px; }
+th.col-nombre, td.col-nombre{ text-align:left; width:180px; }
+th.col-ac, td.col-ac{ width:30px; }
+
+/* Folio más chico */
 td.col-folio{
   font-size:11px;
   font-weight:900;
   letter-spacing:.02em;
 }
 
-@media (max-width:420px){
-  th.col-nombre,td.col-nombre{width:150px}
-}
-
-/* ✅ Nombre en UNA línea (como tu captura) */
+/* Nombre: 1 renglón, mayúscula visual, sin salirse */
 td.col-nombre{
-  display: table-cell !important;
-  white-space: nowrap;     /* 1 renglón */
-  overflow: hidden;        /* no se sale */
-  text-overflow: clip;     /* sin "..." */
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:clip;   /* sin ... */
   font-size:12.5px;
   font-weight:900;
-  text-transform: uppercase; /* 👈 forzar MAYÚSCULA visual */
+  text-transform:uppercase;
 }
 
-/* ===== Selecciones ===== */
+/* Pastilla selección */
 td.sel{
-  padding:4px 0;
-}
-.pill{
-  display:inline-flex;
+  border:1px solid #d1d5db;
+  border-radius:10px;
+  height:30px;
+  display:flex;
   align-items:center;
   justify-content:center;
-  width:22px;
-  height:30px;
-  border-radius:14px;
-  border:1px solid #d1d5db;
   line-height:1;
 }
-.pill.hit{
-  background:var(--hitBg);
-  border-color:var(--hitBd);
-  color:var(--hitTx);
+
+/* Acierto (verde suave) */
+td.sel.acierto{
+  background:var(--verdeCell);
+  color:var(--verdeCellText);
+  border-color:#86efac;
 }
 
-/* ✅ Ganadores: SOLO colorear la columna A (aciertos) */
-td.col-ac.win1{
-  background: var(--verde);
-  color:#fff;
-}
-td.col-ac.win2{
-  background: var(--verde2);
-  color:#064e3b;
-}
+/* Solo colorear Aciertos por lugar */
+tr.g1 td.col-ac{ color:#1D4ED8; }   /* azul rey */
+tr.g2 td.col-ac{ color:#7DD3FC; }   /* azul cielo */
 
-tbody tr:last-child td{border-bottom:none}
+tbody tr:last-child td{ border-bottom:none; }
+
+@media (max-width:420px){
+  th.col-nombre, td.col-nombre{ width:170px; }
+  td.sel{ height:28px; }
+}
 </style>
 </head>
 
@@ -188,22 +199,21 @@ tbody tr:last-child td{border-bottom:none}
 </div>
 
 <script>
-const BASE = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec";
-const ENDPOINT = BASE + "?mode=clasif";
-const CONFIG   = BASE + "?mode=config";
+const BASE   = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec";
+const CLASIF = BASE + "?mode=clasif";
+const CONFIG = BASE + "?mode=config";
 
 let raw = [];
-let resultados = [];
-let marcadores = [];
+let resultados = []; // L/E/V desde config
+let marcadores = []; // "1-0" desde config
 
-function buildHeader(){
-  const cols = Array.from({length:9}, (_,i)=>`<th>${i+1}</th>`).join("");
+function buildTable(){
   return `
     <thead>
       <tr>
         <th class="col-folio">#</th>
         <th class="col-nombre">Nombre</th>
-        ${cols}
+        ${[1,2,3,4,5,6,7,8,9].map(n=>`<th>${n}</th>`).join("")}
         <th class="col-ac">A</th>
       </tr>
     </thead>
@@ -212,22 +222,22 @@ function buildHeader(){
 }
 
 function normaliza(v){
-  return String(v ?? '').trim().toUpperCase();
+  return String(v ?? "").trim().toUpperCase();
 }
 
 function computeWinners(rows){
-  const acs = rows.map(r => Number(r.aciertos)||0);
-  const max = Math.max(...acs);
-  let second = -1;
+  const acs = rows.map(r => Number(r.aciertos) || 0);
+  const max = Math.max(...acs, 0);
 
+  let second = -1;
   const uniq = [...new Set(acs)].sort((a,b)=>b-a);
   for (const a of uniq){
     if (a < max){ second = a; break; }
   }
 
   rows.forEach(r=>{
-    const a = Number(r.aciertos)||0;
-    r._lugar = (a===max) ? 1 : (second>=0 && a===second ? 2 : 0);
+    const a = Number(r.aciertos) || 0;
+    r._lugar = (a === max) ? 1 : (second >= 0 && a === second ? 2 : 0);
   });
 }
 
@@ -236,51 +246,40 @@ function render(rows){
   tbody.innerHTML = "";
 
   rows.forEach(r=>{
-    const winClass =
-      r._lugar === 1 ? "win1" :
-      r._lugar === 2 ? "win2" : "";
+    const tr = document.createElement("tr");
+    if (r._lugar === 1) tr.classList.add("g1");
+    if (r._lugar === 2) tr.classList.add("g2");
 
     const selsHtml = r.sels.map((s, i)=>{
       const ok = resultados[i] && normaliza(s) === normaliza(resultados[i]);
-      const val = (s && String(s).trim()) ? String(s).trim() : "-";
-      return `<td class="sel"><span class="pill ${ok ? 'hit' : ''}">${val}</span></td>`;
+      return `<td class="sel ${ok ? "acierto" : ""}">${(s || "-")}</td>`;
     }).join("");
 
-    const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td class="col-folio">${r.folio ?? ''}</td>
-      <td class="col-nombre" title="${escapeHtml(r.nombre_show)}">${escapeHtml(r.nombre_show)}</td>
+      <td class="col-folio">${r.folio ?? ""}</td>
+      <td class="col-nombre">${r.nombre_show ?? ""}</td>
       ${selsHtml}
-      <td class="col-ac ${winClass}">${r.aciertos ?? ''}</td>
+      <td class="col-ac">${r.aciertos ?? ""}</td>
     `;
     tbody.appendChild(tr);
   });
 }
 
-function escapeHtml(s){
-  return String(s ?? '')
-    .replaceAll('&','&amp;')
-    .replaceAll('<','&lt;')
-    .replaceAll('>','&gt;')
-    .replaceAll('"','&quot;')
-    .replaceAll("'","&#39;");
-}
-
 function aplicarFiltro(){
   const q = document.getElementById("searchInput").value.trim().toLowerCase();
-  if(!q){ render(raw); return; }
+  if (!q){ render(raw); return; }
 
   const f = raw.filter(r =>
     String(r.folio ?? "").toLowerCase().includes(q) ||
     String(r.telefono ?? "").toLowerCase().includes(q) ||
-    String(r.nombre_show ?? "").toLowerCase().includes(q)
+    String(r.nombre ?? "").toLowerCase().includes(q)
   );
   render(f);
 }
 
 async function load(){
-  // Config
-  const cfgRes = await fetch(CONFIG, {cache:"no-store"}).then(r=>r.json());
+  // 1) Config
+  const cfgRes = await fetch(CONFIG, { cache:"no-store" }).then(r=>r.json());
   const cfg = cfgRes.cfg || {};
 
   document.getElementById("weekTxt").textContent = cfg.subtitulo || "";
@@ -294,33 +293,42 @@ async function load(){
 
   partidos.forEach((p,i)=>{
     const m = (marcadores[i] && String(marcadores[i]).trim()) ? String(marcadores[i]).trim() : "-";
+    const r = (resultados[i] && String(resultados[i]).trim()) ? String(resultados[i]).trim().toUpperCase() : "-";
+
     const div = document.createElement("div");
     div.className = "p";
-    div.textContent = `${i+1} ${p.local} vs ${p.visita} (${m})`;
+    div.innerHTML = `
+      <span class="teams">${i+1} ${p.local} vs ${p.visita}</span>
+      <span class="score">${m} (${r})</span>
+    `;
     partidosTxt.appendChild(div);
   });
 
-  // Clasificación
-  const resD = await fetch(ENDPOINT, {cache:"no-store"}).then(r=>r.json());
-  if (!resD?.ok) throw new Error(resD?.error || "Endpoint inválido");
+  // 2) Clasificación
+  const resD = await fetch(CLASIF, { cache:"no-store" }).then(r=>r.json());
+  const data = resD.data || { headers:[], rows:[] };
 
-  const headers = (resD.data?.headers || []).map(x => String(x).toLowerCase().trim());
+  const h = (data.headers || []).map(x => String(x).trim().toLowerCase());
 
-  const iF = headers.indexOf("folio");
-  const iN = headers.indexOf("nombre");
-  const iT = headers.indexOf("telefono_envio"); // solo para buscar
-  const iA = headers.indexOf("aciertos");
+  const iF = h.indexOf("folio");
+  const iN = h.indexOf("nombre");
+  const iT = h.indexOf("telefono_envio"); // solo para búsqueda
+  const iA = h.indexOf("aciertos");
 
-  if (iF < 0 || iN < 0 || iA < 0) throw new Error("Faltan columnas: folio/nombre/aciertos");
+  if (iF < 0 || iN < 0 || iA < 0){
+    console.log("Headers recibidos:", data.headers);
+    throw new Error("Faltan columnas requeridas: folio, nombre, aciertos");
+  }
 
   const startSel = iN + 1;
-  const endSel = iA;
+  const endSel   = iA;
 
-  raw = (resD.data.rows || []).map(r=>{
+  raw = (data.rows || []).map(r=>{
     const nombreShow = String(r[iN] ?? "").trim();
     return {
       folio: r[iF],
-      telefono: (iT>=0 ? r[iT] : ""),
+      telefono: (iT >= 0 ? String(r[iT] ?? "").trim() : ""),
+      nombre: nombreShow.toLowerCase(),
       nombre_show: nombreShow,
       sels: r.slice(startSel, endSel).slice(0,9),
       aciertos: r[iA],
@@ -330,7 +338,7 @@ async function load(){
 
   computeWinners(raw);
 
-  document.getElementById("tabla").innerHTML = buildHeader();
+  document.getElementById("tabla").innerHTML = buildTable();
   render(raw);
 }
 
@@ -339,8 +347,6 @@ document.getElementById("searchInput").addEventListener("input", aplicarFiltro);
 load();
 setInterval(load, 5000);
 </script>
+
 </body>
 </html>
-
-
-
