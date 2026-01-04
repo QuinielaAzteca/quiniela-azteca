@@ -90,7 +90,7 @@ body{
   align-items:center;
   gap:8px;
   padding:10px 12px;
-  border:2px solid #cbd5e1;         /* más contraste */
+  border:2px solid #cbd5e1;
   border-radius:12px;
   background:#fff;
   box-shadow: 0 1px 0 rgba(2,6,23,.03);
@@ -124,10 +124,9 @@ body{
 }
 
 .tableScroll{
-  /* permite sticky del thead sin que se corte raro */
   overflow:auto;
   -webkit-overflow-scrolling: touch;
-  max-height: calc(100vh - 260px);  /* ajusta si quieres más/menos tabla visible */
+  max-height: calc(100vh - 260px);
 }
 
 table{
@@ -137,7 +136,7 @@ table{
   table-layout:fixed;
 }
 
-/* Header de tabla fijo */
+/* Header tabla fijo */
 thead th{
   position:sticky;
   top:0;
@@ -157,16 +156,15 @@ th, td{
   vertical-align:middle;
 }
 
-/* Columnas (más compactas) */
+/* Columnas (compactas) */
 th.col-folio, td.col-folio{ width:30px; }
 th.col-nombre, td.col-nombre{ text-align:left; width:170px; }
 th.col-ac, td.col-ac{ width:30px; }
 
-/* Folio aún más chico */
+/* Folio más chico */
 td.col-folio{
   font-size:10px;
   font-weight:900;
-  letter-spacing:.01em;
 }
 
 /* Nombre: una sola línea, minúsculas, sin salirse */
@@ -174,29 +172,38 @@ td.col-nombre{
   text-transform:lowercase;
   white-space:nowrap;
   overflow:hidden;
-  text-overflow:clip;  /* sin ... */
+  text-overflow:clip;
   font-size:13px;
 }
 
-/* Pastilla selección */
-td.sel{
-  border:1px solid #d1d5db;
-  border-radius:10px;
-  height:30px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  line-height:1;
+/* ✅ Celda de selección: DEBE seguir siendo table-cell */
+td.selCell{
+  padding:4px 0;
+  text-align:center;
 }
 
-/* Acierto (verde suave) */
-td.sel.acierto{
+/* Pastilla dentro de la celda (aquí sí usamos inline-flex) */
+.selPill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:22px;
+  height:28px;
+  border-radius:12px;
+  border:1px solid #cbd5e1;
+  font-weight:900;
+  line-height:1;
+  background:#fff;
+}
+
+/* Acierto verde suave */
+.selPill.hit{
   background:var(--verdeCell);
   color:var(--verdeCellText);
   border-color:#86efac;
 }
 
-/* Solo colorear la CELDA de aciertos por lugar (no el número) */
+/* Solo colorear la CELDA de aciertos por lugar */
 tr.g1 td.col-ac{
   background: var(--blue1);
   color:#fff;
@@ -210,8 +217,8 @@ tbody tr:last-child td{ border-bottom:none; }
 
 @media (max-width:420px){
   th.col-nombre, td.col-nombre{ width:160px; }
-  td.sel{ height:28px; }
   .tableScroll{ max-height: calc(100vh - 270px); }
+  .selPill{ width:21px; height:27px; }
 }
 </style>
 </head>
@@ -250,8 +257,8 @@ const CLASIF = BASE + "?mode=clasif";
 const CONFIG = BASE + "?mode=config";
 
 let raw = [];
-let resultados = []; // L/E/V desde config
-let marcadores = []; // "1-0" desde config
+let resultados = [];
+let marcadores = [];
 
 function buildTable(){
   return `
@@ -298,7 +305,12 @@ function render(rows){
 
     const selsHtml = r.sels.map((s, i)=>{
       const ok = resultados[i] && normaliza(s) === normaliza(resultados[i]);
-      return `<td class="sel ${ok ? "acierto" : ""}">${(s || "-")}</td>`;
+      const val = (s || "-");
+      return `
+        <td class="selCell">
+          <span class="selPill ${ok ? "hit" : ""}">${val}</span>
+        </td>
+      `;
     }).join("");
 
     tr.innerHTML = `
@@ -324,7 +336,7 @@ function aplicarFiltro(){
 }
 
 async function load(){
-  // 1) Config
+  // Config
   const cfgRes = await fetch(CONFIG, { cache:"no-store" }).then(r=>r.json());
   const cfg = cfgRes.cfg || {};
 
@@ -350,7 +362,7 @@ async function load(){
     partidosTxt.appendChild(div);
   });
 
-  // 2) Clasificación
+  // Clasificación
   const resD = await fetch(CLASIF, { cache:"no-store" }).then(r=>r.json());
   const data = resD.data || { headers:[], rows:[] };
 
@@ -361,10 +373,7 @@ async function load(){
   const iT = h.indexOf("telefono_envio"); // solo para búsqueda
   const iA = h.indexOf("aciertos");
 
-  if (iF < 0 || iN < 0 || iA < 0){
-    console.log("Headers recibidos:", data.headers);
-    throw new Error("Faltan columnas requeridas: folio, nombre, aciertos");
-  }
+  if (iF < 0 || iN < 0 || iA < 0) throw new Error("Faltan columnas: folio, nombre, aciertos");
 
   const startSel = iN + 1;
   const endSel   = iA;
@@ -387,7 +396,6 @@ async function load(){
   document.getElementById("tabla").innerHTML = buildTable();
   render(raw);
 
-  // re-aplica filtro si el usuario ya estaba buscando
   aplicarFiltro();
 }
 
