@@ -8,9 +8,11 @@
 <style>
 :root{
   --verde:#16a34a;
-  --verde2:#86efac;
-  --verdeCell:#dcfce7;
-  --verdeCellText:#166534;
+  --verde2:#6ee7b7;
+
+  --hitBg:#dcfce7;
+  --hitBd:#86efac;
+  --hitTx:#166534;
 
   --bg:#f3f6f4;
   --line:#e5e7eb;
@@ -20,7 +22,7 @@
 *{box-sizing:border-box}
 body{
   margin:0;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
   background:var(--bg);
   color:var(--txt);
 }
@@ -70,11 +72,6 @@ body{
   font-weight:800;
   border:1px solid var(--line);
   border-radius:10px;
-  outline:none;
-}
-.search input:focus{
-  border-color:#cbd5e1;
-  box-shadow:0 0 0 3px rgba(22,163,74,.10);
 }
 
 /* ===== TABLA ===== */
@@ -101,7 +98,6 @@ th,td{
   font-weight:900;
   text-align:center;
   border-bottom:1px solid var(--line);
-  vertical-align:middle;
 }
 
 th{
@@ -110,63 +106,60 @@ th{
   letter-spacing:.04em;
 }
 
+/* columnas compactas */
 th.col-folio,td.col-folio{width:40px}
 th.col-nombre,td.col-nombre{text-align:left;width:170px}
 th.col-ac,td.col-ac{width:32px}
 
-td.col-nombre{
-  white-space:normal;
-  word-break:break-word;
-}
-
-/* ✅ td SEL ya NO es flex. */
-td.sel{
-  padding:4px 0;
-}
-
-/* “pastilla” centrada dentro del td */
-.selPill{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  width:22px;
-  height:28px;
-  border-radius:12px;
-  border:1px solid #cbd5e1;
-  font-weight:900;
-  line-height:1;
-  background:#fff;
-  color:var(--txt);
-}
-
-/* acierto suave (solo la pastilla) */
-.selPill.acierto{
-  background:var(--verdeCell);
-  color:var(--verdeCellText);
-  border-color:var(--verde2);
-}
-
-/* ganadores: SOLO folio + nombre + aciertos */
-tr.g1 td.col-folio,
-tr.g1 td.col-nombre,
-tr.g1 td.col-ac{
-  background:var(--verde);
-  color:#fff;
-}
-
-tr.g2 td.col-folio,
-tr.g2 td.col-nombre,
-tr.g2 td.col-ac{
-  background:var(--verde2);
-  color:#064e3b;
-}
-
-tbody tr:last-child td{border-bottom:none}
-
 @media (max-width:420px){
   th.col-nombre,td.col-nombre{width:150px}
-  .selPill{width:20px;height:26px}
 }
+
+/* casillas de selección */
+td.sel{
+  border:1px solid #d1d5db;
+  border-radius:8px;
+  height:30px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  line-height:1;
+}
+td.sel.hit{
+  background:var(--hitBg);
+  border-color:var(--hitBd);
+  color:var(--hitTx);
+}
+
+/* ===== Ganadores con SOLO BORDE ===== */
+/* (solo en folio, nombre y aciertos) */
+td.col-folio.win1, td.col-nombre.win1, td.col-ac.win1{
+  border-top:2px solid var(--verde);
+  border-bottom:2px solid var(--verde);
+}
+td.col-folio.win1{ border-left:2px solid var(--verde); border-top-left-radius:10px; border-bottom-left-radius:10px; }
+td.col-ac.win1{   border-right:2px solid var(--verde); border-top-right-radius:10px; border-bottom-right-radius:10px; }
+
+td.col-folio.win2, td.col-nombre.win2, td.col-ac.win2{
+  border-top:2px solid var(--verde2);
+  border-bottom:2px solid var(--verde2);
+}
+td.col-folio.win2{ border-left:2px solid var(--verde2); border-top-left-radius:10px; border-bottom-left-radius:10px; }
+td.col-ac.win2{   border-right:2px solid var(--verde2); border-top-right-radius:10px; border-bottom-right-radius:10px; }
+
+/* mini etiqueta 1° / 2° junto al nombre */
+.badge{
+  display:inline-block;
+  margin-left:8px;
+  font-size:11px;
+  font-weight:1000;
+  letter-spacing:.02em;
+  vertical-align:middle;
+}
+.badge.b1{ color:var(--verde); }
+.badge.b2{ color:#0f766e; }
+
+tbody tr:last-child td{border-bottom:none}
 </style>
 </head>
 
@@ -182,7 +175,7 @@ tbody tr:last-child td{border-bottom:none}
     <div class="partidos" id="partidosTxt"></div>
 
     <div class="search">
-      <input id="searchInput" placeholder="Buscar por nombre, folio o teléfono">
+      <input id="searchInput" placeholder="Buscar por nombre, folio o teléfono" autocomplete="off">
     </div>
   </div>
 </div>
@@ -192,21 +185,22 @@ tbody tr:last-child td{border-bottom:none}
 </div>
 
 <script>
-const BASE   = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec";
+const BASE = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec";
 const ENDPOINT = BASE + "?mode=clasif";
 const CONFIG   = BASE + "?mode=config";
 
 let raw = [];
-let resultados = []; // L/E/V (si tu mode=config lo manda)
-let marcadores = []; // "1-0" (si tu mode=config lo manda)
+let resultados = []; // L/E/V
+let marcadores = []; // "1-0" si existe
 
 function buildHeader(){
+  const cols = Array.from({length:9}, (_,i)=>`<th>${i+1}</th>`).join("");
   return `
     <thead>
       <tr>
         <th class="col-folio">#</th>
         <th class="col-nombre">Nombre</th>
-        ${[1,2,3,4,5,6,7,8,9].map(n=>`<th>${n}</th>`).join('')}
+        ${cols}
         <th class="col-ac">A</th>
       </tr>
     </thead>
@@ -220,10 +214,11 @@ function normaliza(v){
 
 function computeWinners(rows){
   const acs = rows.map(r => Number(r.aciertos)||0);
-  const max = acs.length ? Math.max(...acs) : 0;
-
+  const max = Math.max(...acs);
   let second = -1;
-  for (const a of [...new Set(acs)].sort((a,b)=>b-a)){
+
+  const uniq = [...new Set(acs)].sort((a,b)=>b-a);
+  for (const a of uniq){
     if (a < max){ second = a; break; }
   }
 
@@ -239,24 +234,27 @@ function render(rows){
 
   rows.forEach(r=>{
     const tr = document.createElement("tr");
-    if(r._lugar===1) tr.classList.add("g1");
-    if(r._lugar===2) tr.classList.add("g2");
+
+    const nameBadge =
+      r._lugar === 1 ? `<span class="badge b1">1°</span>` :
+      r._lugar === 2 ? `<span class="badge b2">2°</span>` : "";
+
+    const winClass =
+      r._lugar === 1 ? "win1" :
+      r._lugar === 2 ? "win2" : "";
 
     const selsHtml = r.sels.map((s, i)=>{
       const ok = resultados[i] && normaliza(s) === normaliza(resultados[i]);
-      const txt = (s && String(s).trim()) ? String(s).trim() : "-";
-      return `
-        <td class="sel">
-          <span class="selPill ${ok ? 'acierto' : ''}">${txt}</span>
-        </td>`;
+      return `<td class="sel ${ok ? 'hit' : ''}">${s || '-'}</td>`;
     }).join("");
 
     tr.innerHTML = `
-      <td class="col-folio">${r.folio ?? ''}</td>
-      <td class="col-nombre">${r.nombre_show ?? ''}</td>
+      <td class="col-folio ${winClass}">${r.folio ?? ''}</td>
+      <td class="col-nombre ${winClass}">${r.nombre_show}${nameBadge}</td>
       ${selsHtml}
-      <td class="col-ac">${r.aciertos ?? ''}</td>
+      <td class="col-ac ${winClass}">${r.aciertos ?? ''}</td>
     `;
+
     tbody.appendChild(tr);
   });
 }
@@ -266,64 +264,59 @@ function aplicarFiltro(){
   if(!q){ render(raw); return; }
 
   const f = raw.filter(r =>
-    String(r.folio ?? '').toLowerCase().includes(q) ||
-    String(r.telefono ?? '').toLowerCase().includes(q) ||
-    String(r.nombre ?? '').toLowerCase().includes(q)
+    String(r.folio ?? "").toLowerCase().includes(q) ||
+    String(r.telefono ?? "").toLowerCase().includes(q) ||
+    String(r.nombre_show ?? "").toLowerCase().includes(q)
   );
   render(f);
 }
 
 async function load(){
-  // --- Config ---
+  // Config (semana + partidos + marcadores/resultados si existen)
   const cfgRes = await fetch(CONFIG, {cache:"no-store"}).then(r=>r.json());
   const cfg = cfgRes.cfg || {};
 
   document.getElementById("weekTxt").textContent = cfg.subtitulo || "";
 
-  resultados = Array.isArray(cfg.resultados) ? cfg.resultados.slice(0,9) : [];
-  marcadores = Array.isArray(cfg.marcadores) ? cfg.marcadores.slice(0,9) : [];
+  resultados = (cfg.resultados || []).slice(0,9);
+  marcadores = (cfg.marcadores || []).slice(0,9);
 
-  const partidos = Array.isArray(cfg.partidos) ? cfg.partidos.slice(0,9) : [];
+  const partidos = (cfg.partidos || []).slice(0,9);
   const partidosTxt = document.getElementById("partidosTxt");
   partidosTxt.innerHTML = "";
 
   partidos.forEach((p,i)=>{
-    const m = (marcadores[i] && String(marcadores[i]).trim()) ? marcadores[i] : "-";
+    const m = (marcadores[i] && String(marcadores[i]).trim()) ? String(marcadores[i]).trim() : "-";
     const div = document.createElement("div");
     div.className = "p";
     div.textContent = `${i+1} ${p.local} vs ${p.visita} (${m})`;
     partidosTxt.appendChild(div);
   });
 
-  // --- Clasificación ---
+  // Clasificación
   const resD = await fetch(ENDPOINT, {cache:"no-store"}).then(r=>r.json());
-  const data = resD?.data || { headers:[], rows:[] };
+  if (!resD?.ok) throw new Error(resD?.error || "Endpoint inválido");
 
-  const h = (data.headers || []).map(x => String(x).toLowerCase().trim());
-  const iF = h.indexOf("folio");
-  const iN = h.indexOf("nombre");
-  const iT = h.indexOf("telefono_envio"); // solo para buscar
-  const iA = h.indexOf("aciertos");
+  const headers = (resD.data?.headers || []).map(x => String(x).toLowerCase().trim());
 
-  if (iN < 0 || iA < 0){
-    raw = [];
-    document.getElementById("tabla").innerHTML = buildHeader();
-    render(raw);
-    return;
-  }
+  const iF = headers.indexOf("folio");
+  const iN = headers.indexOf("nombre");
+  const iT = headers.indexOf("telefono_envio"); // solo para buscar, no se muestra
+  const iA = headers.indexOf("aciertos");
+
+  if (iF < 0 || iN < 0 || iA < 0) throw new Error("Faltan columnas: folio/nombre/aciertos");
 
   const startSel = iN + 1;
-  const endSel   = iA;
+  const endSel = iA;
 
-  raw = (data.rows || []).map(r=>{
-    const nombreShow = String(r?.[iN] ?? '').trim();
+  raw = (resD.data.rows || []).map(r=>{
+    const nombreShow = String(r[iN] ?? "").trim();
     return {
-      folio: (iF>=0 ? r[iF] : ''),
-      telefono: (iT>=0 ? r[iT] : ''),
-      nombre: nombreShow.toLowerCase(),
+      folio: r[iF],
+      telefono: (iT>=0 ? r[iT] : ""),
       nombre_show: nombreShow,
-      sels: (Array.isArray(r) ? r.slice(startSel, endSel).slice(0,9) : []),
-      aciertos: (iA>=0 ? r[iA] : ''),
+      sels: r.slice(startSel, endSel).slice(0,9),
+      aciertos: r[iA],
       _lugar: 0
     };
   });
@@ -331,7 +324,7 @@ async function load(){
   computeWinners(raw);
 
   document.getElementById("tabla").innerHTML = buildHeader();
-  aplicarFiltro(); // respeta lo tecleado
+  render(raw);
 }
 
 document.getElementById("searchInput").addEventListener("input", aplicarFiltro);
