@@ -116,12 +116,19 @@ th.col-ac,td.col-ac{width:32px}
   th.col-nombre,td.col-nombre{width:150px}
 }
 
-/* ===== Selecciones (SIN romper la tabla) ===== */
+/* ✅ Nombre en UNA línea (como tu captura) */
+td.col-nombre{
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ===== Selecciones ===== */
 td.sel{
-  padding:4px 0;          /* compacto */
+  padding:4px 0;
 }
 .pill{
-  display:inline-flex;     /* aquí sí usamos flex, pero en el span */
+  display:inline-flex;
   align-items:center;
   justify-content:center;
   width:22px;
@@ -136,48 +143,15 @@ td.sel{
   color:var(--hitTx);
 }
 
-/* ===== Ganadores con SOLO BORDE (folio/nombre/aciertos) ===== */
-td.col-folio.win1, td.col-nombre.win1, td.col-ac.win1{
-  border-top:2px solid var(--verde);
-  border-bottom:2px solid var(--verde);
-}
-td.col-folio.win1{
-  border-left:2px solid var(--verde);
-  border-top-left-radius:10px;
-  border-bottom-left-radius:10px;
-}
+/* ✅ Ganadores: SOLO colorear la columna A (aciertos) */
 td.col-ac.win1{
-  border-right:2px solid var(--verde);
-  border-top-right-radius:10px;
-  border-bottom-right-radius:10px;
-}
-
-td.col-folio.win2, td.col-nombre.win2, td.col-ac.win2{
-  border-top:2px solid var(--verde2);
-  border-bottom:2px solid var(--verde2);
-}
-td.col-folio.win2{
-  border-left:2px solid var(--verde2);
-  border-top-left-radius:10px;
-  border-bottom-left-radius:10px;
+  background: var(--verde);
+  color:#fff;
 }
 td.col-ac.win2{
-  border-right:2px solid var(--verde2);
-  border-top-right-radius:10px;
-  border-bottom-right-radius:10px;
+  background: var(--verde2);
+  color:#064e3b;
 }
-
-/* mini etiqueta 1° / 2° junto al nombre */
-.badge{
-  display:inline-block;
-  margin-left:8px;
-  font-size:11px;
-  font-weight:1000;
-  letter-spacing:.02em;
-  vertical-align:middle;
-}
-.badge.b1{ color:var(--verde); }
-.badge.b2{ color:#0f766e; }
 
 tbody tr:last-child td{border-bottom:none}
 </style>
@@ -253,12 +227,6 @@ function render(rows){
   tbody.innerHTML = "";
 
   rows.forEach(r=>{
-    const tr = document.createElement("tr");
-
-    const nameBadge =
-      r._lugar === 1 ? `<span class="badge b1">1°</span>` :
-      r._lugar === 2 ? `<span class="badge b2">2°</span>` : "";
-
     const winClass =
       r._lugar === 1 ? "win1" :
       r._lugar === 2 ? "win2" : "";
@@ -269,15 +237,24 @@ function render(rows){
       return `<td class="sel"><span class="pill ${ok ? 'hit' : ''}">${val}</span></td>`;
     }).join("");
 
+    const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td class="col-folio ${winClass}">${r.folio ?? ''}</td>
-      <td class="col-nombre ${winClass}">${r.nombre_show}${nameBadge}</td>
+      <td class="col-folio">${r.folio ?? ''}</td>
+      <td class="col-nombre" title="${escapeHtml(r.nombre_show)}">${escapeHtml(r.nombre_show)}</td>
       ${selsHtml}
       <td class="col-ac ${winClass}">${r.aciertos ?? ''}</td>
     `;
-
     tbody.appendChild(tr);
   });
+}
+
+function escapeHtml(s){
+  return String(s ?? '')
+    .replaceAll('&','&amp;')
+    .replaceAll('<','&lt;')
+    .replaceAll('>','&gt;')
+    .replaceAll('"','&quot;')
+    .replaceAll("'","&#39;");
 }
 
 function aplicarFiltro(){
