@@ -7,18 +7,17 @@
 
 <style>
 :root{
-  --verdeCell:#dcfce7;
-  --verdeCellText:#166534;
+  --verde:#16a34a;
+  --verdeSuave:#dcfce7;
+  --azul:#1d4ed8;
+  --azulSuave:#93c5fd;
 
   --bg:#f3f6f4;
   --line:#e5e7eb;
   --txt:#0f172a;
-
-  --blue1:#1D4ED8;   /* azul rey */
-  --blue2:#7DD3FC;   /* azul cielo */
 }
 
-*{ box-sizing:border-box; }
+*{box-sizing:border-box}
 
 body{
   margin:0;
@@ -27,11 +26,11 @@ body{
   color:var(--txt);
 }
 
-/* ===== HEADER FIJO ===== */
+/* ===== HEADER ===== */
 .header{
   position:sticky;
   top:0;
-  z-index:20;
+  z-index:10;
   background:#fff;
   border-bottom:2px solid var(--line);
 }
@@ -39,7 +38,7 @@ body{
 .header-inner{
   max-width:1100px;
   margin:auto;
-  padding:10px 12px;
+  padding:8px 12px;
 }
 
 .title{
@@ -47,8 +46,8 @@ body{
   font-size:18px;
   letter-spacing:.04em;
 }
-.title .mxg{ color:#006847; }
-.title .mxr{ color:#ce1126; }
+.title .mxg{color:#006847}
+.title .mxr{color:#ce1126}
 
 .week{
   font-size:13px;
@@ -66,47 +65,36 @@ body{
   gap:2px;
 }
 
-/* Partido (izq) + Marcador (der) */
 .partidos .p{
   display:flex;
   justify-content:space-between;
-  gap:10px;
-}
-.partidos .p .teams{
-  flex:1;
-  white-space:normal;
-}
-.partidos .p .score{
-  min-width:92px;
-  text-align:right;
-  font-variant-numeric: tabular-nums;
   white-space:nowrap;
 }
 
 /* ===== BUSCADOR ===== */
-.search{ margin-top:10px; }
-.searchBox{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:10px 12px;
-  border:2px solid #cbd5e1;
-  border-radius:12px;
-  background:#fff;
-  box-shadow: 0 1px 0 rgba(2,6,23,.03);
+.search{
+  margin-top:10px;
+  position:relative;
 }
-.searchIcon{
+
+.search::before{
+  content:"🔍";
+  position:absolute;
+  left:10px;
+  top:50%;
+  transform:translateY(-50%);
   font-size:14px;
-  line-height:1;
-  opacity:.75;
+  opacity:.6;
 }
+
 .search input{
   width:100%;
-  border:none;
-  outline:none;
+  padding:8px 10px 8px 34px;
   font-size:14px;
   font-weight:800;
-  background:transparent;
+  border:2px solid #cbd5e1;
+  border-radius:12px;
+  outline:none;
 }
 
 /* ===== TABLA ===== */
@@ -116,110 +104,89 @@ body{
   padding:10px 12px 30px;
 }
 
-.tableShell{
+table{
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0;
+  table-layout:fixed;
   background:#fff;
   border:1px solid var(--line);
   border-radius:12px;
   overflow:hidden;
 }
 
-.tableScroll{
-  overflow:auto;
-  -webkit-overflow-scrolling: touch;
-  max-height: calc(100vh - 260px);
-}
-
-table{
-  width:100%;
-  border-collapse:separate;
-  border-spacing:0;
-  table-layout:fixed;
-}
-
-/* Header tabla fijo */
 thead th{
   position:sticky;
   top:0;
   z-index:5;
   background:#f8fafc;
-  font-size:11px;
+  font-size:10px;
   letter-spacing:.04em;
+  padding:4px 4px;
   border-bottom:1px solid var(--line);
 }
 
-th, td{
-  padding:7px 6px;
+th,td{
+  padding:4px 4px;
   font-size:13px;
   font-weight:900;
   text-align:center;
   border-bottom:1px solid var(--line);
-  vertical-align:middle;
 }
 
-/* Columnas (compactas) */
-th.col-folio, td.col-folio{ width:30px; }
-th.col-nombre, td.col-nombre{ text-align:left; width:170px; }
-th.col-ac, td.col-ac{ width:30px; }
-
-/* Folio más chico */
-td.col-folio{
-  font-size:8px;
-  font-weight:900;
+/* columnas */
+th.col-folio,td.col-folio{
+  width:32px;
+  font-size:11px;
 }
 
-/* Nombre: una sola línea, minúsculas, sin salirse */
-td.col-nombre{
-  text-transform:uppercase;
+th.col-nombre,td.col-nombre{
+  text-align:left;
+  width:190px;
   white-space:nowrap;
   overflow:hidden;
-  text-overflow:clip;
-  font-size:10px;
+  text-overflow:ellipsis;
 }
 
-/* ✅ Celda de selección: DEBE seguir siendo table-cell */
+th.col-ac,td.col-ac{
+  width:32px;
+}
+
+/* ===== SELECCIONES ===== */
 td.selCell{
-  padding:4px 0;
-  text-align:center;
+  padding:2px 0;
 }
 
-/* Pastilla dentro de la celda (aquí sí usamos inline-flex) */
 .selPill{
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  width:22px;
-  height:28px;
+  width:20px;
+  height:24px;
+  font-size:12px;
+  font-weight:900;
   border-radius:12px;
   border:1px solid #cbd5e1;
-  font-weight:900;
-  line-height:1;
-  background:#fff;
 }
 
-/* Acierto verde suave */
-.selPill.hit{
-  background:var(--verdeCell);
-  color:var(--verdeCellText);
+.selHit{
+  background:var(--verdeSuave);
   border-color:#86efac;
+  color:#064e3b;
 }
 
-/* Solo colorear la CELDA de aciertos por lugar */
-tr.g1 td.col-ac{
-  background: var(--blue1);
+/* ===== ACIERTOS ===== */
+td.col-ac.win1{
+  background:var(--azul);
   color:#fff;
 }
-tr.g2 td.col-ac{
-  background: var(--blue2);
+
+td.col-ac.win2{
+  background:var(--azulSuave);
   color:#0f172a;
 }
 
-tbody tr:last-child td{ border-bottom:none; }
-
-@media (max-width:420px){
-  th.col-nombre, td.col-nombre{ width:160px; }
-  .tableScroll{ max-height: calc(100vh - 270px); }
-  .selPill{ width:21px; height:27px; }
-}
+tbody tr:last-child td{border-bottom:none}
 </style>
 </head>
 
@@ -230,69 +197,42 @@ tbody tr:last-child td{ border-bottom:none; }
     <div class="title">
       <span class="mxg">QUINIELA</span> <span class="mxr">AZTECA</span>
     </div>
-    <div class="week" id="weekTxt">Semana</div>
-
+    <div class="week" id="weekTxt"></div>
     <div class="partidos" id="partidosTxt"></div>
 
     <div class="search">
-      <div class="searchBox">
-        <span class="searchIcon">🔎</span>
-        <input id="searchInput" placeholder="Busca aqui por telefono, nombre o folio" autocomplete="off">
-      </div>
+      <input id="searchInput" placeholder="Busca aqui por telefono, nombre o folio">
     </div>
   </div>
 </div>
 
 <div class="wrap">
-  <div class="tableShell">
-    <div class="tableScroll">
-      <table id="tabla"></table>
-    </div>
-  </div>
+  <table id="tabla"></table>
 </div>
 
 <script>
-const BASE   = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec";
-const CLASIF = BASE + "?mode=clasif";
-const CONFIG = BASE + "?mode=config";
+const BASE = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec";
+const ENDPOINT = BASE + "?mode=clasif";
+const CONFIG   = BASE + "?mode=config";
 
 let raw = [];
 let resultados = [];
 let marcadores = [];
 
-function buildTable(){
+function buildHeader(){
   return `
-    <thead>
-      <tr>
-        <th class="col-folio">#</th>
-        <th class="col-nombre">Nombre</th>
-        ${[1,2,3,4,5,6,7,8,9].map(n=>`<th>${n}</th>`).join("")}
-        <th class="col-ac">A</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  `;
+  <thead>
+    <tr>
+      <th class="col-folio">#</th>
+      <th class="col-nombre">Nombre</th>
+      ${[1,2,3,4,5,6,7,8,9].map(n=>`<th>${n}</th>`).join('')}
+      <th class="col-ac">A</th>
+    </tr>
+  </thead>
+  <tbody></tbody>`;
 }
 
-function normaliza(v){
-  return String(v ?? "").trim().toUpperCase();
-}
-
-function computeWinners(rows){
-  const acs = rows.map(r => Number(r.aciertos) || 0);
-  const max = Math.max(...acs, 0);
-
-  let second = -1;
-  const uniq = [...new Set(acs)].sort((a,b)=>b-a);
-  for (const a of uniq){
-    if (a < max){ second = a; break; }
-  }
-
-  rows.forEach(r=>{
-    const a = Number(r.aciertos) || 0;
-    r._lugar = (a === max) ? 1 : (second >= 0 && a === second ? 2 : 0);
-  });
-}
+function norm(v){ return String(v||'').trim().toUpperCase(); }
 
 function render(rows){
   const tbody = document.querySelector("#tabla tbody");
@@ -300,118 +240,80 @@ function render(rows){
 
   rows.forEach(r=>{
     const tr = document.createElement("tr");
-    if (r._lugar === 1) tr.classList.add("g1");
-    if (r._lugar === 2) tr.classList.add("g2");
 
-    const selsHtml = r.sels.map((s, i)=>{
-      const ok = resultados[i] && normaliza(s) === normaliza(resultados[i]);
-      const val = (s || "-");
-      return `
-        <td class="selCell">
-          <span class="selPill ${ok ? "hit" : ""}">${val}</span>
-        </td>
-      `;
+    const sels = r.sels.map((s,i)=>{
+      const ok = resultados[i] && norm(s)===norm(resultados[i]);
+      return `<td class="selCell">
+        <span class="selPill ${ok?'selHit':''}">${s||'-'}</span>
+      </td>`;
     }).join("");
 
     tr.innerHTML = `
-      <td class="col-folio">${r.folio ?? ""}</td>
-      <td class="col-nombre">${r.nombre_show ?? ""}</td>
-      ${selsHtml}
-      <td class="col-ac">${r.aciertos ?? ""}</td>
+      <td class="col-folio">${r.folio}</td>
+      <td class="col-nombre">${r.nombre_show}</td>
+      ${sels}
+      <td class="col-ac ${r._lugar===1?'win1':r._lugar===2?'win2':''}">${r.aciertos}</td>
     `;
     tbody.appendChild(tr);
   });
 }
 
-function aplicarFiltro(){
-  const q = document.getElementById("searchInput").value.trim().toLowerCase();
-  if (!q){ render(raw); return; }
-
-  const f = raw.filter(r =>
-    String(r.folio ?? "").toLowerCase().includes(q) ||
-    String(r.telefono ?? "").toLowerCase().includes(q) ||
-    String(r.nombre ?? "").toLowerCase().includes(q)
-  );
-  render(f);
+function applyFilter(){
+  const q = searchInput.value.toLowerCase();
+  render(raw.filter(r =>
+    String(r.folio).includes(q) ||
+    String(r.telefono).includes(q) ||
+    r.nombre.includes(q)
+  ));
 }
 
 async function load(){
-  // Config
-  const cfgRes = await fetch(CONFIG, { cache:"no-store" }).then(r=>r.json());
-  const cfg = cfgRes.cfg || {};
+  const cfg = (await fetch(CONFIG).then(r=>r.json())).cfg || {};
+  weekTxt.textContent = cfg.subtitulo || "";
 
-  document.getElementById("weekTxt").textContent = cfg.subtitulo || "";
+  resultados = cfg.resultados||[];
+  marcadores = cfg.marcadores||[];
 
-  resultados = (cfg.resultados || []).slice(0,9);
-  marcadores = (cfg.marcadores || []).slice(0,9);
-
-  const partidos = (cfg.partidos || []).slice(0,9);
-  const partidosTxt = document.getElementById("partidosTxt");
   partidosTxt.innerHTML = "";
-
-  partidos.forEach((p,i)=>{
-    const m = (marcadores[i] && String(marcadores[i]).trim()) ? String(marcadores[i]).trim() : "-";
-    const r = (resultados[i] && String(resultados[i]).trim()) ? String(resultados[i]).trim().toUpperCase() : "-";
-
-    const div = document.createElement("div");
-    div.className = "p";
-    div.innerHTML = `
-      <span class="teams">${i+1} ${p.local} vs ${p.visita}</span>
-      <span class="score">${m} (${r})</span>
-    `;
+  (cfg.partidos||[]).forEach((p,i)=>{
+    const div=document.createElement("div");
+    div.className="p";
+    div.innerHTML=`<span>${i+1} ${p.local} vs ${p.visita}</span><span>${marcadores[i]||'-'} (${resultados[i]||'-'})</span>`;
     partidosTxt.appendChild(div);
   });
 
-  // Clasificación
-  const resD = await fetch(CLASIF, { cache:"no-store" }).then(r=>r.json());
-  const data = resD.data || { headers:[], rows:[] };
+  const data = (await fetch(ENDPOINT).then(r=>r.json())).data;
+  const h = data.headers.map(x=>x.toLowerCase());
 
-  const h = (data.headers || []).map(x => String(x).trim().toLowerCase());
+  const iF=h.indexOf("folio"), iN=h.indexOf("nombre"), iT=h.indexOf("telefono_envio"), iA=h.indexOf("aciertos");
+  const start=iN+1, end=iA;
 
-  const iF = h.indexOf("folio");
-  const iN = h.indexOf("nombre");
-  const iT = h.indexOf("telefono_envio"); // solo para búsqueda
-  const iA = h.indexOf("aciertos");
+  raw = data.rows.map(r=>({
+    folio:r[iF],
+    telefono:iT>=0?r[iT]:"",
+    nombre:r[iN].toLowerCase(),
+    nombre_show:r[iN],
+    sels:r.slice(start,end).slice(0,9),
+    aciertos:r[iA],
+    _lugar:0
+  }));
 
-  if (iF < 0 || iN < 0 || iA < 0) throw new Error("Faltan columnas: folio, nombre, aciertos");
+  const acs=raw.map(r=>r.aciertos);
+  const max=Math.max(...acs);
+  const sec=[...new Set(acs)].sort((a,b)=>b-a).find(x=>x<max);
 
-  const startSel = iN + 1;
-  const endSel   = iA;
-
-  raw = (data.rows || []).map(r=>{
-    const nombreShow = String(r[iN] ?? "").trim();
-    return {
-      folio: r[iF],
-      telefono: (iT >= 0 ? String(r[iT] ?? "").trim() : ""),
-      nombre: nombreShow.toLowerCase(),
-      nombre_show: nombreShow,
-      sels: r.slice(startSel, endSel).slice(0,9),
-      aciertos: r[iA],
-      _lugar: 0
-    };
+  raw.forEach(r=>{
+    if(r.aciertos===max) r._lugar=1;
+    else if(sec!=null && r.aciertos===sec) r._lugar=2;
   });
 
-  computeWinners(raw);
-
-  document.getElementById("tabla").innerHTML = buildTable();
+  tabla.innerHTML=buildHeader();
   render(raw);
-
-  aplicarFiltro();
 }
 
-document.getElementById("searchInput").addEventListener("input", aplicarFiltro);
-
+searchInput.addEventListener("input",applyFilter);
 load();
-setInterval(load, 5000);
+setInterval(load,5000);
 </script>
-
 </body>
 </html>
-
-
-
-
-
-
-
-
