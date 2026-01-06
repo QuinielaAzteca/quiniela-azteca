@@ -54,7 +54,7 @@
       position:relative;
     }
 
-    /* ✅ Header como WhatsApp: el “verde oscuro” de filas (rowB) */
+    /* ✅ Header como WhatsApp */
     .title{
       display:flex;
       flex-direction:column;
@@ -127,15 +127,22 @@
         var(--v) 100%
       );
     }
+
+    /* ✅ FIX: que el contenido del cupón SÍ ocupe todo el ancho */
     .card .inner{
       padding:4px 2px 4px 0;
-      display:flex;
-      align-items:center;
+      width:100%;
+      display:block;           /* antes: flex */
     }
+    #rows{ width:100%; }
 
     .row{
+      width:100%;
       display:grid;
-      grid-template-columns:24px var(--pick) 1.2fr var(--pick) 1.2fr var(--pick);
+
+      /* ✅ FIX: evita que el texto rompa el grid y rellena el ancho */
+      grid-template-columns:24px var(--pick) minmax(0,1fr) var(--pick) minmax(0,1fr) var(--pick);
+
       gap:4px;
       padding:8px 4px;
       border-bottom:1px solid var(--line);
@@ -154,17 +161,18 @@
       line-height:1.15;
       white-space:normal;
       word-break:keep-all;
+      min-width:0;            /* ✅ importante con minmax */
     }
     .team span{display:block;}
 
-.team-logo{
-  display:block;
-  margin:0 auto 4px;
-  height:32px;        /* más grande */
-  width:32px;         /* cuadrado consistente */
-  object-fit:contain;
-  filter: drop-shadow(0 2px 2px rgba(0,0,0,.12));
-}
+    .team-logo{
+      display:block;
+      margin:0 auto 4px;
+      height:32px;
+      width:32px;
+      object-fit:contain;
+      filter: drop-shadow(0 2px 2px rgba(0,0,0,.12));
+    }
 
     .pick{
       display:grid;
@@ -182,30 +190,24 @@
       transition:transform .06s ease,border-color .06s ease,background .06s ease,color .06s ease;
       -webkit-tap-highlight-color:transparent;
       box-shadow: 0 1px 0 rgba(0,0,0,.04);
+
+      /* Feedback pro */
+      transform: translateZ(0);
+      will-change: transform, box-shadow;
     }
-    /* Feedback pro (desktop + móvil) SIN cambiar colores */
-.pick{
-  transform: translateZ(0);          /* evita “parpadeos” en algunos móviles */
-  will-change: transform, box-shadow;
-}
 
-/* Hover solo en dispositivos con mouse */
-@media (hover:hover) and (pointer:fine){
-  .pick:hover{
-    border-color: rgba(15,23,42,.28);
-    box-shadow: 0 4px 10px rgba(2,6,23,.10);
-  }
-}
+    @media (hover:hover) and (pointer:fine){
+      .pick:hover{
+        border-color: rgba(15,23,42,.28);
+        box-shadow: 0 4px 10px rgba(2,6,23,.10);
+      }
+    }
 
-/* Press/tap (móvil y desktop) */
-.pick:active{
-  transform: scale(.96);
-}
+    .pick:active{ transform: scale(.96); }
 
-/* Si está seleccionado, que el press se sienta más “profundo” */
-.pick.on:active{
-  box-shadow: 0 2px 8px rgba(0,0,0,.22) inset, 0 6px 14px rgba(10,107,58,.22);
-}
+    .pick.on:active{
+      box-shadow: 0 2px 8px rgba(0,0,0,.22) inset, 0 6px 14px rgba(10,107,58,.22);
+    }
     .pick.on{
       background: linear-gradient(180deg, var(--ok2) 0%, var(--ok) 100%);
       color:#fff;
@@ -447,14 +449,13 @@
     /* AJUSTE PARA TELÉFONOS CHICOS (evita scroll horizontal) */
     @media (max-width: 420px) {
       :root{ --pick: 44px; }
-
       .row{
         grid-template-columns:
           22px
           var(--pick)
-          1fr
+          minmax(0,1fr)
           var(--pick)
-          1fr
+          minmax(0,1fr)
           var(--pick);
         gap: 3px;
       }
@@ -546,7 +547,7 @@ const TEAM_LOGOS = {
     // Liga MX
     'AMÉRICA': 'escudos/america.png',
     'ATLAS': 'escudos/atlas.png',
-    'ATLÉTICO DE SAN LUIS': 'escudos/sanluis.png',
+    'SAN LUIS': 'escudos/sanluis.png',
     'ATLETICO LA PAZ': 'escudos/atleticolapaz.png',
     'ATLÉTICO MORELIA': 'escudos/atleticomorelia.png',
     'CANCÚN': 'escudos/cancun.png',
@@ -562,7 +563,6 @@ const TEAM_LOGOS = {
     'PUMAS': 'escudos/pumas.png',
     'QUERÉTARO': 'escudos/queretaro.png',
     'SANTOS': 'escudos/santos.png',
-    'SAN LUIS': 'escudos/sanluis.png',
     'TIGRES': 'escudos/tigres.png',
     'TIJUANA': 'escudos/tijuana.png',
     'TOLUCA': 'escudos/toluca.png',
@@ -1160,6 +1160,7 @@ function applyConfig(cfg) {
   $('#subtitleTxt').textContent = cfg.subtitulo || '';
   $('#precioTxt').textContent   = fmtMoney(BASE_PRICE);
   $('#cierreTxt').textContent   = cfg.cierre    || '';
+
   const diasEl = $('#diasTxt');
   if (cfg.dias_partido || cfg.diasPartido) {
     diasEl.textContent = cfg.dias_partido || cfg.diasPartido;
