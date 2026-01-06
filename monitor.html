@@ -1,732 +1,272 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Quiniela Azteca - Monitor</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Quiniela Azteca - Monitor</title>
 
-  <style>
-    html, body { overflow-x: hidden; }
-    :root{
-      --fg:#0f172a;
-      --muted:#475569;
+<style>
+html,body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:#eef6f1;color:#0f172a}
 
-      --bg:#eaf3ee;
-      --bg2:#dfeee7;
-      --line:#d7e6dc;
+/* ===== HEADER FIJO ===== */
+.header{
+  position:sticky;
+  top:0;
+  z-index:30;
+  background:#ffffffee;
+  backdrop-filter:blur(6px);
+  border-bottom:1px solid #d7e6dc;
+}
+.header-inner{
+  max-width:980px;
+  margin:auto;
+  padding:8px 12px;
+}
+.brand h1{
+  margin:0;
+  font-size:22px;
+  letter-spacing:.04em;
+}
+.brand .q{color:#0a6b3a;font-weight:900}
+.brand .a{color:#c62828;font-weight:900}
+.sub{
+  font-size:14px;
+  font-weight:700;
+  color:#475569;
+  margin-top:2px;
+}
+.search{
+  margin-top:6px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:#fff;
+  border:2px solid #cbd5e1;
+  border-radius:999px;
+  padding:8px 12px;
+}
+.search input{
+  border:0;
+  outline:none;
+  width:100%;
+  font-size:14px;
+  font-weight:700;
+  background:transparent;
+}
 
-      --l:#0a6b3a;   /* QUINIELA */
-      --v:#c62828;   /* AZTECA */
+/* ===== CONTENEDOR ===== */
+.wrap{max-width:980px;margin:auto;padding:10px}
 
-      --rowA:#f6fbf8;
-      --rowB:#eff7f2;
+/* ===== PARTIDOS ===== */
+.card{
+  background:#fff;
+  border-radius:14px;
+  border:1px solid #d7e6dc;
+  margin-bottom:10px;
+}
+.bar{
+  height:6px;
+  background:linear-gradient(90deg,#0a6b3a 0 33%,#fff 33% 66%,#c62828 66% 100%);
+}
+.matches{padding:8px}
+.match{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:6px 8px;
+  border-radius:10px;
+  background:#f6fbf8;
+  margin-bottom:6px;
+  font-weight:800;
+  font-size:14px;
+}
+.match span{display:flex;gap:6px;align-items:center}
+.chip{
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:900;
+  border:1px solid #d1fae5;
+  background:#ecfdf5;
+  color:#065f46;
+}
 
-      --shadow: 0 10px 24px rgba(2, 44, 20, .10);
+/* ===== TABLA ===== */
+.table-card{
+  background:#fff;
+  border-radius:14px;
+  border:1px solid #d7e6dc;
+  overflow:hidden;
+}
+.table-title{
+  padding:8px 12px;
+  font-size:18px;
+  font-weight:900;
+  border-bottom:1px solid #e5e7eb;
+}
+table{width:100%;border-collapse:collapse}
+thead th{
+  position:sticky;
+  top:110px;
+  background:#f8fafc;
+  font-size:11px;
+  font-weight:900;
+  padding:6px;
+  border-bottom:1px solid #e5e7eb;
+}
+tbody td{
+  padding:6px;
+  border-bottom:1px solid #eef2f2;
+  font-size:12px;
+  font-weight:700;
+}
+tbody tr:nth-child(even){background:#fbfdfc}
 
-      --okBg:#ecfdf5;
-      --okBd:#bbf7d0;
-      --okFg:#065f46;
+/* columnas */
+.col-folio{width:44px;text-align:right;font-size:11px;color:#64748b}
+.col-nombre{min-width:160px;font-size:12px;font-weight:800}
 
-      --chipBg:#f8fafc;
-      --chipBd:#e5e7eb;
-      --chipFg:#0f172a;
+/* pills */
+.pills{display:flex;gap:4px;justify-content:center}
+.pill{
+  width:26px;height:26px;
+  border-radius:999px;
+  display:grid;
+  place-items:center;
+  font-size:12px;
+  font-weight:900;
+  border:2px solid #cbd5e1;
+}
+.pill.ok{background:#ecfdf5;border-color:#bbf7d0;color:#065f46}
 
-      --blue:#1d4ed8;
-      --blue2:#93c5fd;
-
-      /* ✅ más chico para que entren más columnas */
-      --pillSize: 28px;
-
-      /* ✅ para calcular padding-top dinámico del header fijo */
-      --topH: 120px;
-
-      /* ✅ anchos reales para columnas fijas */
-      --wFolio: 44px;     /* súper compacto */
-      --wNombre: 170px;   /* compacto pero legible */
-    }
-
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
-      color:var(--fg);
-      background: radial-gradient(1200px 520px at 50% -140px, #ffffff 0%, var(--bg) 55%, var(--bg2) 100%);
-      padding-top: var(--topH); /* ✅ deja espacio al header fijo */
-    }
-
-    .wrap{
-      max-width:980px;
-      margin:0 auto;
-      padding:10px 12px 12px;
-    }
-
-    /* ===== Header FIXED (más confiable que sticky) ===== */
-    .top{
-      position:fixed;
-      top:0; left:0; right:0;
-      z-index:50;
-      background: rgba(255,255,255,.94);
-      backdrop-filter: blur(8px);
-      border-bottom:1px solid rgba(215,230,220,.85);
-      box-shadow: 0 10px 24px rgba(2,6,23,.06);
-    }
-    .topInner{
-      max-width:980px;
-      margin:0 auto;
-      padding:6px 10px;     /* ✅ más compacto */
-      display:flex;
-      flex-direction:column;
-      gap:6px;              /* ✅ más compacto */
-    }
-
-    .brandRow{
-      display:flex;
-      align-items:flex-end;
-      justify-content:space-between;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-    .brand h1{
-      margin:0;
-      font-size:20px;       /* ✅ más compacto */
-      letter-spacing:.03em;
-      line-height:1.05;
-    }
-    .brand .q{color:var(--l); font-weight:1000;}
-    .brand .a{color:var(--v); font-weight:1000;}
-    .brand .sub{
-      margin-top:2px;       /* ✅ más compacto */
-      font-weight:900;
-      color:var(--muted);
-      font-size:14px;       /* ✅ más compacto */
-    }
-
-    /* ✅ ocultamos chips Config/Tabla/⏱️ */
-    .meta{ display:none !important; }
-
-    /* ===== Search ===== */
-    .searchRow{
-      display:flex;
-      gap:8px;
-      align-items:center;
-      flex-wrap:wrap;
-    }
-    .search{
-      flex:1;
-      display:flex;
-      align-items:center;
-      gap:8px;
-      background:#fff;
-      border:2px solid #cbd5e1;
-      border-radius:999px;
-      padding:8px 10px;     /* ✅ más compacto */
-      box-shadow: 0 6px 14px rgba(2,6,23,.06);
-      min-width:220px;
-    }
-    .search .icon{
-      font-size:16px;
-      opacity:.65;
-    }
-    .search input{
-      border:0;
-      outline:none;
-      width:100%;
-      font-size:14px;
-      font-weight:900;
-      color:var(--fg);
-      background:transparent;
-    }
-
-    /* ✅ ocultamos botones Limpiar/Actualizar */
-    #btnClear, #btnReload{ display:none !important; }
-
-    /* ===== Cards ===== */
-    .card{
-      background: linear-gradient(180deg, #ffffff 0%, #fbfdfc 100%);
-      border:1px solid var(--line);
-      border-radius:16px;
-      overflow:hidden;
-      box-shadow: var(--shadow);
-    }
-    .bar{
-      height:8px;
-      background:linear-gradient(90deg, var(--l) 0%, var(--l) 33%, #ffffff 33%, #ffffff 66%, var(--v) 66%, var(--v) 100%);
-    }
-    .section{ margin-top:12px; }
-    .section .inner{ padding:12px; }
-
-    /* ===== Partidos ===== */
-    .matches{ display:flex; flex-direction:column; gap:6px; }
-    .matchLine{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      padding:6px 8px;
-      border-radius:12px;
-      background: var(--rowA);
-      border:1px solid rgba(215,230,220,.6);
-    }
-    .matchLine:nth-child(even){ background: var(--rowB); }
-    .matchLeft{
-      font-weight:1000;
-      color:var(--fg);
-      font-size:14px;
-      letter-spacing:.01em;
-    }
-    .matchRight{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      flex-shrink:0;
-    }
-    .chip{
-      padding:4px 10px;
-      border-radius:999px;
-      border:1px solid var(--chipBd);
-      background: var(--chipBg);
-      font-size:12px;
-      font-weight:1000;
-      color: var(--chipFg);
-      box-shadow: 0 4px 10px rgba(2,6,23,.04);
-      white-space:nowrap;
-    }
-    .chip.pick{
-      background: var(--okBg);
-      border-color: var(--okBd);
-      color: var(--okFg);
-    }
-
-    /* ===== Tabla ===== */
-    .tableCard{
-      background:#fff;
-      border:1px solid var(--line);
-      border-radius:16px;
-      overflow:hidden;
-      box-shadow: var(--shadow);
-    }
-    .tableHeader{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding:10px 12px;
-      background: linear-gradient(180deg, #ffffff 0%, #f6fbf8 100%);
-      border-bottom:1px solid var(--line);
-      font-weight:1000;
-    }
-    .tableHeader .title{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-    .hint2{
-      color:var(--muted);
-      font-size:12px;
-      font-weight:900;
-    }
-
-    /* ✅ scroll horizontal real para ver 1–9 y A */
-    #tableWrap{
-      overflow-x:auto;
-      -webkit-overflow-scrolling:touch;
-    }
-    #tableWrap table{
-      width:max-content;
-      min-width: 720px; /* ✅ más bajo para móviles */
-      border-collapse:separate;
-      border-spacing:0;
-    }
-
-    thead th{
-      position:sticky;
-      top: var(--topH); /* ✅ ahora sí coincide con header fijo */
-      z-index:5;
-      background:#f8fafc;
-      border-bottom:1px solid #e5e7eb;
-      padding:8px 6px;  /* ✅ compacto */
-      font-size:11px;
-      color:#0f172a;
-      font-weight:1000;
-      text-align:center;
-      white-space:nowrap;
-    }
-    thead th.left{ text-align:left; }
-
-    tbody td{
-      border-bottom:1px solid #eef2f2;
-      padding:8px 6px;  /* ✅ compacto */
-      vertical-align:middle;
-      font-size:12px;
-      font-weight:900;
-      white-space:nowrap;
-      background:#fff;
-    }
-    tbody tr:nth-child(even) td{ background:#fbfdfc; }
-
-    /* ✅ Folio ultra compacto */
-    .colFolio{
-      width: var(--wFolio);
-      min-width: var(--wFolio);
-      max-width: var(--wFolio);
-      text-align:right;
-      color:#111827;
-      font-size:11px;
-      font-weight:900;
-      text-transform: lowercase;
-      opacity:.85;
-    }
-
-    .colNombre{
-      width: var(--wNombre);
-      min-width: var(--wNombre);
-      max-width: var(--wNombre);
-    }
-    .nameWrap{ display:flex; flex-direction:column; gap:2px; }
-    .nameTop{ font-size:13px; font-weight:1000; letter-spacing:.01em; }
-    .nameSub{ font-size:10px; color:var(--muted); font-weight:900; }
-
-    .pills{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
-    .pill{
-      width:var(--pillSize);
-      height:var(--pillSize);
-      border-radius:999px;
-      display:grid;
-      place-items:center;
-      border:2px solid #cbd5e1;
-      background:#fff;
-      font-weight:1000;
-      color:#0f172a;
-      user-select:none;
-      font-size:12px;
-    }
-    .pill.ok{
-      background: var(--okBg);
-      border-color: var(--okBd);
-      color: var(--okFg);
-    }
-
-    .badgeA{
-      min-width:36px;
-      text-align:center;
-      font-weight:1000;
-      border-radius:12px;
-      padding:8px 0;
-      background: var(--blue);
-      color:#fff;
-    }
-    .badgeA.low{ background: var(--blue2); color:#0f172a; }
-
-    /* ✅ Columnas fijas SIN tapar selecciones: usamos anchos reales */
-    thead th:nth-child(1),
-    tbody td:nth-child(1){
-      position: sticky;
-      left: 0;
-      z-index: 8;
-      background: #ffffff;
-      box-shadow: 6px 0 12px rgba(2,6,23,.04);
-    }
-    thead th:nth-child(2),
-    tbody td:nth-child(2){
-      position: sticky;
-      left: var(--wFolio);
-      z-index: 8;
-      background: #ffffff;
-      box-shadow: 6px 0 12px rgba(2,6,23,.04);
-    }
-    thead th:nth-child(1),
-    thead th:nth-child(2){
-      background:#f8fafc;
-      z-index: 9;
-    }
-
-    /* ===== Skeleton ===== */
-    .skeleton{ padding:12px; }
-    .skLine{
-      height:14px;
-      border-radius:10px;
-      background: linear-gradient(90deg, #eef2f2 0%, #f8fafc 40%, #eef2f2 80%);
-      background-size: 200% 100%;
-      animation: sh 1.0s infinite linear;
-      margin:10px 0;
-    }
-    @keyframes sh{
-      0%{ background-position: 200% 0; }
-      100%{ background-position: -200% 0; }
-    }
-
-    .err{
-      margin-top:12px;
-      background:#ffecec;
-      border:1px solid #f5b5b5;
-      color:#c62828;
-      font-weight:1000;
-      border-radius:14px;
-      padding:10px 12px;
-      box-shadow: 0 10px 24px rgba(0,0,0,.12);
-      display:none;
-    }
-
-    @media (max-width:520px){
-      :root{
-        --pillSize: 26px;
-        --wFolio: 40px;
-        --wNombre: 150px;
-      }
-      .brand h1{ font-size:19px; }
-      .brand .sub{ font-size:13px; }
-      .topInner{ padding:6px 10px; }
-      .search{ padding:7px 10px; }
-    }
-  </style>
+.badgeA{
+  min-width:32px;
+  padding:6px 0;
+  border-radius:10px;
+  text-align:center;
+  font-weight:900;
+  background:#1d4ed8;
+  color:#fff;
+  font-size:12px;
+}
+.badgeA.low{background:#93c5fd;color:#0f172a}
+</style>
 </head>
 
 <body>
-  <div class="top" id="topBar">
-    <div class="topInner">
-      <div class="brandRow">
-        <div class="brand">
-          <h1><span class="q">QUINIELA</span> <span class="a">AZTECA</span></h1>
-          <div class="sub" id="subtitulo">—</div>
-        </div>
 
-        <div class="meta">
-          <span class="miniChip"><span class="dot" id="dotCfg"></span>Config</span>
-          <span class="miniChip"><span class="dot" id="dotTbl"></span>Tabla</span>
-          <span class="miniChip">⏱️ <span id="lastUpdate">—</span></span>
-        </div>
-      </div>
-
-      <div class="searchRow">
-        <div class="search">
-          <span class="icon">🔎</span>
-          <input id="q" placeholder="Busca aqui por teléfono, nombre o folio" autocomplete="off" />
-        </div>
-
-        <button class="btn alt" id="btnClear">Limpiar</button>
-        <button class="btn" id="btnReload">Actualizar</button>
-      </div>
+<!-- HEADER FIJO -->
+<div class="header">
+  <div class="header-inner">
+    <div class="brand">
+      <h1><span class="q">QUINIELA</span> <span class="a">AZTECA</span></h1>
+      <div class="sub" id="subtitulo">—</div>
+    </div>
+    <div class="search">
+      🔎
+      <input id="q" placeholder="Busca por nombre o folio" autocomplete="off">
     </div>
   </div>
+</div>
 
-  <div class="wrap">
+<div class="wrap">
 
-    <!-- Partidos -->
-    <div class="card section">
-      <div class="bar"></div>
-      <div class="inner">
-        <div class="matches" id="matches">
-          <div class="skeleton">
-            <div class="skLine" style="width:70%"></div>
-            <div class="skLine" style="width:85%"></div>
-            <div class="skLine" style="width:65%"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tabla -->
-    <div class="section tableCard">
-      <div class="tableHeader">
-        <div class="title">
-          <span>CLASIFICACIÓN</span>
-          <span class="hint2" id="hintCount">—</span>
-        </div>
-        <div class="hint2" id="hintInfo">Top visible con búsqueda rápida</div>
-      </div>
-
-      <div id="tableWrap">
-        <div class="skeleton">
-          <div class="skLine" style="width:95%"></div>
-          <div class="skLine" style="width:92%"></div>
-          <div class="skLine" style="width:90%"></div>
-          <div class="skLine" style="width:88%"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="err" id="errBox"></div>
+  <!-- PARTIDOS -->
+  <div class="card">
+    <div class="bar"></div>
+    <div class="matches" id="matches"></div>
   </div>
+
+  <!-- TABLA -->
+  <div class="table-card">
+    <div class="table-title">CLASIFICACIÓN</div>
+    <div id="tableWrap"></div>
+  </div>
+
+</div>
 
 <script>
-/* =========================
-   CONFIG
-========================= */
-const SHEET_ENDPOINT_PUBLIC = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec";
-const REFRESH_MS = 12000;
+/* ========= CONFIG ========= */
+const ENDPOINT = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec";
 
-/* =========================
-   STATE
-========================= */
-let CFG = null;
-let RESULTADOS = [];
-let MARCADORES = [];
-let PARTIDOS = [];
-let TABLE_DATA = null;
+let CFG=null,PARTIDOS=[],RESULTADOS=[],MARCADORES=[],TABLE=null;
 
-/* =========================
-   HELPERS UI
-========================= */
-const $ = s => document.querySelector(s);
+const $=s=>document.querySelector(s);
 
-function setDot(id, ok){
-  const el = $(id);
-  if (!el) return;
-  el.classList.toggle('ok', !!ok);
-  el.classList.toggle('bad', !ok);
+async function fetchJSON(u){
+  const r=await fetch(u,{cache:'no-store'});
+  return await r.json();
 }
 
-function setErr(msg){
-  const box = $('#errBox');
-  if (!box) return;
-  if (!msg){
-    box.style.display = 'none';
-    box.textContent = '';
-  } else {
-    box.style.display = 'block';
-    box.textContent = msg;
-  }
-}
-
-function nowStr(){
-  const d = new Date();
-  const hh = String(d.getHours()).padStart(2,'0');
-  const mm = String(d.getMinutes()).padStart(2,'0');
-  const ss = String(d.getSeconds()).padStart(2,'0');
-  return `${hh}:${mm}:${ss}`;
-}
-
-/* ✅ Ajusta padding-top del body según el header fijo (para que nunca “se pierda”) */
-function syncTopHeight(){
-  const top = document.getElementById('topBar');
-  if (!top) return;
-  const h = Math.ceil(top.getBoundingClientRect().height);
-  document.documentElement.style.setProperty('--topH', h + 'px');
-}
-
-/* =========================
-   RENDER: PARTIDOS
-========================= */
 function renderMatches(){
-  const wrap = $('#matches');
-  if (!wrap) return;
-
-  if (!PARTIDOS || !PARTIDOS.length){
-    wrap.innerHTML = `<div style="font-weight:900;color:#475569;">No hay partidos en config.</div>`;
-    return;
-  }
-
-  const lines = PARTIDOS.slice(0,9).map((p, i) => {
-    const marcador = (MARCADORES && MARCADORES[i]) ? String(MARCADORES[i]) : '-';
-    const res = (RESULTADOS && RESULTADOS[i]) ? String(RESULTADOS[i]).toUpperCase() : '-';
-
-    const marcadorTxt = marcador && marcador !== '-' ? marcador : '—';
-    const resTxt = (res && res !== '-') ? res : '—';
-
-    return `
-      <div class="matchLine">
-        <div class="matchLeft"><b>${i+1}</b> ${p.local} vs ${p.visita}</div>
-        <div class="matchRight">
-          <span class="chip">${marcadorTxt}</span>
-          <span class="chip pick">${resTxt}</span>
-        </div>
-      </div>
-    `;
-  }).join('');
-
-  wrap.innerHTML = lines;
+  const m=$('#matches');
+  m.innerHTML=PARTIDOS.map((p,i)=>`
+    <div class="match">
+      <div>${i+1} ${p.local} vs ${p.visita}</div>
+      <span>
+        <span class="chip">${MARCADORES[i]||'-'}</span>
+        <span class="chip">${RESULTADOS[i]||'-'}</span>
+      </span>
+    </div>
+  `).join('');
 }
 
-/* =========================
-   RENDER: TABLE
-========================= */
 function renderTable(){
-  const wrap = $('#tableWrap');
-  if (!wrap) return;
+  const w=$('#tableWrap');
+  if(!TABLE)return;
+  const h=TABLE.headers;
+  const r=TABLE.rows;
+  const iF=h.indexOf('folio');
+  const iN=h.indexOf('nombre');
+  const iA=h.indexOf('aciertos');
+  const start=iN+1,end=iA-1;
 
-  if (!TABLE_DATA || !TABLE_DATA.headers || !TABLE_DATA.rows){
-    wrap.innerHTML = `<div class="skeleton">
-      <div class="skLine" style="width:92%"></div>
-      <div class="skLine" style="width:88%"></div>
-      <div class="skLine" style="width:84%"></div>
-    </div>`;
-    return;
-  }
-
-  const headers = TABLE_DATA.headers.map(h => String(h||'').trim());
-  const rowsAll = TABLE_DATA.rows;
-
-  const idxFolio = headers.findIndex(h => h.toLowerCase() === 'folio');
-  const idxTel   = headers.findIndex(h => h.toLowerCase() === 'telefono_envio');
-  const idxNom   = headers.findIndex(h => h.toLowerCase() === 'nombre');
-  const idxAci   = headers.findIndex(h => h.toLowerCase() === 'aciertos');
-
-  const startSel = idxNom + 1;
-  const endSel   = idxAci - 1;
-  const selCount = Math.max(0, endSel - startSel + 1);
-
-  const q = ($('#q')?.value || '').trim().toLowerCase();
-  const rows = q
-    ? rowsAll.filter(r => {
-        const folio = (idxFolio>=0 ? String(r[idxFolio]||'') : '').toLowerCase();
-        const tel   = (idxTel>=0   ? String(r[idxTel]||'')   : '').toLowerCase();
-        const nom   = (idxNom>=0   ? String(r[idxNom]||'')   : '').toLowerCase();
-        return folio.includes(q) || tel.includes(q) || nom.includes(q);
-      })
-    : rowsAll;
-
-  $('#hintCount').textContent = `${rows.length} filas`;
-
-  const thNums = Array.from({length: selCount}, (_,i)=>`<th>${i+1}</th>`).join('');
-
-  const table = document.createElement('table');
-  table.innerHTML = `
-    <thead>
-      <tr>
-        <th class="colFolio">#</th>
-        <th class="left">Nombre</th>
-        ${thNums}
-        <th>A</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  `;
-
-  const tb = table.querySelector('tbody');
-
-  rows.forEach(r => {
-    const folio = idxFolio>=0 ? r[idxFolio] : '';
-    const tel   = idxTel>=0   ? r[idxTel]   : '';
-    const nom   = idxNom>=0   ? String(r[idxNom]||'') : '';
-    const aci   = idxAci>=0   ? Number(r[idxAci]||0) : 0;
-
-    const sels = selCount ? r.slice(startSel, startSel + selCount) : [];
-    const badgeCls = aci >= 9 ? '' : 'low';
-
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td class="colFolio">${(folio ?? '').toString().toLowerCase()}</td>
-      <td class="colNombre">
-        <div class="nameWrap">
-          <div class="nameTop">${nom}</div>
-          <div class="nameSub">${tel ? ('Tel: ' + tel) : ''}</div>
-        </div>
-      </td>
-      ${sels.map(()=>`<td><div class="pills"></div></td>`).join('')}
-      <td><div class="badgeA ${badgeCls}">${aci}</div></td>
-    `;
-
-    const pillCells = tr.querySelectorAll('td .pills');
-    for (let i=0; i<pillCells.length; i++){
-      const val = String(sels[i]||'').trim().toUpperCase();
-      const res = (RESULTADOS && RESULTADOS[i]) ? String(RESULTADOS[i]).trim().toUpperCase() : '';
-      const ok = (res && val && val === res);
-      pillCells[i].innerHTML = `<span class="pill ${ok ? 'ok':''}">${val || '-'}</span>`;
-    }
-
-    tb.appendChild(tr);
+  const q=$('#q').value.toLowerCase();
+  const rows=r.filter(x=>{
+    const f=String(x[iF]||'').toLowerCase();
+    const n=String(x[iN]||'').toLowerCase();
+    return f.includes(q)||n.includes(q);
   });
 
-  wrap.innerHTML = '';
-  wrap.appendChild(table);
+  let html=`<table><thead><tr>
+    <th class="col-folio">#</th>
+    <th class="col-nombre">Nombre</th>
+    ${Array(end-start+1).fill(0).map((_,i)=>`<th>${i+1}</th>`).join('')}
+    <th>A</th>
+  </tr></thead><tbody>`;
 
-  // ✅ por si cambia altura de header con render, recalculamos
-  syncTopHeight();
+  rows.forEach(x=>{
+    html+=`<tr>
+      <td class="col-folio">${x[iF]||''}</td>
+      <td class="col-nombre">${x[iN]}</td>
+      ${x.slice(start,end+1).map((v,i)=>{
+        const ok=v===RESULTADOS[i];
+        return `<td><div class="pills"><span class="pill ${ok?'ok':''}">${v||'-'}</span></div></td>`;
+      }).join('')}
+      <td><div class="badgeA ${x[iA]<9?'low':''}">${x[iA]}</div></td>
+    </tr>`;
+  });
+
+  html+='</tbody></table>';
+  w.innerHTML=html;
 }
 
-/* =========================
-   FETCH
-========================= */
-async function fetchJson(url){
-  const r = await fetch(url, { cache: 'no-store' });
-  const t = await r.text();
-  try { return JSON.parse(t); } catch(e){ throw new Error('JSON inválido'); }
+async function load(){
+  const cfg=await fetchJSON(ENDPOINT+'?mode=config');
+  CFG=cfg.cfg;
+  PARTIDOS=CFG.partidos;
+  RESULTADOS=CFG.resultados||[];
+  MARCADORES=CFG.marcadores||[];
+  $('#subtitulo').textContent=CFG.subtitulo||'—';
+  renderMatches();
+
+  const t=await fetchJSON(ENDPOINT+'?mode=clasif');
+  TABLE=t.data;
+  renderTable();
 }
 
-async function loadConfig(){
-  try{
-    const data = await fetchJson(SHEET_ENDPOINT_PUBLIC + '?mode=config');
-    if (!data || !data.ok) throw new Error(data?.error || 'Config no ok');
-
-    CFG = data.cfg || {};
-    PARTIDOS = (CFG.partidos || []).slice(0,9);
-    RESULTADOS = (CFG.resultados || []).slice(0,9);
-    MARCADORES = (CFG.marcadores || []).slice(0,9);
-
-    $('#subtitulo').textContent = CFG.subtitulo || CFG.titulo || '—';
-
-    setDot('#dotCfg', true);
-    renderMatches();
-    syncTopHeight();
-    return true;
-  }catch(err){
-    setDot('#dotCfg', false);
-    setErr('Error cargando config: ' + (err?.message || err));
-    return false;
-  }
-}
-
-async function loadTable(){
-  try{
-    const data = await fetchJson(SHEET_ENDPOINT_PUBLIC + '?mode=clasif');
-    if (!data || !data.ok) throw new Error(data?.error || 'Tabla no ok');
-
-    TABLE_DATA = data.data || { headers:[], rows:[] };
-    setDot('#dotTbl', true);
-    renderTable();
-    return true;
-  }catch(err){
-    setDot('#dotTbl', false);
-    setErr('Error cargando tabla: ' + (err?.message || err));
-    return false;
-  }
-}
-
-/* =========================
-   BOOT
-========================= */
-let timer = null;
-
-async function reloadAll(){
-  setErr('');
-  const okCfg = await loadConfig();
-  const okTbl = await loadTable();
-  const el = $('#lastUpdate');
-  if (el) el.textContent = nowStr();
-  return okCfg && okTbl;
-}
-
-function startAuto(){
-  if (timer) clearInterval(timer);
-  timer = setInterval(async () => {
-    const active = document.activeElement;
-    const typing = active && active.id === 'q';
-    if (typing) return;
-    await loadTable();
-  }, REFRESH_MS);
-}
-
-document.addEventListener('DOMContentLoaded', async () => {
-  if (!SHEET_ENDPOINT_PUBLIC){
-    setErr('Falta pegar tu URL /exec en SHEET_ENDPOINT_PUBLIC.');
-    setDot('#dotCfg', false);
-    setDot('#dotTbl', false);
-    return;
-  }
-
-  syncTopHeight();
-  window.addEventListener('resize', syncTopHeight);
-
-  await reloadAll();
-  startAuto();
-
-  $('#q')?.addEventListener('input', () => renderTable());
-});
+$('#q').addEventListener('input',renderTable);
+load();
 </script>
 </body>
 </html>
