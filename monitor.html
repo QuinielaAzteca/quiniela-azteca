@@ -8,11 +8,17 @@
 <style>
 html,body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:#eef6f1;color:#0f172a}
 
-/* ===== HEADER FIJO ===== */
+/* ===== ALTURAS (para sticky) ===== */
+:root{
+  --headerH: 78px;     /* header compacto */
+  --matchesH: 260px;   /* alto de la caja de partidos (ajustable) */
+}
+
+/* ===== HEADER FIJO (COMPACTO) ===== */
 .header{
   position:sticky;
   top:0;
-  z-index:30;
+  z-index:50;
   background:#ffffffee;
   backdrop-filter:blur(6px);
   border-bottom:1px solid #d7e6dc;
@@ -20,18 +26,19 @@ html,body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ari
 .header-inner{
   max-width:980px;
   margin:auto;
-  padding:8px 12px;
+  padding:6px 12px; /* más compacto */
 }
 .brand h1{
   margin:0;
-  font-size:22px;
+  font-size:20px; /* más compacto */
   letter-spacing:.04em;
+  line-height:1.05;
 }
 .brand .q{color:#0a6b3a;font-weight:900}
 .brand .a{color:#c62828;font-weight:900}
 .sub{
-  font-size:14px;
-  font-weight:700;
+  font-size:13px;
+  font-weight:800;
   color:#475569;
   margin-top:2px;
 }
@@ -43,52 +50,67 @@ html,body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ari
   background:#fff;
   border:2px solid #cbd5e1;
   border-radius:999px;
-  padding:8px 12px;
+  padding:6px 10px; /* más compacto */
 }
 .search input{
   border:0;
   outline:none;
   width:100%;
-  font-size:14px;
-  font-weight:700;
+  font-size:13px;
+  font-weight:800;
   background:transparent;
 }
 
 /* ===== CONTENEDOR ===== */
 .wrap{max-width:980px;margin:auto;padding:10px}
 
-/* ===== PARTIDOS ===== */
+/* ===== PARTIDOS FIJOS (STICKY) ===== */
+.matchesSticky{
+  position:sticky;
+  top: var(--headerH);   /* se pega justo debajo del header */
+  z-index:40;
+}
+
+/* ===== CARD BASE ===== */
 .card{
   background:#fff;
   border-radius:14px;
   border:1px solid #d7e6dc;
-  margin-bottom:10px;
+  overflow:hidden;
 }
 .bar{
   height:6px;
   background:linear-gradient(90deg,#0a6b3a 0 33%,#fff 33% 66%,#c62828 66% 100%);
 }
-.matches{padding:8px}
+
+/* ===== PARTIDOS (50% MÁS COMPACTO) ===== */
+.matches{
+  padding:6px;               /* antes 8 */
+  max-height: var(--matchesH);
+  overflow:auto;             /* por si quieres ver 9 sin estirar todo */
+}
 .match{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:6px 8px;
+  padding:4px 6px;           /* antes 6 8 */
   border-radius:10px;
   background:#f6fbf8;
-  margin-bottom:6px;
-  font-weight:800;
-  font-size:14px;
+  margin-bottom:5px;         /* más compacto */
+  font-weight:900;
+  font-size:12px;            /* más compacto */
 }
+.match:nth-child(even){ background:#eff7f2; }
 .match span{display:flex;gap:6px;align-items:center}
 .chip{
-  padding:4px 10px;
+  padding:3px 8px;           /* más compacto */
   border-radius:999px;
-  font-size:12px;
+  font-size:11px;
   font-weight:900;
   border:1px solid #d1fae5;
   background:#ecfdf5;
   color:#065f46;
+  white-space:nowrap;
 }
 
 /* ===== TABLA ===== */
@@ -97,34 +119,36 @@ html,body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ari
   border-radius:14px;
   border:1px solid #d7e6dc;
   overflow:hidden;
+  margin-top:10px;
 }
 .table-title{
   padding:8px 12px;
-  font-size:18px;
-  font-weight:900;
+  font-size:16px;
+  font-weight:1000;
   border-bottom:1px solid #e5e7eb;
 }
 table{width:100%;border-collapse:collapse}
 thead th{
   position:sticky;
-  top:110px;
+  top: calc(var(--headerH) + var(--matchesH) + 14px); /* header + partidos + margen */
   background:#f8fafc;
   font-size:11px;
   font-weight:900;
   padding:6px;
   border-bottom:1px solid #e5e7eb;
+  z-index:10;
 }
 tbody td{
   padding:6px;
   border-bottom:1px solid #eef2f2;
   font-size:12px;
-  font-weight:700;
+  font-weight:800;
 }
 tbody tr:nth-child(even){background:#fbfdfc}
 
 /* columnas */
-.col-folio{width:44px;text-align:right;font-size:11px;color:#64748b}
-.col-nombre{min-width:160px;font-size:12px;font-weight:800}
+.col-folio{width:44px;text-align:right;font-size:10px;color:#64748b}
+.col-nombre{min-width:160px;font-size:12px;font-weight:900}
 
 /* pills */
 .pills{display:flex;gap:4px;justify-content:center}
@@ -134,7 +158,7 @@ tbody tr:nth-child(even){background:#fbfdfc}
   display:grid;
   place-items:center;
   font-size:12px;
-  font-weight:900;
+  font-weight:1000;
   border:2px solid #cbd5e1;
 }
 .pill.ok{background:#ecfdf5;border-color:#bbf7d0;color:#065f46}
@@ -144,12 +168,20 @@ tbody tr:nth-child(even){background:#fbfdfc}
   padding:6px 0;
   border-radius:10px;
   text-align:center;
-  font-weight:900;
+  font-weight:1000;
   background:#1d4ed8;
   color:#fff;
   font-size:12px;
 }
 .badgeA.low{background:#93c5fd;color:#0f172a}
+
+/* ===== Ajuste móvil: recalcular alturas sticky ===== */
+@media (max-width:520px){
+  :root{
+    --headerH: 84px;
+    --matchesH: 240px;
+  }
+}
 </style>
 </head>
 
@@ -171,10 +203,12 @@ tbody tr:nth-child(even){background:#fbfdfc}
 
 <div class="wrap">
 
-  <!-- PARTIDOS -->
-  <div class="card">
-    <div class="bar"></div>
-    <div class="matches" id="matches"></div>
+  <!-- PARTIDOS (AHORA SÍ: STICKY) -->
+  <div class="matchesSticky">
+    <div class="card">
+      <div class="bar"></div>
+      <div class="matches" id="matches"></div>
+    </div>
   </div>
 
   <!-- TABLA -->
@@ -200,12 +234,12 @@ async function fetchJSON(u){
 
 function renderMatches(){
   const m=$('#matches');
-  m.innerHTML=PARTIDOS.map((p,i)=>`
+  m.innerHTML=PARTIDOS.slice(0,9).map((p,i)=>`
     <div class="match">
       <div>${i+1} ${p.local} vs ${p.visita}</div>
       <span>
-        <span class="chip">${MARCADORES[i]||'-'}</span>
-        <span class="chip">${RESULTADOS[i]||'-'}</span>
+        <span class="chip">${(MARCADORES[i]||'-') || '-'}</span>
+        <span class="chip">${(RESULTADOS[i]||'-') || '-'}</span>
       </span>
     </div>
   `).join('');
@@ -213,37 +247,48 @@ function renderMatches(){
 
 function renderTable(){
   const w=$('#tableWrap');
-  if(!TABLE)return;
-  const h=TABLE.headers;
-  const r=TABLE.rows;
+  if(!TABLE){ w.innerHTML=''; return; }
+
+  const h=TABLE.headers.map(x=>String(x||'').trim().toLowerCase());
+  const r=TABLE.rows||[];
+
   const iF=h.indexOf('folio');
   const iN=h.indexOf('nombre');
   const iA=h.indexOf('aciertos');
-  const start=iN+1,end=iA-1;
+
+  const start=iN+1, end=iA-1;
+  const selCount=Math.max(0,end-start+1);
 
   const q=$('#q').value.toLowerCase();
   const rows=r.filter(x=>{
-    const f=String(x[iF]||'').toLowerCase();
-    const n=String(x[iN]||'').toLowerCase();
+    const f=String((iF>=0?x[iF]:'')||'').toLowerCase();
+    const n=String((iN>=0?x[iN]:'')||'').toLowerCase();
     return f.includes(q)||n.includes(q);
   });
 
   let html=`<table><thead><tr>
     <th class="col-folio">#</th>
     <th class="col-nombre">Nombre</th>
-    ${Array(end-start+1).fill(0).map((_,i)=>`<th>${i+1}</th>`).join('')}
+    ${Array.from({length: selCount}, (_,i)=>`<th>${i+1}</th>`).join('')}
     <th>A</th>
   </tr></thead><tbody>`;
 
   rows.forEach(x=>{
+    const folio = (iF>=0?x[iF]:'')||'';
+    const nombre= (iN>=0?x[iN]:'')||'';
+    const aci   = Number((iA>=0?x[iA]:0)||0);
+
+    const sels = selCount ? x.slice(start, start+selCount) : [];
     html+=`<tr>
-      <td class="col-folio">${x[iF]||''}</td>
-      <td class="col-nombre">${x[iN]}</td>
-      ${x.slice(start,end+1).map((v,i)=>{
-        const ok=v===RESULTADOS[i];
-        return `<td><div class="pills"><span class="pill ${ok?'ok':''}">${v||'-'}</span></div></td>`;
+      <td class="col-folio">${folio}</td>
+      <td class="col-nombre">${nombre}</td>
+      ${sels.map((v,i)=>{
+        const val=String(v||'').trim().toUpperCase() || '-';
+        const res=String(RESULTADOS[i]||'').trim().toUpperCase();
+        const ok=(res && val !== '-' && val===res);
+        return `<td><div class="pills"><span class="pill ${ok?'ok':''}">${val}</span></div></td>`;
       }).join('')}
-      <td><div class="badgeA ${x[iA]<9?'low':''}">${x[iA]}</div></td>
+      <td><div class="badgeA ${aci<9?'low':''}">${aci}</div></td>
     </tr>`;
   });
 
@@ -253,20 +298,21 @@ function renderTable(){
 
 async function load(){
   const cfg=await fetchJSON(ENDPOINT+'?mode=config');
-  CFG=cfg.cfg;
-  PARTIDOS=CFG.partidos;
-  RESULTADOS=CFG.resultados||[];
-  MARCADORES=CFG.marcadores||[];
+  CFG=cfg.cfg||{};
+  PARTIDOS=(CFG.partidos||[]).slice(0,9);
+  RESULTADOS=(CFG.resultados||[]).slice(0,9);
+  MARCADORES=(CFG.marcadores||[]).slice(0,9);
   $('#subtitulo').textContent=CFG.subtitulo||'—';
   renderMatches();
 
   const t=await fetchJSON(ENDPOINT+'?mode=clasif');
-  TABLE=t.data;
+  TABLE=t.data||{headers:[],rows:[]};
   renderTable();
 }
 
 $('#q').addEventListener('input',renderTable);
 load();
 </script>
+
 </body>
 </html>
