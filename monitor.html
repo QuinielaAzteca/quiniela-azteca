@@ -31,157 +31,165 @@
   --chipBd:#e5e7eb;
   --chipFg:#0f172a;
 
+  --azul1:#1d4ed8;   /* azul rey */
+  --azul2:#93c5fd;   /* azul cielo */
+
   --pillBorder:#cbd5e1;
   --pillHitBg:#dcfce7;
   --pillHitBd:#86efac;
   --pillHitTx:#064e3b;
 
-  --azul1:#1d4ed8;   /* azul rey */
-  --azul2:#93c5fd;   /* azul cielo */
+  --stickyTop: 0px; /* se calcula en JS */
 }
 
 *{box-sizing:border-box}
+html, body { overflow-x:hidden; }
+
 body{
   margin:0;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
   color:var(--fg);
   background: radial-gradient(1200px 520px at 50% -140px, #ffffff 0%, var(--bg) 55%, var(--bg2) 100%);
 }
 
-/* ===== HEADER FIJO (con diseño) ===== */
+/* ===== HEADER FIJO (bloque único) ===== */
 .header{
   position:sticky;
   top:0;
-  z-index:30;
+  z-index:50;
   background: rgba(255,255,255,.92);
   backdrop-filter: blur(8px);
   border-bottom:1px solid rgba(215,230,220,.85);
-  box-shadow: 0 10px 24px rgba(2,6,23,.06);
+  box-shadow: 0 10px 24px rgba(2,6,23,.05);
 }
 .header-inner{
   max-width:1100px;
   margin:auto;
-  padding:10px 12px;
+  padding:8px 10px; /* más compacto */
 }
 
-/* marca / subtitulo */
+.headerCard{
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdfc 100%);
+  border:1px solid var(--line);
+  border-radius:14px;
+  overflow:hidden;
+  box-shadow: var(--shadow);
+}
+.headerBar{
+  height:6px; /* más compacto */
+  background:linear-gradient(90deg, var(--l) 0%, var(--l) 33%, #ffffff 33%, #ffffff 66%, var(--v) 66%, var(--v) 100%);
+}
+.headerCardInner{
+  padding:6px 8px; /* ✅ compacto (antes era más) */
+}
+
+/* marca + semana */
 .brandRow{
   display:flex;
   align-items:flex-end;
   justify-content:space-between;
   gap:10px;
   flex-wrap:wrap;
+  margin-bottom:6px; /* compacto */
 }
 .title{
+  margin:0;
   font-weight:1000;
-  font-size:20px;
+  font-size:18px; /* compacto */
   letter-spacing:.04em;
-  line-height:1.1;
+  line-height:1.05;
 }
 .title .mxg{color:var(--l)}
 .title .mxr{color:var(--v)}
+
 .week{
-  font-size:13px;
+  font-size:12px;
   font-weight:900;
-  margin-top:4px;
   color:var(--muted);
+  margin-top:2px;
 }
 
-/* card de partidos dentro del header */
-.headerCard{
-  margin-top:10px;
-  background: linear-gradient(180deg, #ffffff 0%, #fbfdfc 100%);
-  border:1px solid rgba(215,230,220,.9);
-  border-radius:14px;
-  overflow:hidden;
-  box-shadow: var(--shadow);
-}
-.headerBar{
-  height:6px;
-  background:linear-gradient(90deg, var(--l) 0%, var(--l) 33%, #ffffff 33%, #ffffff 66%, var(--v) 66%, var(--v) 100%);
-}
-.headerCardInner{
-  padding:8px 10px;
-}
-
-/* partidos compactos (chips) */
+/* ===== PARTIDOS ULTRA COMPACTOS (9 en alto de ~6) ===== */
 .partidos{
-  font-size:11px;
+  font-size:10px;           /* ✅ más chico */
   font-weight:900;
-  line-height:1.2;
+  line-height:1.05;         /* ✅ más apretado */
   display:flex;
   flex-direction:column;
-  gap:5px;
+  gap:3px;                  /* ✅ menos separación */
+  margin-top:4px;
 }
+
 .p{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:10px;
-  padding:6px 8px;
-  border-radius:12px;
+  gap:8px;
+  padding:3px 6px;          /* ✅ menos alto */
+  border-radius:10px;
   background: var(--rowA);
-  border:1px solid rgba(215,230,220,.65);
+  border:1px solid rgba(215,230,220,.55);
 }
 .p:nth-child(even){ background: var(--rowB); }
+
 .p .left{
   flex:1;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
-  color:var(--fg);
 }
+
 .p .right{
   flex-shrink:0;
   display:flex;
-  gap:6px;
+  gap:5px;                  /* ✅ más compacto */
   align-items:center;
   white-space:nowrap;
 }
+
 .chip{
-  padding:3px 8px;
+  padding:2px 6px;          /* ✅ delgado */
   border-radius:999px;
   border:1px solid var(--chipBd);
   background: var(--chipBg);
-  font-size:11px;
+  font-size:10px;           /* ✅ delgado */
   font-weight:1000;
-  color: var(--chipFg);
-  box-shadow: 0 4px 10px rgba(2,6,23,.04);
+  line-height:1;
+  box-shadow:none;          /* ✅ quita altura visual */
+  color:var(--chipFg);
 }
+
 .chip.pick{
   background: var(--okBg);
   border-color: var(--okBd);
   color: var(--okFg);
 }
 
-/* buscador (dentro del bloque fijo) */
+/* ===== BUSCADOR (compacto) ===== */
 .search{
-  margin-top:10px;
+  margin-top:6px; /* más compacto */
   position:relative;
 }
 .search::before{
   content:"🔍";
   position:absolute;
-  left:12px;
+  left:10px;
   top:50%;
   transform:translateY(-50%);
-  font-size:16px;
+  font-size:14px;
   opacity:.75;
 }
 .search input{
   width:100%;
-  padding:10px 12px 10px 42px;
-  font-size:15px;
+  padding:8px 10px 8px 36px; /* compacto */
+  font-size:14px;
   font-weight:900;
   border:2px solid #cbd5e1;
   border-radius:14px;
   outline:none;
   background:#fff;
-  box-shadow: 0 6px 14px rgba(2,6,23,.06);
 }
-.search input:focus{
-  border-color:#94a3b8;
-}
+.search input:focus{ border-color:#94a3b8; }
 
 /* ===== CONTENEDOR ===== */
 .wrap{
@@ -192,7 +200,7 @@ body{
 
 /* ===== TABLA ===== */
 .tableBox{
-  border:1px solid rgba(215,230,220,.95);
+  border:1px solid var(--line);
   border-radius:14px;
   overflow:hidden;
   background:#fff;
@@ -206,13 +214,12 @@ table{
   table-layout:fixed;
 }
 
-/* header de tabla fijo */
 thead th{
   position:sticky;
-  top:0;
-  z-index:10;
+  top: var(--stickyTop);       /* ✅ queda debajo del header fijo */
+  z-index:30;
   background:#f8fafc;
-  border-bottom:1px solid rgba(215,230,220,.95);
+  border-bottom:1px solid var(--line);
   padding:6px 4px;
   font-size:11px;
   letter-spacing:.04em;
@@ -221,57 +228,54 @@ thead th{
 }
 
 tbody td{
-  border-bottom:1px solid rgba(215,230,220,.85);
+  border-bottom:1px solid var(--line);
   padding:4px 4px;
-  font-size:13px;
-  font-weight:1000;
   text-align:center;
   vertical-align:middle;
+  font-weight:1000;
 }
 
-tbody tr:nth-child(even){ background:#fbfdfc; }
+tbody tr:nth-child(even){ background:#fbfdff; }
 tbody tr:last-child td{ border-bottom:none; }
 
-/* ===== CAMBIOS (folio/nombre) ===== */
+/* columnas */
 th.col-folio, td.col-folio{
-  width:22px;
-  font-size:7px;     /* ✅ folio 7px */
-  line-height:1;
-  letter-spacing:0;
+  width:22px;               /* ✅ más angosta */
+  font-size:7px;            /* ✅ folio 7px */
+  font-weight:700;          /* ✅ menos pesado */
+  color:#334155;
   text-align:right;
-  color:#64748b;
-  padding-left:2px;
-  padding-right:2px;
+  padding-right:3px;
 }
+
 th.col-nombre, td.col-nombre{
   width:200px;
   text-align:left;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
-}
-td.col-nombre{
-  font-size:10px;    /* ✅ nombre 10px */
-  font-weight:800;  /* ✅ menos pesado */
+  font-size:10px;           /* ✅ nombre 10px */
+  font-weight:700;          /* ✅ menos pesado */
   color:#0f172a;
 }
 
 th.col-ac, td.col-ac{
-  width:34px;
+  width:30px;
   font-size:12px;
 }
 
-/* pastillas selecciones */
+/* pastillas */
 td.selCell{ padding:3px 0; }
+
 .selPill{
   display:inline-flex;
   align-items:center;
   justify-content:center;
   width:20px;
-  height:24px;
+  height:22px;
   border-radius:12px;
   border:1px solid var(--pillBorder);
-  font-weight:1000;
+  font-weight:900;
   font-size:12px;
   line-height:1;
   background:#fff;
@@ -282,44 +286,53 @@ td.selCell{ padding:3px 0; }
   color:var(--pillHitTx);
 }
 
-/* aciertos resaltados */
-td.col-ac.win1{ background:var(--azul1); color:#fff; }
-td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
+/* celda aciertos */
+td.col-ac.win1{
+  background:var(--azul1);
+  color:#fff;
+}
+td.col-ac.win2{
+  background:var(--azul2);
+  color:#0f172a;
+}
 
-/* responsive */
+/* responsive ultra-tight */
 @media (max-width:520px){
   th.col-nombre, td.col-nombre{ width:170px; }
-  .title{ font-size:18px; }
+  .title{ font-size:16px; }
+  .partidos{ font-size:9px; gap:2px; }
+  .p{ padding:2px 6px; }
+  .chip{ font-size:9px; padding:2px 5px; }
 }
+
 @media (max-width:420px){
   th.col-nombre, td.col-nombre{ width:150px; }
-  .selPill{ width:18px; height:22px; font-size:11px; }
-  th.col-folio, td.col-folio{ width:20px; }
+  .selPill{ width:18px; height:20px; font-size:11px; }
 }
 </style>
 </head>
 
 <body>
-<div class="header">
+<div class="header" id="header">
   <div class="header-inner">
-    <div class="brandRow">
-      <div>
-        <div class="title">
-          <span class="mxg">QUINIELA</span> <span class="mxr">AZTECA</span>
-        </div>
-        <div class="week" id="weekTxt"></div>
-      </div>
-    </div>
-
     <div class="headerCard">
       <div class="headerBar"></div>
       <div class="headerCardInner">
-        <div class="partidos" id="partidosTxt"></div>
-      </div>
-    </div>
+        <div class="brandRow">
+          <div>
+            <div class="title">
+              <span class="mxg">QUINIELA</span> <span class="mxr">AZTECA</span>
+            </div>
+            <div class="week" id="weekTxt"></div>
+          </div>
+        </div>
 
-    <div class="search">
-      <input id="searchInput" placeholder="Busca aqui por telefono, nombre o folio" autocomplete="off">
+        <div class="partidos" id="partidosTxt"></div>
+
+        <div class="search">
+          <input id="searchInput" placeholder="Busca aqui por telefono, nombre o folio" autocomplete="off">
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -338,11 +351,19 @@ const CONFIG   = BASE + "?mode=config";
 const REFRESH_MS = 5000;
 
 let raw = [];
-let resultados = [];
-let marcadores = [];
+let resultados = [];   // L/E/V desde config
+let marcadores = [];   // "2-0" desde config
 
 const $ = (id) => document.getElementById(id);
 
+function setStickyTop(){
+  const h = document.getElementById('header');
+  const px = h ? h.offsetHeight : 0;
+  document.documentElement.style.setProperty('--stickyTop', px + 'px');
+}
+window.addEventListener('resize', setStickyTop);
+
+/* tabla shell */
 function buildTableShell(){
   return `
     <thead>
@@ -359,16 +380,16 @@ function buildTableShell(){
 
 function norm(v){ return String(v ?? "").trim().toUpperCase(); }
 
+/* Calcula 1° y 2° lugar por aciertos */
 function computePlaces(rows){
   const acs = rows.map(r => Number(r.aciertos)||0);
   const max = Math.max(...acs);
-  let second_parent = undefined;
 
   const uniq = [...new Set(acs)].sort((a,b)=>b-a);
+  let secondVal = null;
   for (const a of uniq){
-    if (a < max){ second_parent=a; break; }
+    if (a < max){ secondVal = a; break; }
   }
-  const secondVal = (typeof second_parent !== "undefined") ? second_parent : null;
 
   rows.forEach(r=>{
     const a = Number(r.aciertos)||0;
@@ -376,6 +397,7 @@ function computePlaces(rows){
   });
 }
 
+/* Render tabla */
 function render(rows){
   const tbody = document.querySelector("#tabla tbody");
   tbody.innerHTML = "";
@@ -401,6 +423,7 @@ function render(rows){
   });
 }
 
+/* Filtro por folio / nombre / telefono */
 function applyFilter(){
   const q = $("searchInput").value.trim().toLowerCase();
   if (!q){ render(raw); return; }
@@ -413,24 +436,21 @@ function applyFilter(){
   render(out);
 }
 
+/* Render lista partidos */
 function renderPartidos(cfg){
   const partidos = (cfg.partidos || []).slice(0,9);
   const box = $("partidosTxt");
   box.innerHTML = "";
 
-  if (!partidos.length){
-    box.innerHTML = `<div style="font-weight:900;color:var(--muted);">No hay partidos en config.</div>`;
-    return;
-  }
-
   partidos.forEach((p,i)=>{
-    const m = (marcadores[i] && String(marcadores[i]).trim()) ? String(marcadores[i]).trim() : "—";
-    const r = (resultados[i] && String(resultados[i]).trim()) ? String(resultados[i]).trim().toUpperCase() : "—";
+    const m = (marcadores[i] && String(marcadores[i]).trim()) ? String(marcadores[i]).trim() : "-";
+    const r = (resultados[i] && String(resultados[i]).trim()) ? String(resultados[i]).trim().toUpperCase() : "-";
 
     const div = document.createElement("div");
     div.className = "p";
+
     div.innerHTML = `
-      <span class="left"><b>${i+1}</b> ${p.local} vs ${p.visita}</span>
+      <span class="left">${i+1} ${p.local} vs ${p.visita}</span>
       <span class="right">
         <span class="chip">${m}</span>
         <span class="chip pick">${r}</span>
@@ -442,6 +462,7 @@ function renderPartidos(cfg){
 
 async function load(){
   try{
+    // Config
     const cfgRes = await fetch(CONFIG, {cache:"no-store"}).then(r=>r.json());
     const cfg = cfgRes.cfg || {};
 
@@ -452,13 +473,15 @@ async function load(){
 
     renderPartidos(cfg);
 
+    // Clasificación
     const res = await fetch(ENDPOINT, {cache:"no-store"}).then(r=>r.json());
     const data = res.data || {headers:[], rows:[]};
 
     const headers = (data.headers || []).map(x => String(x).toLowerCase());
+
     const iF = headers.indexOf("folio");
     const iN = headers.indexOf("nombre");
-    const iT = headers.indexOf("telefono_envio");
+    const iT = headers.indexOf("telefono_envio"); // búsqueda
     const iA = headers.indexOf("aciertos");
 
     if (iF<0 || iN<0 || iA<0){
@@ -475,7 +498,7 @@ async function load(){
         folio: r[iF],
         telefono: (iT>=0 ? r[iT] : ""),
         nombre: nombreShow.toLowerCase(),
-        nombre_show: nombreShow.toLowerCase(),
+        nombre_show: nombreShow,          // ✅ mostramos como viene (más natural)
         sels: r.slice(startSel, endSel).slice(0,9),
         aciertos: r[iA],
         _lugar: 0
@@ -490,6 +513,9 @@ async function load(){
 
     if ($("searchInput").value.trim()) applyFilter();
 
+    // recalcula stickyTop cuando ya se pintó todo arriba
+    setStickyTop();
+
   } catch(err){
     console.error(err);
   }
@@ -499,6 +525,7 @@ $("searchInput").addEventListener("input", applyFilter);
 
 load();
 setInterval(load, REFRESH_MS);
+setTimeout(setStickyTop, 0);
 </script>
 </body>
 </html>
