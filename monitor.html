@@ -15,8 +15,8 @@
   --card:#ffffff;
   --line:#d7e6dc;
 
-  --l:#0a6b3a;   /* QUINIELA */
-  --v:#c62828;   /* AZTECA */
+  --l:#0a6b3a;
+  --v:#c62828;
 
   --rowA:#f6fbf8;
   --rowB:#eff7f2;
@@ -38,12 +38,10 @@
 
   --azul1:#1d4ed8;
   --azul2:#93c5fd;
-
-  --theadTop: 0px; /* lo setea JS con la altura real del header */
 }
 
 *{box-sizing:border-box}
-html,body{ overflow-x:hidden; }
+html,body{ overflow-x:hidden; height:100%; }
 body{
   margin:0;
   font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
@@ -51,7 +49,7 @@ body{
   color:var(--fg);
 }
 
-/* ===== HEADER FIJO (COMPACTO) ===== */
+/* ===== HEADER FIJO ===== */
 .header{
   position:sticky;
   top:0;
@@ -64,7 +62,7 @@ body{
 .header-inner{
   max-width:1100px;
   margin:auto;
-  padding:8px 10px;          /* ✅ más compacto */
+  padding:8px 10px;
 }
 
 .brandRow{
@@ -76,7 +74,7 @@ body{
 }
 .title{
   font-weight:1000;
-  font-size:20px;            /* ✅ compacto */
+  font-size:20px;
   letter-spacing:.04em;
   line-height:1.05;
 }
@@ -90,7 +88,7 @@ body{
   color:var(--muted);
 }
 
-/* Tarjeta partidos (diseño como captura) */
+/* Tarjeta partidos */
 .card{
   background: linear-gradient(180deg, #ffffff 0%, #fbfdfc 100%);
   border:1px solid var(--line);
@@ -99,25 +97,23 @@ body{
   box-shadow: var(--shadow);
 }
 .bar{
-  height:7px; /* ✅ compacto */
+  height:7px;
   background:linear-gradient(90deg, var(--l) 0%, var(--l) 33%, #ffffff 33%, #ffffff 66%, var(--v) 66%, var(--v) 100%);
 }
 .inner{
-  padding:8px 10px;          /* ✅ compacto */
+  padding:8px 10px;
 }
-
-/* Partidos */
 .matches{
   display:flex;
   flex-direction:column;
-  gap:5px;                   /* ✅ compacto */
+  gap:5px;
 }
 .matchLine{
   display:flex;
   align-items:center;
   justify-content:space-between;
   gap:10px;
-  padding:6px 8px;           /* ✅ compacto */
+  padding:6px 8px;
   border-radius:12px;
   background: var(--rowA);
   border:1px solid rgba(215,230,220,.6);
@@ -127,8 +123,7 @@ body{
   flex:1;
   min-width:0;
   font-weight:1000;
-  font-size:13px;            /* ✅ compacto */
-  letter-spacing:.01em;
+  font-size:13px;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
@@ -157,9 +152,9 @@ body{
   color: var(--okFg);
 }
 
-/* ===== BUSCADOR (COMPACTO) ===== */
+/* Buscador */
 .search{
-  margin-top:8px;            /* ✅ compacto */
+  margin-top:8px;
   position:relative;
 }
 .search::before{
@@ -187,7 +182,7 @@ body{
 .wrap{
   max-width:1100px;
   margin:auto;
-  padding:10px 12px 30px;
+  padding:10px 12px 18px;
 }
 
 /* ===== TABLA ===== */
@@ -199,6 +194,13 @@ body{
   box-shadow: var(--shadow);
 }
 
+/* ✅ ESTE ES EL CAMBIO: la tabla tiene su propio scroll */
+.tableScroll{
+  overflow:auto;
+  -webkit-overflow-scrolling: touch;
+  max-height: calc(100vh - 320px); /* ajusta si quieres más/menos alto */
+}
+
 table{
   width:100%;
   border-collapse:separate;
@@ -206,9 +208,10 @@ table{
   table-layout:fixed;
 }
 
+/* ✅ Sticky dentro del scroll de .tableScroll */
 thead th{
   position:sticky;
-  top: var(--theadTop);      /* ✅ se pega debajo del header fijo */
+  top:0;
   z-index:30;
   background:#f8fafc;
   border-bottom:1px solid rgba(215,230,220,.95);
@@ -217,10 +220,8 @@ thead th{
   letter-spacing:.04em;
   font-weight:1000;
   text-align:center;
+  transform: translateZ(0);
 }
-
-/* Evita “saltos” raros con sticky en iOS */
-thead th { transform: translateZ(0); }
 
 tbody td{
   border-bottom:1px solid rgba(215,230,220,.75);
@@ -237,7 +238,7 @@ tbody tr:last-child td{ border-bottom:none; }
 /* columnas */
 th.col-folio, td.col-folio{
   width:30px;
-  font-size:10px;            /* ✅ aún más chico */
+  font-size:10px;
   color:#64748b;
 }
 th.col-nombre, td.col-nombre{
@@ -246,8 +247,7 @@ th.col-nombre, td.col-nombre{
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
-  font-size:12px;            /* ✅ más chico */
-  letter-spacing:.01em;
+  font-size:12px;
 }
 th.col-ac, td.col-ac{
   width:34px;
@@ -282,11 +282,13 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
 @media (max-width:520px){
   th.col-nombre, td.col-nombre{ width:170px; }
   .title{ font-size:19px; }
+  .tableScroll{ max-height: calc(100vh - 300px); }
 }
 @media (max-width:420px){
   th.col-nombre, td.col-nombre{ width:150px; }
   .selPill{ width:18px; height:22px; font-size:11px; }
   .matchLeft{ font-size:12px; }
+  .tableScroll{ max-height: calc(100vh - 290px); }
 }
 </style>
 </head>
@@ -303,7 +305,6 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
       </div>
     </div>
 
-    <!-- Partidos / marcadores / resultados (diseño como captura) -->
     <div class="card" style="margin-top:8px;">
       <div class="bar"></div>
       <div class="inner">
@@ -319,7 +320,9 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
 
 <div class="wrap">
   <div class="tableBox">
-    <table id="tabla"></table>
+    <div class="tableScroll" id="tableScroll">
+      <table id="tabla"></table>
+    </div>
   </div>
 </div>
 
@@ -327,25 +330,16 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
 const BASE = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec";
 const ENDPOINT = BASE + "?mode=clasif";
 const CONFIG   = BASE + "?mode=config";
-
 const REFRESH_MS = 5000;
 
 let raw = [];
-let resultados = [];   // L/E/V desde config
-let marcadores = [];   // "2-0" desde config
-let partidos = [];     // {local, visita}
+let resultados = [];
+let marcadores = [];
+let partidos = [];
 
 const $ = (id) => document.getElementById(id);
 function norm(v){ return String(v ?? "").trim().toUpperCase(); }
 
-/* ✅ Ajusta el sticky del THEAD debajo del header real */
-function syncStickyTop(){
-  const h = $("stickyHeader");
-  const px = (h ? h.offsetHeight : 0) + "px";
-  document.documentElement.style.setProperty("--theadTop", px);
-}
-
-/* ===== TABLE ===== */
 function buildTableShell(){
   return `
     <thead>
@@ -360,24 +354,20 @@ function buildTableShell(){
   `;
 }
 
-/* Calcula 1° y 2° lugar por aciertos (solo para color) */
 function computePlaces(rows){
   const acs = rows.map(r => Number(r.aciertos)||0);
   const max = Math.max(...acs);
-
   const uniq = [...new Set(acs)].sort((a,b)=>b-a);
   let secondVal = null;
   for (const a of uniq){
     if (a < max){ secondVal = a; break; }
   }
-
   rows.forEach(r=>{
     const a = Number(r.aciertos)||0;
     r._lugar = (a===max) ? 1 : (secondVal!=null && a===secondVal ? 2 : 0);
   });
 }
 
-/* Render tabla */
 function render(rows){
   const tbody = document.querySelector("#tabla tbody");
   tbody.innerHTML = "";
@@ -414,7 +404,6 @@ function applyFilter(){
   render(out);
 }
 
-/* ===== PARTIDOS (diseño como captura) ===== */
 function renderMatches(){
   const box = $("matchesBox");
   box.innerHTML = "";
@@ -441,10 +430,8 @@ function renderMatches(){
   });
 }
 
-/* ===== LOAD ===== */
 async function load(){
   try{
-    // Config
     const cfgRes = await fetch(CONFIG, {cache:"no-store"}).then(r=>r.json());
     const cfg = cfgRes.cfg || {};
 
@@ -452,18 +439,15 @@ async function load(){
     partidos   = (cfg.partidos   || []).slice(0,9);
     resultados = (cfg.resultados || []).slice(0,9);
     marcadores = (cfg.marcadores || []).slice(0,9);
-
     renderMatches();
 
-    // Clasificación
     const res = await fetch(ENDPOINT, {cache:"no-store"}).then(r=>r.json());
     const data = res.data || {headers:[], rows:[]};
 
     const headers = (data.headers || []).map(x => String(x).toLowerCase());
-
     const iF = headers.indexOf("folio");
     const iN = headers.indexOf("nombre");
-    const iT = headers.indexOf("telefono_envio"); // para búsqueda (no se muestra)
+    const iT = headers.indexOf("telefono_envio");
     const iA = headers.indexOf("aciertos");
 
     if (iF<0 || iN<0 || iA<0){
@@ -472,7 +456,7 @@ async function load(){
     }
 
     const startSel = iN + 1;
-    const endSel   = iA; // no incluye aciertos
+    const endSel   = iA;
 
     raw = (data.rows || []).map(r=>{
       const nombreShow = String(r[iN] ?? "").trim();
@@ -480,7 +464,7 @@ async function load(){
         folio: r[iF],
         telefono: (iT>=0 ? r[iT] : ""),
         nombre: nombreShow.toLowerCase(),
-        nombre_show: nombreShow,  // ✅ como venga (no forzamos minúsculas)
+        nombre_show: nombreShow,
         sels: r.slice(startSel, endSel).slice(0,9),
         aciertos: r[iA],
         _lugar: 0
@@ -493,9 +477,6 @@ async function load(){
     tabla.innerHTML = buildTableShell();
     render(raw);
 
-    // ✅ recalcular sticky top después de pintar (por si cambió altura)
-    syncStickyTop();
-
     if ($("searchInput").value.trim()) applyFilter();
 
   } catch(err){
@@ -505,14 +486,7 @@ async function load(){
 
 $("searchInput").addEventListener("input", applyFilter);
 
-window.addEventListener("resize", () => {
-  // debounce simple
-  clearTimeout(window.__st);
-  window.__st = setTimeout(syncStickyTop, 80);
-});
-
 document.addEventListener("DOMContentLoaded", async () => {
-  syncStickyTop();
   await load();
   setInterval(load, REFRESH_MS);
 });
