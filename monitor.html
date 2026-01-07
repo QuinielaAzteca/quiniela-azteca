@@ -38,34 +38,42 @@
   --pillHitBg:#dcfce7;
   --pillHitBd:#86efac;
   --pillHitTx:#064e3b;
+
+  /* ancho fijo para alinear encabezado y tabla */
+  --wFolio:22px;
+  --wNombre:160px;
+  --wSel:20px;
+  --wA:26px;
+
+  /* altura del bloque fijo (se calcula por JS) */
+  --fixedH: 260px;
 }
 
 *{box-sizing:border-box}
-html, body { overflow-x:hidden; }
+html, body { overflow-x:hidden; height:100%; }
 
 body{
   margin:0;
   font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
   color:var(--fg);
   background: radial-gradient(1200px 520px at 50% -140px, #ffffff 0%, var(--bg) 55%, var(--bg2) 100%);
-  overflow-x:hidden;
 }
 
-/* ===== HEADER FIJO (bloque único) ===== */
+/* ===== BLOQUE SUPERIOR FIJO (a prueba de todo) ===== */
 .header{
-  position:sticky;
-  top:0;
+  position:fixed;
+  top:0; left:0; right:0;
   z-index:50;
-  background:#fff; /* ✅ sólido (sin blur) para evitar “blancos” al scroll */
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(8px);
   border-bottom:1px solid rgba(215,230,220,.85);
-  box-shadow: 0 6px 14px rgba(2,6,23,.06);
-  transform: translateZ(0); /* ✅ ayuda a estabilidad en móviles */
+  box-shadow: 0 10px 24px rgba(2,6,23,.05);
 }
 .header-inner{
   max-width:1100px;
   margin:auto;
   padding:8px 10px;
-  overflow:visible !important; /* ✅ por si algo lo cambió */
+  overflow:visible;
 }
 
 .headerCard{
@@ -79,9 +87,7 @@ body{
   height:6px;
   background:linear-gradient(90deg, var(--l) 0%, var(--l) 33%, #ffffff 33%, #ffffff 66%, var(--v) 66%, var(--v) 100%);
 }
-.headerCardInner{
-  padding:6px 8px;
-}
+.headerCardInner{ padding:6px 8px; }
 
 /* marca + semana */
 .brandRow{
@@ -101,7 +107,6 @@ body{
 }
 .title .mxg{color:var(--l)}
 .title .mxr{color:var(--v)}
-
 .week{
   font-size:12px;
   font-weight:900;
@@ -109,7 +114,7 @@ body{
   margin-top:2px;
 }
 
-/* ===== PARTIDOS ULTRA COMPACTOS ===== */
+/* ===== PARTIDOS COMPACTOS ===== */
 .partidos{
   font-size:10px;
   font-weight:900;
@@ -119,7 +124,6 @@ body{
   gap:3px;
   margin-top:4px;
 }
-
 .p{
   display:flex;
   align-items:center;
@@ -131,7 +135,6 @@ body{
   border:1px solid rgba(215,230,220,.55);
 }
 .p:nth-child(even){ background: var(--rowB); }
-
 .p .left{
   flex:1;
   white-space:nowrap;
@@ -145,7 +148,6 @@ body{
   align-items:center;
   white-space:nowrap;
 }
-
 .chip{
   padding:2px 6px;
   border-radius:999px;
@@ -164,15 +166,11 @@ body{
 }
 
 /* ===== BUSCADOR ===== */
-.search{
-  margin-top:6px;
-  position:relative;
-}
+.search{ margin-top:6px; position:relative; }
 .search::before{
   content:"🔍";
   position:absolute;
-  left:10px;
-  top:50%;
+  left:10px; top:50%;
   transform:translateY(-50%);
   font-size:14px;
   opacity:.75;
@@ -189,7 +187,43 @@ body{
 }
 .search input:focus{ border-color:#94a3b8; }
 
-/* ===== FILA FIJA DE ENCABEZADO (folio/nombre/1..9/A) ===== */
+/* ===== AVISO DISCRETO ===== */
+.loadingLine{
+  margin-top:6px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  font-size:11px;
+  font-weight:900;
+  color:var(--muted);
+  padding:4px 6px;
+  border-radius:10px;
+  background: rgba(248,250,252,.9);
+  border:1px solid rgba(215,230,220,.7);
+}
+.loadingLine .pill{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:2px 8px;
+  border-radius:999px;
+  border:1px solid rgba(203,213,225,.9);
+  background:#fff;
+  color:#0f172a;
+  font-weight:900;
+}
+.spinner{
+  width:10px; height:10px;
+  border-radius:50%;
+  border:2px solid rgba(148,163,184,.6);
+  border-top-color:#0f172a;
+  animation: sp 0.9s linear infinite;
+}
+@keyframes sp{ to { transform:rotate(360deg); } }
+.hidden{ display:none !important; }
+
+/* ===== FILA FIJA (#/Nombre/1..9/A) ===== */
 .tableHeadRow{
   margin-top:6px;
   border:1px solid var(--line);
@@ -197,13 +231,12 @@ body{
   overflow:hidden;
   background:#f8fafc;
 }
-
 .tableHeadGrid{
   display:grid;
-  grid-template-columns: 22px 160px repeat(9, 20px) 28px; /* ✅ alineado con tabla */
+  grid-template-columns: var(--wFolio) var(--wNombre) repeat(9, var(--wSel)) var(--wA);
   gap:0;
+  justify-content:start;
 }
-
 .thCell{
   padding:6px 4px;
   border-right:1px solid rgba(215,230,220,.7);
@@ -215,8 +248,6 @@ body{
 }
 .thCell:last-child{ border-right:none; }
 .thCell.left{ text-align:left; }
-
-/* tamaños específicos del encabezado fijo para que empaten */
 .thCell.folio{
   font-size:7px;
   font-weight:700;
@@ -228,31 +259,28 @@ body{
   font-weight:700;
 }
 
-/* ===== CONTENEDOR ===== */
+/* ===== CONTENEDOR LISTA (solo esto scrollea) ===== */
 .wrap{
   max-width:1100px;
   margin:auto;
   padding:10px 12px 30px;
-  overflow:visible !important; /* ✅ sticky no debe romperse por overflow */
+  padding-top: calc(var(--fixedH) + 10px);
 }
 
-/* ===== TABLA (solo tbody) ===== */
+/* ===== TABLA ===== */
 .tableBox{
   border:1px solid var(--line);
   border-radius:14px;
   overflow:hidden;
   background:#fff;
   box-shadow: var(--shadow);
-  transform: translateZ(0); /* ✅ ayuda a estabilidad en móviles */
 }
-
 table{
   width:100%;
   border-collapse:separate;
   border-spacing:0;
   table-layout:fixed;
 }
-
 tbody td{
   border-bottom:1px solid var(--line);
   padding:4px 4px;
@@ -260,13 +288,12 @@ tbody td{
   vertical-align:middle;
   font-weight:1000;
 }
-
 tbody tr:nth-child(even){ background:#fbfdff; }
 tbody tr:last-child td{ border-bottom:none; }
 
-/* columnas */
+/* columnas: deben empatar con la grid */
 td.col-folio{
-  width:22px;
+  width:var(--wFolio);
   font-size:7px;
   font-weight:700;
   color:#334155;
@@ -274,28 +301,28 @@ td.col-folio{
   padding-right:3px;
 }
 td.col-nombre{
-  width:160px; /* ✅ igual que grid del encabezado fijo */
+  width:var(--wNombre);
   text-align:left;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
   font-size:10px;
-  font-weight:700;
+  font-weight:600;
   color:#0f172a;
 }
 td.col-ac{
-  width:28px; /* ✅ igual que grid del encabezado fijo */
-  font-size:12px;
+  width:var(--wA);
+  font-size:11px;
   font-weight:1000;
 }
 
 /* pastillas */
-td.selCell{ padding:3px 0; }
+td.selCell{ padding:3px 0; width:var(--wSel); }
 .selPill{
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  width:20px;
+  width:var(--wSel);
   height:22px;
   border-radius:12px;
   border:1px solid var(--pillBorder);
@@ -316,22 +343,12 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
 
 /* responsive */
 @media (max-width:520px){
+  :root{ --wNombre:150px; --wSel:18px; --wA:24px; }
   .title{ font-size:16px; }
   .partidos{ font-size:9px; gap:2px; }
   .p{ padding:2px 6px; }
   .chip{ font-size:9px; padding:2px 5px; }
-
-  .tableHeadGrid{ grid-template-columns: 22px 150px repeat(9, 18px) 26px; }
-  td.col-nombre{ width:150px; }
-  td.col-ac{ width:26px; }
-  .selPill{ width:18px; height:20px; font-size:11px; }
-}
-
-@media (max-width:420px){
-  .tableHeadGrid{ grid-template-columns: 22px 135px repeat(9, 17px) 26px; }
-  td.col-nombre{ width:135px; }
-  td.col-ac{ width:26px; }
-  .selPill{ width:17px; height:19px; font-size:11px; }
+  .search input{ font-size:13px; }
 }
 </style>
 </head>
@@ -357,20 +374,18 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
           <input id="searchInput" placeholder="Busca aqui por telefono, nombre o folio" autocomplete="off">
         </div>
 
-        <!-- ✅ FILA FIJA DEL ENCABEZADO DE LISTADO -->
+        <div class="loadingLine hidden" id="loadingLine">
+          <div class="pill"><span class="spinner"></span><span id="loadingTxt">Cargando listado…</span></div>
+          <div style="font-variant-numeric: tabular-nums;">⏱ <span id="lastOk">—</span></div>
+        </div>
+
         <div class="tableHeadRow" aria-hidden="true">
           <div class="tableHeadGrid" id="fixedHead">
             <div class="thCell folio">#</div>
             <div class="thCell left nombre">Nombre</div>
-            <div class="thCell">1</div>
-            <div class="thCell">2</div>
-            <div class="thCell">3</div>
-            <div class="thCell">4</div>
-            <div class="thCell">5</div>
-            <div class="thCell">6</div>
-            <div class="thCell">7</div>
-            <div class="thCell">8</div>
-            <div class="thCell">9</div>
+            <div class="thCell">1</div><div class="thCell">2</div><div class="thCell">3</div>
+            <div class="thCell">4</div><div class="thCell">5</div><div class="thCell">6</div>
+            <div class="thCell">7</div><div class="thCell">8</div><div class="thCell">9</div>
             <div class="thCell">A</div>
           </div>
         </div>
@@ -382,7 +397,7 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
 
 <div class="wrap">
   <div class="tableBox">
-    <table id="tabla"></table>
+    <table id="tabla"><tbody></tbody></table>
   </div>
 </div>
 
@@ -391,20 +406,53 @@ const BASE = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCu
 const ENDPOINT = BASE + "?mode=clasif";
 const CONFIG   = BASE + "?mode=config";
 
-/* ✅ Refresh más relajado para fluidez (tú dijiste que no importa tanto) */
-const REFRESH_MS = 20000; // 20s
+/* ✅ refresco más tranquilo para fluidez */
+const REFRESH_MS = 12000;
 
 let raw = [];
 let resultados = [];
 let marcadores = [];
 
+let lastHashCfg = "";
+let lastHashTbl = "";
+let firstLoadDone = false;
+
 const $ = (id) => document.getElementById(id);
 
-function buildBodyOnly(){
-  return `<tbody></tbody>`;
+function nowStr(){
+  const d = new Date();
+  const hh = String(d.getHours()).padStart(2,'0');
+  const mm = String(d.getMinutes()).padStart(2,'0');
+  const ss = String(d.getSeconds()).padStart(2,'0');
+  return `${hh}:${mm}:${ss}`;
+}
+
+function setLoading(on, msg){
+  const line = $("loadingLine");
+  if (!line) return;
+  if (on){
+    $("loadingTxt").textContent = msg || "Cargando listado…";
+    line.classList.remove("hidden");
+  } else {
+    line.classList.add("hidden");
+  }
+}
+
+function updateFixedHeight(){
+  const h = $("header")?.offsetHeight || 260;
+  document.documentElement.style.setProperty("--fixedH", h + "px");
 }
 
 function norm(v){ return String(v ?? "").trim().toUpperCase(); }
+
+/* hash simple y rápido para detectar cambios */
+function djb2(str){
+  let h = 5381;
+  for (let i=0; i<str.length; i++){
+    h = ((h << 5) + h) ^ str.charCodeAt(i);
+  }
+  return (h >>> 0).toString(16);
+}
 
 function computePlaces(rows){
   const acs = rows.map(r => Number(r.aciertos)||0);
@@ -424,6 +472,7 @@ function computePlaces(rows){
 
 function render(rows){
   const tbody = document.querySelector("#tabla tbody");
+  if (!tbody) return;
   tbody.innerHTML = "";
 
   rows.forEach(r=>{
@@ -481,90 +530,109 @@ function renderPartidos(cfg){
   });
 }
 
-/* ✅ Pausa refresh mientras haces scroll (evita parpadeos/blancos) */
-let isScrolling = false;
-let scrollTO = null;
-window.addEventListener('scroll', () => {
-  isScrolling = true;
-  clearTimeout(scrollTO);
-  scrollTO = setTimeout(() => { isScrolling = false; }, 180);
-}, { passive:true });
-
-/* ✅ evita refrescar si estás escribiendo en el buscador */
-function isTyping(){
-  const a = document.activeElement;
-  return a && a.id === "searchInput";
+async function fetchJson(url){
+  const res = await fetch(url, { cache:"no-store" });
+  const txt = await res.text();
+  try { return JSON.parse(txt); } catch { throw new Error("JSON inválido"); }
 }
 
-let isLoading = false;
 async function load(){
-  if (isLoading) return;
-  isLoading = true;
   try{
-    // config
-    const cfgRes = await fetch(CONFIG, {cache:"no-store"}).then(r=>r.json());
+    // si el usuario está escribiendo, no molestamos
+    if (document.activeElement && document.activeElement.id === "searchInput") return;
+
+    setLoading(true, firstLoadDone ? "Actualizando…" : "Cargando listado…");
+
+    // CONFIG
+    const cfgRes = await fetchJson(CONFIG);
     const cfg = cfgRes.cfg || {};
-    $("weekTxt").textContent = cfg.subtitulo || "";
-
-    resultados = (cfg.resultados || []).slice(0,9);
-    marcadores = (cfg.marcadores || []).slice(0,9);
-    renderPartidos(cfg);
-
-    // clasif
-    const res = await fetch(ENDPOINT, {cache:"no-store"}).then(r=>r.json());
-    const data = res.data || {headers:[], rows:[]};
-    const headers = (data.headers || []).map(x => String(x).toLowerCase());
-
-    const iF = headers.indexOf("folio");
-    const iN = headers.indexOf("nombre");
-    const iT = headers.indexOf("telefono_envio");
-    const iA = headers.indexOf("aciertos");
-
-    if (iF<0 || iN<0 || iA<0){
-      console.warn("Headers inválidos:", headers);
-      return;
-    }
-
-    const startSel = iN + 1;
-    const endSel   = iA;
-
-    raw = (data.rows || []).map(r=>{
-      const nombreShow = String(r[iN] ?? "").trim();
-      return {
-        folio: r[iF],
-        telefono: (iT>=0 ? r[iT] : ""),
-        nombre: nombreShow.toLowerCase(),
-        nombre_show: nombreShow,
-        sels: r.slice(startSel, endSel).slice(0,9),
-        aciertos: r[iA],
-        _lugar: 0
-      };
+    const cfgStr = JSON.stringify({
+      subtitulo: cfg.subtitulo || "",
+      partidos: (cfg.partidos||[]).slice(0,9),
+      resultados: (cfg.resultados||[]).slice(0,9),
+      marcadores: (cfg.marcadores||[]).slice(0,9)
     });
+    const hashCfg = djb2(cfgStr);
 
-    computePlaces(raw);
+    // CLASIF
+    const clasRes = await fetchJson(ENDPOINT);
+    const data = clasRes.data || {headers:[], rows:[]};
 
-    const tabla = $("tabla");
-    tabla.innerHTML = buildBodyOnly();
-    // respeta búsqueda actual si existe
-    if ($("searchInput").value.trim()) {
-      applyFilter();
-    } else {
-      render(raw);
+    // OJO: hash solo con headers + rows (sin reordenar)
+    const tblStr = JSON.stringify({ h:data.headers || [], r:data.rows || [] });
+    const hashTbl = djb2(tblStr);
+
+    // si no cambió nada, no re-renderizamos
+    const cfgChanged = hashCfg !== lastHashCfg;
+    const tblChanged = hashTbl !== lastHashTbl;
+
+    // actualizar estado config (si cambió)
+    if (cfgChanged){
+      $("weekTxt").textContent = cfg.subtitulo || "";
+      resultados = (cfg.resultados || []).slice(0,9);
+      marcadores = (cfg.marcadores || []).slice(0,9);
+      renderPartidos(cfg);
+      lastHashCfg = hashCfg;
     }
+
+    // reconstruir raw (si cambió tabla)
+    if (tblChanged){
+      const headers = (data.headers || []).map(x => String(x).toLowerCase());
+      const iF = headers.indexOf("folio");
+      const iN = headers.indexOf("nombre");
+      const iT = headers.indexOf("telefono_envio");
+      const iA = headers.indexOf("aciertos");
+      if (iF<0 || iN<0 || iA<0) throw new Error("Headers inválidos");
+
+      const startSel = iN + 1;
+      const endSel   = iA;
+
+      raw = (data.rows || []).map(r=>{
+        const nombreShow = String(r[iN] ?? "").trim();
+        return {
+          folio: r[iF],
+          telefono: (iT>=0 ? r[iT] : ""),
+          nombre: nombreShow.toLowerCase(),
+          nombre_show: nombreShow,
+          sels: r.slice(startSel, endSel).slice(0,9),
+          aciertos: r[iA],
+          _lugar: 0
+        };
+      });
+
+      computePlaces(raw);
+      lastHashTbl = hashTbl;
+
+      // render (respetando filtro si existe)
+      if ($("searchInput").value.trim()) applyFilter();
+      else render(raw);
+    }
+
+    $("lastOk").textContent = nowStr();
+    firstLoadDone = true;
+
   } catch(err){
+    // si falla, solo ocultamos el loader; no rompemos la pantalla
     console.error(err);
   } finally {
-    isLoading = false;
+    setLoading(false);
+    // asegurar padding correcto del bloque fijo
+    updateFixedHeight();
   }
 }
 
-$("searchInput").addEventListener("input", applyFilter);
+window.addEventListener("resize", updateFixedHeight);
+$("searchInput").addEventListener("input", () => {
+  // al filtrar, no hacemos "loading", es instantáneo
+  applyFilter();
+});
 
-load();
-setInterval(() => {
-  if (isScrolling || isTyping()) return;
-  load();
-}, REFRESH_MS);
+// primera carga + timer
+document.addEventListener("DOMContentLoaded", async ()=>{
+  updateFixedHeight();
+  await load();
+  setInterval(load, REFRESH_MS);
+});
 </script>
 </body>
 </html>
