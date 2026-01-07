@@ -41,17 +41,27 @@
 }
 
 *{box-sizing:border-box}
-html, body { overflow-x:hidden; }
+html, body{ height:100%; overflow-x:hidden; }
 
+/* ✅ clave: ya NO scrollea el body */
 body{
   margin:0;
+  overflow:hidden;
   font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
   color:var(--fg);
   background: radial-gradient(1200px 520px at 50% -140px, #ffffff 0%, var(--bg) 55%, var(--bg2) 100%);
 }
 
-/* ===== HEADER FIJO (bloque único) ===== */
+/* ===== Layout: fijo arriba + scroll abajo ===== */
+.page{
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+
+/* ✅ todo lo fijo en un solo bloque */
 .header{
+  flex:0 0 auto;
   position:sticky;
   top:0;
   z-index:50;
@@ -60,6 +70,7 @@ body{
   border-bottom:1px solid rgba(215,230,220,.85);
   box-shadow: 0 10px 24px rgba(2,6,23,.05);
 }
+
 .header-inner{
   max-width:1100px;
   margin:auto;
@@ -214,7 +225,6 @@ body{
 .thCell:last-child{ border-right:none; }
 .thCell.left{ text-align:left; }
 
-/* tamaños específicos del encabezado fijo para que empaten */
 .thCell.folio{
   font-size:7px;
   font-weight:700;
@@ -226,11 +236,18 @@ body{
   font-weight:700;
 }
 
+/* ✅ SOLO el listado scrollea aquí */
+.listScroll{
+  flex:1 1 auto;
+  overflow:auto;
+  -webkit-overflow-scrolling: touch;
+  padding:10px 12px 16px;
+}
+
 /* ===== CONTENEDOR ===== */
 .wrap{
   max-width:1100px;
   margin:auto;
-  padding:10px 12px 30px;
 }
 
 /* ===== TABLA (solo tbody) ===== */
@@ -317,7 +334,6 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
   .p{ padding:2px 6px; }
   .chip{ font-size:9px; padding:2px 5px; }
 
-  /* ajustar grid con nombre más chico */
   .tableHeadGrid{ grid-template-columns: 22px 170px repeat(9, 1fr) 30px; }
   td.col-nombre{ width:170px; }
 }
@@ -331,53 +347,61 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
 </head>
 
 <body>
-<div class="header" id="header">
-  <div class="header-inner">
-    <div class="headerCard">
-      <div class="headerBar"></div>
-      <div class="headerCardInner">
-        <div class="brandRow">
-          <div>
-            <div class="title">
-              <span class="mxg">QUINIELA</span> <span class="mxr">AZTECA</span>
+<div class="page">
+
+  <!-- ✅ BLOQUE FIJO ÚNICO -->
+  <div class="header" id="header">
+    <div class="header-inner">
+      <div class="headerCard">
+        <div class="headerBar"></div>
+        <div class="headerCardInner">
+          <div class="brandRow">
+            <div>
+              <div class="title">
+                <span class="mxg">QUINIELA</span> <span class="mxr">AZTECA</span>
+              </div>
+              <div class="week" id="weekTxt"></div>
             </div>
-            <div class="week" id="weekTxt"></div>
           </div>
+
+          <div class="partidos" id="partidosTxt"></div>
+
+          <div class="search">
+            <input id="searchInput" placeholder="Busca aqui por telefono, nombre o folio" autocomplete="off">
+          </div>
+
+          <!-- ✅ FILA FIJA DEL ENCABEZADO DE LISTADO -->
+          <div class="tableHeadRow" aria-hidden="true">
+            <div class="tableHeadGrid" id="fixedHead">
+              <div class="thCell folio">#</div>
+              <div class="thCell left nombre">Nombre</div>
+              <div class="thCell">1</div>
+              <div class="thCell">2</div>
+              <div class="thCell">3</div>
+              <div class="thCell">4</div>
+              <div class="thCell">5</div>
+              <div class="thCell">6</div>
+              <div class="thCell">7</div>
+              <div class="thCell">8</div>
+              <div class="thCell">9</div>
+              <div class="thCell">A</div>
+            </div>
+          </div>
+
         </div>
-
-        <div class="partidos" id="partidosTxt"></div>
-
-        <div class="search">
-          <input id="searchInput" placeholder="Busca aqui por telefono, nombre o folio" autocomplete="off">
-        </div>
-
-        <!-- ✅ FILA FIJA DEL ENCABEZADO DE LISTADO -->
-        <div class="tableHeadRow" aria-hidden="true">
-          <div class="tableHeadGrid" id="fixedHead">
-  <div class="thCell folio">#</div>
-  <div class="thCell left nombre">Nombre</div>
-  <div class="thCell">1</div>
-  <div class="thCell">2</div>
-  <div class="thCell">3</div>
-  <div class="thCell">4</div>
-  <div class="thCell">5</div>
-  <div class="thCell">6</div>
-  <div class="thCell">7</div>
-  <div class="thCell">8</div>
-  <div class="thCell">9</div>
-  <div class="thCell">A</div>
-</div>
-        </div>
-
       </div>
     </div>
   </div>
-</div>
 
-<div class="wrap">
-  <div class="tableBox">
-    <table id="tabla"></table>
+  <!-- ✅ SOLO EL LISTADO SCROLLEA -->
+  <div class="listScroll">
+    <div class="wrap">
+      <div class="tableBox">
+        <table id="tabla"></table>
+      </div>
+    </div>
   </div>
+
 </div>
 
 <script>
@@ -417,6 +441,7 @@ function computePlaces(rows){
 
 function render(rows){
   const tbody = document.querySelector("#tabla tbody");
+  if (!tbody) return;
   tbody.innerHTML = "";
 
   rows.forEach(r=>{
@@ -536,4 +561,3 @@ setInterval(load, REFRESH_MS);
 </script>
 </body>
 </html>
-
