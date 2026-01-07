@@ -7,9 +7,29 @@
 
 <style>
 :root{
-  --bg:#f3f6f4;
-  --line:#e5e7eb;
-  --txt:#0f172a;
+  --fg:#0f172a;
+  --muted:#475569;
+
+  --bg:#eaf3ee;
+  --bg2:#dfeee7;
+  --card:#ffffff;
+  --line:#d7e6dc;
+
+  --l:#0a6b3a;   /* QUINIELA */
+  --v:#c62828;   /* AZTECA */
+
+  --rowA:#f6fbf8;
+  --rowB:#eff7f2;
+
+  --shadow: 0 10px 24px rgba(2, 44, 20, .10);
+
+  --okBg:#ecfdf5;
+  --okBd:#bbf7d0;
+  --okFg:#065f46;
+
+  --chipBg:#f8fafc;
+  --chipBd:#e5e7eb;
+  --chipFg:#0f172a;
 
   --pillBorder:#cbd5e1;
   --pillHitBg:#dcfce7;
@@ -24,17 +44,19 @@
 body{
   margin:0;
   font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-  background:var(--bg);
-  color:var(--txt);
+  color:var(--fg);
+  background: radial-gradient(1200px 520px at 50% -140px, #ffffff 0%, var(--bg) 55%, var(--bg2) 100%);
 }
 
-/* ===== HEADER FIJO ===== */
+/* ===== HEADER FIJO (con diseño) ===== */
 .header{
   position:sticky;
   top:0;
-  z-index:20;
-  background:#fff;
-  border-bottom:2px solid var(--line);
+  z-index:30;
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(8px);
+  border-bottom:1px solid rgba(215,230,220,.85);
+  box-shadow: 0 10px 24px rgba(2,6,23,.06);
 }
 .header-inner{
   max-width:1100px;
@@ -42,52 +64,99 @@ body{
   padding:10px 12px;
 }
 
+/* marca / subtitulo */
+.brandRow{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+}
 .title{
-  font-weight:900;
+  font-weight:1000;
   font-size:20px;
   letter-spacing:.04em;
   line-height:1.1;
 }
-.title .mxg{color:#006847}
-.title .mxr{color:#ce1126}
-
+.title .mxg{color:var(--l)}
+.title .mxr{color:var(--v)}
 .week{
-  font-size:14px;
+  font-size:13px;
   font-weight:900;
   margin-top:4px;
+  color:var(--muted);
 }
 
-/* Lista de partidos: marcador a la derecha */
+/* card de partidos dentro del header */
+.headerCard{
+  margin-top:10px;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdfc 100%);
+  border:1px solid rgba(215,230,220,.9);
+  border-radius:14px;
+  overflow:hidden;
+  box-shadow: var(--shadow);
+}
+.headerBar{
+  height:6px;
+  background:linear-gradient(90deg, var(--l) 0%, var(--l) 33%, #ffffff 33%, #ffffff 66%, var(--v) 66%, var(--v) 100%);
+}
+.headerCardInner{
+  padding:8px 10px;
+}
+
+/* partidos compactos (chips) */
 .partidos{
-  margin-top:8px;
-  font-size:12px;
+  font-size:11px;
   font-weight:900;
-  line-height:1.3;
+  line-height:1.2;
   display:flex;
   flex-direction:column;
-  gap:4px;
+  gap:5px;
 }
-.partidos .p{
+.p{
   display:flex;
+  align-items:center;
+  justify-content:space-between;
   gap:10px;
-  align-items:baseline;
+  padding:6px 8px;
+  border-radius:12px;
+  background: var(--rowA);
+  border:1px solid rgba(215,230,220,.65);
 }
-.partidos .p .left{
+.p:nth-child(even){ background: var(--rowB); }
+.p .left{
   flex:1;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
+  color:var(--fg);
 }
-.partidos .p .right{
-  min-width:90px;
-  text-align:right;
+.p .right{
+  flex-shrink:0;
+  display:flex;
+  gap:6px;
+  align-items:center;
   white-space:nowrap;
+}
+.chip{
+  padding:3px 8px;
+  border-radius:999px;
+  border:1px solid var(--chipBd);
+  background: var(--chipBg);
+  font-size:11px;
   font-weight:1000;
+  color: var(--chipFg);
+  box-shadow: 0 4px 10px rgba(2,6,23,.04);
+}
+.chip.pick{
+  background: var(--okBg);
+  border-color: var(--okBd);
+  color: var(--okFg);
 }
 
-/* ===== BUSCADOR ===== */
+/* buscador (dentro del bloque fijo) */
 .search{
-  margin-top:12px;
+  margin-top:10px;
   position:relative;
 }
 .search::before{
@@ -102,12 +171,13 @@ body{
 .search input{
   width:100%;
   padding:10px 12px 10px 42px;
-  font-size:16px;
+  font-size:15px;
   font-weight:900;
-  border:3px solid #cbd5e1;
-  border-radius:16px;
+  border:2px solid #cbd5e1;
+  border-radius:14px;
   outline:none;
   background:#fff;
+  box-shadow: 0 6px 14px rgba(2,6,23,.06);
 }
 .search input:focus{
   border-color:#94a3b8;
@@ -122,10 +192,11 @@ body{
 
 /* ===== TABLA ===== */
 .tableBox{
-  border:1px solid var(--line);
+  border:1px solid rgba(215,230,220,.95);
   border-radius:14px;
   overflow:hidden;
   background:#fff;
+  box-shadow: var(--shadow);
 }
 
 table{
@@ -135,12 +206,13 @@ table{
   table-layout:fixed;
 }
 
+/* header de tabla fijo */
 thead th{
   position:sticky;
-  top:0;                 /* se queda fijo dentro del scroll */
+  top:0;
   z-index:10;
   background:#f8fafc;
-  border-bottom:1px solid var(--line);
+  border-bottom:1px solid rgba(215,230,220,.95);
   padding:6px 4px;
   font-size:11px;
   letter-spacing:.04em;
@@ -149,28 +221,21 @@ thead th{
 }
 
 tbody td{
-  border-bottom:1px solid var(--line);
-  padding:4px 4px;       /* compacto */
+  border-bottom:1px solid rgba(215,230,220,.85);
+  padding:4px 4px;
   font-size:13px;
   font-weight:1000;
   text-align:center;
   vertical-align:middle;
 }
 
-/* zebra suave */
-tbody tr:nth-child(even){ background:#fbfdff; }
+tbody tr:nth-child(even){ background:#fbfdfc; }
 tbody tr:last-child td{ border-bottom:none; }
 
-/* =========================
-   ✅ CAMBIOS PEDIDOS
-   - Folio: 7px + columna más angosta
-   - Nombre: 10px + menos pesado
-========================= */
-
-/* folio */
+/* ===== CAMBIOS (folio/nombre) ===== */
 th.col-folio, td.col-folio{
-  width:22px;            /* más angosto (ajústalo 20–26 si quieres) */
-  font-size:7px;         /* ✅ 7px */
+  width:22px;
+  font-size:7px;     /* ✅ folio 7px */
   line-height:1;
   letter-spacing:0;
   text-align:right;
@@ -178,8 +243,6 @@ th.col-folio, td.col-folio{
   padding-left:2px;
   padding-right:2px;
 }
-
-/* nombre */
 th.col-nombre, td.col-nombre{
   width:200px;
   text-align:left;
@@ -187,23 +250,19 @@ th.col-nombre, td.col-nombre{
   overflow:hidden;
   text-overflow:ellipsis;
 }
-
-/* SOLO el body del nombre (no el encabezado) */
 td.col-nombre{
-  font-size:10px;        /* ✅ 10px */
-  font-weight:800;       /* ✅ menos pesado */
+  font-size:10px;    /* ✅ nombre 10px */
+  font-weight:800;  /* ✅ menos pesado */
+  color:#0f172a;
 }
 
-/* aciertos */
 th.col-ac, td.col-ac{
   width:34px;
   font-size:12px;
 }
 
-/* pastillas */
-td.selCell{
-  padding:3px 0;         /* compacto */
-}
+/* pastillas selecciones */
+td.selCell{ padding:3px 0; }
 .selPill{
   display:inline-flex;
   align-items:center;
@@ -223,15 +282,9 @@ td.selCell{
   color:var(--pillHitTx);
 }
 
-/* celda aciertos (NO el número suelto) */
-td.col-ac.win1{
-  background:var(--azul1);
-  color:#fff;
-}
-td.col-ac.win2{
-  background:var(--azul2);
-  color:#0f172a;
-}
+/* aciertos resaltados */
+td.col-ac.win1{ background:var(--azul1); color:#fff; }
+td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
 
 /* responsive */
 @media (max-width:520px){
@@ -241,8 +294,6 @@ td.col-ac.win2{
 @media (max-width:420px){
   th.col-nombre, td.col-nombre{ width:150px; }
   .selPill{ width:18px; height:22px; font-size:11px; }
-
-  /* en pantallas muy chicas, aún más angosto el folio */
   th.col-folio, td.col-folio{ width:20px; }
 }
 </style>
@@ -251,12 +302,21 @@ td.col-ac.win2{
 <body>
 <div class="header">
   <div class="header-inner">
-    <div class="title">
-      <span class="mxg">QUINIELA</span> <span class="mxr">AZTECA</span>
+    <div class="brandRow">
+      <div>
+        <div class="title">
+          <span class="mxg">QUINIELA</span> <span class="mxr">AZTECA</span>
+        </div>
+        <div class="week" id="weekTxt"></div>
+      </div>
     </div>
-    <div class="week" id="weekTxt"></div>
 
-    <div class="partidos" id="partidosTxt"></div>
+    <div class="headerCard">
+      <div class="headerBar"></div>
+      <div class="headerCardInner">
+        <div class="partidos" id="partidosTxt"></div>
+      </div>
+    </div>
 
     <div class="search">
       <input id="searchInput" placeholder="Busca aqui por telefono, nombre o folio" autocomplete="off">
@@ -278,8 +338,8 @@ const CONFIG   = BASE + "?mode=config";
 const REFRESH_MS = 5000;
 
 let raw = [];
-let resultados = [];   // L/E/V desde config
-let marcadores = [];   // "2-0" desde config
+let resultados = [];
+let marcadores = [];
 
 const $ = (id) => document.getElementById(id);
 
@@ -299,7 +359,6 @@ function buildTableShell(){
 
 function norm(v){ return String(v ?? "").trim().toUpperCase(); }
 
-/* Calcula 1° y 2° lugar por aciertos */
 function computePlaces(rows){
   const acs = rows.map(r => Number(r.aciertos)||0);
   const max = Math.max(...acs);
@@ -317,7 +376,6 @@ function computePlaces(rows){
   });
 }
 
-/* Render tabla */
 function render(rows){
   const tbody = document.querySelector("#tabla tbody");
   tbody.innerHTML = "";
@@ -343,7 +401,6 @@ function render(rows){
   });
 }
 
-/* Filtro por folio / nombre / telefono (sin mostrar telefono) */
 function applyFilter(){
   const q = $("searchInput").value.trim().toLowerCase();
   if (!q){ render(raw); return; }
@@ -356,21 +413,28 @@ function applyFilter(){
   render(out);
 }
 
-/* Partidos */
 function renderPartidos(cfg){
   const partidos = (cfg.partidos || []).slice(0,9);
   const box = $("partidosTxt");
   box.innerHTML = "";
 
+  if (!partidos.length){
+    box.innerHTML = `<div style="font-weight:900;color:var(--muted);">No hay partidos en config.</div>`;
+    return;
+  }
+
   partidos.forEach((p,i)=>{
-    const m = (marcadores[i] && String(marcadores[i]).trim()) ? String(marcadores[i]).trim() : "-";
-    const r = (resultados[i] && String(resultados[i]).trim()) ? String(resultados[i]).trim().toUpperCase() : "-";
+    const m = (marcadores[i] && String(marcadores[i]).trim()) ? String(marcadores[i]).trim() : "—";
+    const r = (resultados[i] && String(resultados[i]).trim()) ? String(resultados[i]).trim().toUpperCase() : "—";
+
     const div = document.createElement("div");
     div.className = "p";
-
     div.innerHTML = `
-      <span class="left">${i+1} ${p.local} vs ${p.visita}</span>
-      <span class="right">${m} (${r})</span>
+      <span class="left"><b>${i+1}</b> ${p.local} vs ${p.visita}</span>
+      <span class="right">
+        <span class="chip">${m}</span>
+        <span class="chip pick">${r}</span>
+      </span>
     `;
     box.appendChild(div);
   });
@@ -378,7 +442,6 @@ function renderPartidos(cfg){
 
 async function load(){
   try{
-    // Cargar config
     const cfgRes = await fetch(CONFIG, {cache:"no-store"}).then(r=>r.json());
     const cfg = cfgRes.cfg || {};
 
@@ -389,15 +452,13 @@ async function load(){
 
     renderPartidos(cfg);
 
-    // Cargar clasificación
     const res = await fetch(ENDPOINT, {cache:"no-store"}).then(r=>r.json());
     const data = res.data || {headers:[], rows:[]};
 
     const headers = (data.headers || []).map(x => String(x).toLowerCase());
-
     const iF = headers.indexOf("folio");
     const iN = headers.indexOf("nombre");
-    const iT = headers.indexOf("telefono_envio"); // para búsqueda (no se muestra)
+    const iT = headers.indexOf("telefono_envio");
     const iA = headers.indexOf("aciertos");
 
     if (iF<0 || iN<0 || iA<0){
