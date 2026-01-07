@@ -15,8 +15,8 @@
   --card:#ffffff;
   --line:#d7e6dc;
 
-  --l:#0a6b3a;   /* QUINIELA */
-  --v:#c62828;   /* AZTECA */
+  --l:#0a6b3a;
+  --v:#c62828;
 
   --rowA:#f6fbf8;
   --rowB:#eff7f2;
@@ -31,15 +31,13 @@
   --chipBd:#e5e7eb;
   --chipFg:#0f172a;
 
-  --azul1:#1d4ed8;   /* azul rey */
-  --azul2:#93c5fd;   /* azul cielo */
+  --azul1:#1d4ed8;
+  --azul2:#93c5fd;
 
   --pillBorder:#cbd5e1;
   --pillHitBg:#dcfce7;
   --pillHitBd:#86efac;
   --pillHitTx:#064e3b;
-
-  --stickyTop: 0px; /* se calcula en JS */
 }
 
 *{box-sizing:border-box}
@@ -65,7 +63,7 @@ body{
 .header-inner{
   max-width:1100px;
   margin:auto;
-  padding:8px 10px; /* más compacto */
+  padding:8px 10px;
 }
 
 .headerCard{
@@ -76,11 +74,11 @@ body{
   box-shadow: var(--shadow);
 }
 .headerBar{
-  height:6px; /* más compacto */
+  height:6px;
   background:linear-gradient(90deg, var(--l) 0%, var(--l) 33%, #ffffff 33%, #ffffff 66%, var(--v) 66%, var(--v) 100%);
 }
 .headerCardInner{
-  padding:6px 8px; /* ✅ compacto (antes era más) */
+  padding:6px 8px;
 }
 
 /* marca + semana */
@@ -90,12 +88,12 @@ body{
   justify-content:space-between;
   gap:10px;
   flex-wrap:wrap;
-  margin-bottom:6px; /* compacto */
+  margin-bottom:6px;
 }
 .title{
   margin:0;
   font-weight:1000;
-  font-size:18px; /* compacto */
+  font-size:18px;
   letter-spacing:.04em;
   line-height:1.05;
 }
@@ -109,14 +107,14 @@ body{
   margin-top:2px;
 }
 
-/* ===== PARTIDOS ULTRA COMPACTOS (9 en alto de ~6) ===== */
+/* ===== PARTIDOS ULTRA COMPACTOS ===== */
 .partidos{
-  font-size:10px;           /* ✅ más chico */
+  font-size:10px;
   font-weight:900;
-  line-height:1.05;         /* ✅ más apretado */
+  line-height:1.05;
   display:flex;
   flex-direction:column;
-  gap:3px;                  /* ✅ menos separación */
+  gap:3px;
   margin-top:4px;
 }
 
@@ -125,7 +123,7 @@ body{
   align-items:center;
   justify-content:space-between;
   gap:8px;
-  padding:3px 6px;          /* ✅ menos alto */
+  padding:3px 6px;
   border-radius:10px;
   background: var(--rowA);
   border:1px solid rgba(215,230,220,.55);
@@ -138,36 +136,34 @@ body{
   overflow:hidden;
   text-overflow:ellipsis;
 }
-
 .p .right{
   flex-shrink:0;
   display:flex;
-  gap:5px;                  /* ✅ más compacto */
+  gap:5px;
   align-items:center;
   white-space:nowrap;
 }
 
 .chip{
-  padding:2px 6px;          /* ✅ delgado */
+  padding:2px 6px;
   border-radius:999px;
   border:1px solid var(--chipBd);
   background: var(--chipBg);
-  font-size:10px;           /* ✅ delgado */
+  font-size:10px;
   font-weight:1000;
   line-height:1;
-  box-shadow:none;          /* ✅ quita altura visual */
+  box-shadow:none;
   color:var(--chipFg);
 }
-
 .chip.pick{
   background: var(--okBg);
   border-color: var(--okBd);
   color: var(--okFg);
 }
 
-/* ===== BUSCADOR (compacto) ===== */
+/* ===== BUSCADOR ===== */
 .search{
-  margin-top:6px; /* más compacto */
+  margin-top:6px;
   position:relative;
 }
 .search::before{
@@ -181,7 +177,7 @@ body{
 }
 .search input{
   width:100%;
-  padding:8px 10px 8px 36px; /* compacto */
+  padding:8px 10px 8px 36px;
   font-size:14px;
   font-weight:900;
   border:2px solid #cbd5e1;
@@ -191,6 +187,45 @@ body{
 }
 .search input:focus{ border-color:#94a3b8; }
 
+/* ===== FILA FIJA DE ENCABEZADO (folio/nombre/1..9/A) ===== */
+.tableHeadRow{
+  margin-top:6px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  overflow:hidden;
+  background:#f8fafc;
+}
+
+.tableHeadGrid{
+  display:grid;
+  grid-template-columns: 22px 200px repeat(9, 1fr) 30px;
+  gap:0;
+}
+
+.thCell{
+  padding:6px 4px;
+  border-right:1px solid rgba(215,230,220,.7);
+  font-size:11px;
+  font-weight:1000;
+  letter-spacing:.04em;
+  text-align:center;
+  color:#0f172a;
+}
+.thCell:last-child{ border-right:none; }
+.thCell.left{ text-align:left; }
+
+/* tamaños específicos del encabezado fijo para que empaten */
+.thCell.folio{
+  font-size:7px;
+  font-weight:700;
+  text-align:right;
+  padding-right:3px;
+}
+.thCell.nombre{
+  font-size:10px;
+  font-weight:700;
+}
+
 /* ===== CONTENEDOR ===== */
 .wrap{
   max-width:1100px;
@@ -198,7 +233,7 @@ body{
   padding:10px 12px 30px;
 }
 
-/* ===== TABLA ===== */
+/* ===== TABLA (solo tbody) ===== */
 .tableBox{
   border:1px solid var(--line);
   border-radius:14px;
@@ -214,19 +249,6 @@ table{
   table-layout:fixed;
 }
 
-thead th{
-  position:sticky;
-  top: var(--stickyTop);       /* ✅ queda debajo del header fijo */
-  z-index:30;
-  background:#f8fafc;
-  border-bottom:1px solid var(--line);
-  padding:6px 4px;
-  font-size:11px;
-  letter-spacing:.04em;
-  font-weight:1000;
-  text-align:center;
-}
-
 tbody td{
   border-bottom:1px solid var(--line);
   padding:4px 4px;
@@ -239,34 +261,32 @@ tbody tr:nth-child(even){ background:#fbfdff; }
 tbody tr:last-child td{ border-bottom:none; }
 
 /* columnas */
-th.col-folio, td.col-folio{
-  width:22px;               /* ✅ más angosta */
-  font-size:7px;            /* ✅ folio 7px */
-  font-weight:700;          /* ✅ menos pesado */
+td.col-folio{
+  width:22px;
+  font-size:7px;
+  font-weight:700;
   color:#334155;
   text-align:right;
   padding-right:3px;
 }
-
-th.col-nombre, td.col-nombre{
+td.col-nombre{
   width:200px;
   text-align:left;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
-  font-size:10px;           /* ✅ nombre 10px */
-  font-weight:700;          /* ✅ menos pesado */
+  font-size:10px;
+  font-weight:700;
   color:#0f172a;
 }
-
-th.col-ac, td.col-ac{
+td.col-ac{
   width:30px;
   font-size:12px;
+  font-weight:1000;
 }
 
 /* pastillas */
 td.selCell{ padding:3px 0; }
-
 .selPill{
   display:inline-flex;
   align-items:center;
@@ -286,27 +306,25 @@ td.selCell{ padding:3px 0; }
   color:var(--pillHitTx);
 }
 
-/* celda aciertos */
-td.col-ac.win1{
-  background:var(--azul1);
-  color:#fff;
-}
-td.col-ac.win2{
-  background:var(--azul2);
-  color:#0f172a;
-}
+/* aciertos */
+td.col-ac.win1{ background:var(--azul1); color:#fff; }
+td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
 
-/* responsive ultra-tight */
+/* responsive */
 @media (max-width:520px){
-  th.col-nombre, td.col-nombre{ width:170px; }
   .title{ font-size:16px; }
   .partidos{ font-size:9px; gap:2px; }
   .p{ padding:2px 6px; }
   .chip{ font-size:9px; padding:2px 5px; }
+
+  /* ajustar grid con nombre más chico */
+  .tableHeadGrid{ grid-template-columns: 22px 170px repeat(9, 1fr) 30px; }
+  td.col-nombre{ width:170px; }
 }
 
 @media (max-width:420px){
-  th.col-nombre, td.col-nombre{ width:150px; }
+  .tableHeadGrid{ grid-template-columns: 22px 150px repeat(9, 1fr) 30px; }
+  td.col-nombre{ width:150px; }
   .selPill{ width:18px; height:20px; font-size:11px; }
 }
 </style>
@@ -332,6 +350,17 @@ td.col-ac.win2{
         <div class="search">
           <input id="searchInput" placeholder="Busca aqui por telefono, nombre o folio" autocomplete="off">
         </div>
+
+        <!-- ✅ FILA FIJA DEL ENCABEZADO DE LISTADO -->
+        <div class="tableHeadRow" aria-hidden="true">
+          <div class="tableHeadGrid" id="fixedHead">
+            <div class="thCell folio">#</div>
+            <div class="thCell left nombre">Nombre</div>
+            ${[1,2,3,4,5,6,7,8,9].map(n=>`<div class="thCell">${n}</div>`).join("")}
+            <div class="thCell">A</div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -351,36 +380,17 @@ const CONFIG   = BASE + "?mode=config";
 const REFRESH_MS = 5000;
 
 let raw = [];
-let resultados = [];   // L/E/V desde config
-let marcadores = [];   // "2-0" desde config
+let resultados = [];
+let marcadores = [];
 
 const $ = (id) => document.getElementById(id);
 
-function setStickyTop(){
-  const h = document.getElementById('header');
-  const px = h ? h.offsetHeight : 0;
-  document.documentElement.style.setProperty('--stickyTop', px + 'px');
-}
-window.addEventListener('resize', setStickyTop);
-
-/* tabla shell */
-function buildTableShell(){
-  return `
-    <thead>
-      <tr>
-        <th class="col-folio">#</th>
-        <th class="col-nombre">Nombre</th>
-        ${[1,2,3,4,5,6,7,8,9].map(n=>`<th>${n}</th>`).join("")}
-        <th class="col-ac">A</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  `;
+function buildBodyOnly(){
+  return `<tbody></tbody>`;
 }
 
 function norm(v){ return String(v ?? "").trim().toUpperCase(); }
 
-/* Calcula 1° y 2° lugar por aciertos */
 function computePlaces(rows){
   const acs = rows.map(r => Number(r.aciertos)||0);
   const max = Math.max(...acs);
@@ -397,7 +407,6 @@ function computePlaces(rows){
   });
 }
 
-/* Render tabla */
 function render(rows){
   const tbody = document.querySelector("#tabla tbody");
   tbody.innerHTML = "";
@@ -423,7 +432,6 @@ function render(rows){
   });
 }
 
-/* Filtro por folio / nombre / telefono */
 function applyFilter(){
   const q = $("searchInput").value.trim().toLowerCase();
   if (!q){ render(raw); return; }
@@ -436,7 +444,6 @@ function applyFilter(){
   render(out);
 }
 
-/* Render lista partidos */
 function renderPartidos(cfg){
   const partidos = (cfg.partidos || []).slice(0,9);
   const box = $("partidosTxt");
@@ -448,7 +455,6 @@ function renderPartidos(cfg){
 
     const div = document.createElement("div");
     div.className = "p";
-
     div.innerHTML = `
       <span class="left">${i+1} ${p.local} vs ${p.visita}</span>
       <span class="right">
@@ -462,26 +468,23 @@ function renderPartidos(cfg){
 
 async function load(){
   try{
-    // Config
+    // config
     const cfgRes = await fetch(CONFIG, {cache:"no-store"}).then(r=>r.json());
     const cfg = cfgRes.cfg || {};
-
     $("weekTxt").textContent = cfg.subtitulo || "";
 
     resultados = (cfg.resultados || []).slice(0,9);
     marcadores = (cfg.marcadores || []).slice(0,9);
-
     renderPartidos(cfg);
 
-    // Clasificación
+    // clasif
     const res = await fetch(ENDPOINT, {cache:"no-store"}).then(r=>r.json());
     const data = res.data || {headers:[], rows:[]};
-
     const headers = (data.headers || []).map(x => String(x).toLowerCase());
 
     const iF = headers.indexOf("folio");
     const iN = headers.indexOf("nombre");
-    const iT = headers.indexOf("telefono_envio"); // búsqueda
+    const iT = headers.indexOf("telefono_envio");
     const iA = headers.indexOf("aciertos");
 
     if (iF<0 || iN<0 || iA<0){
@@ -498,7 +501,7 @@ async function load(){
         folio: r[iF],
         telefono: (iT>=0 ? r[iT] : ""),
         nombre: nombreShow.toLowerCase(),
-        nombre_show: nombreShow,          // ✅ mostramos como viene (más natural)
+        nombre_show: nombreShow,
         sels: r.slice(startSel, endSel).slice(0,9),
         aciertos: r[iA],
         _lugar: 0
@@ -508,13 +511,10 @@ async function load(){
     computePlaces(raw);
 
     const tabla = $("tabla");
-    tabla.innerHTML = buildTableShell();
+    tabla.innerHTML = buildBodyOnly();
     render(raw);
 
     if ($("searchInput").value.trim()) applyFilter();
-
-    // recalcula stickyTop cuando ya se pintó todo arriba
-    setStickyTop();
 
   } catch(err){
     console.error(err);
@@ -525,7 +525,6 @@ $("searchInput").addEventListener("input", applyFilter);
 
 load();
 setInterval(load, REFRESH_MS);
-setTimeout(setStickyTop, 0);
 </script>
 </body>
 </html>
