@@ -18,6 +18,9 @@
 
   --azul1:#1d4ed8;   /* azul rey */
   --azul2:#93c5fd;   /* azul cielo */
+
+  /* ✅ para sticky del thead debajo del header */
+  --headerH: 0px;
 }
 
 *{box-sizing:border-box}
@@ -28,48 +31,48 @@ body{
   color:var(--txt);
 }
 
-/* ===== HEADER FIJO ===== */
+/* ===== HEADER FIJO (MÁS COMPACTO) ===== */
 .header{
   position:sticky;
   top:0;
   z-index:20;
   background:#fff;
-  border-bottom:2px solid var(--line);
+  border-bottom:1px solid var(--line); /* antes 2px */
 }
 .header-inner{
   max-width:1100px;
   margin:auto;
-  padding:10px 12px;
+  padding:6px 10px; /* ✅ más compacto (antes 10px 12px) */
 }
 
 .title{
   font-weight:900;
-  font-size:20px;
-  letter-spacing:.04em;
-  line-height:1.1;
+  font-size:16px;      /* ✅ más compacto (antes 20px) */
+  letter-spacing:.03em;
+  line-height:1.05;
 }
 .title .mxg{color:#006847}
 .title .mxr{color:#ce1126}
 
 .week{
-  font-size:14px;
+  font-size:12px;      /* ✅ más compacto (antes 14px) */
   font-weight:900;
-  margin-top:4px;
+  margin-top:2px;      /* ✅ más compacto */
 }
 
-/* Lista de partidos: marcador a la derecha */
+/* Lista de partidos: marcador a la derecha (MÁS COMPACTO) */
 .partidos{
-  margin-top:8px;
-  font-size:12px;
+  margin-top:6px;      /* ✅ más compacto (antes 8px) */
+  font-size:11px;      /* ✅ más compacto (antes 12px) */
   font-weight:900;
-  line-height:1.3;
+  line-height:1.15;    /* ✅ más compacto */
   display:flex;
   flex-direction:column;
-  gap:4px;
+  gap:2px;             /* ✅ más compacto (antes 4px) */
 }
 .partidos .p{
   display:flex;
-  gap:10px;
+  gap:8px;
   align-items:baseline;
 }
 .partidos .p .left{
@@ -79,33 +82,34 @@ body{
   text-overflow:ellipsis;
 }
 .partidos .p .right{
-  min-width:90px;
+  min-width:86px;      /* ✅ un poco más compacto */
   text-align:right;
   white-space:nowrap;
   font-weight:1000;
+  opacity:.95;
 }
 
-/* ===== BUSCADOR ===== */
+/* ===== BUSCADOR (MÁS COMPACTO) ===== */
 .search{
-  margin-top:12px;
+  margin-top:8px;      /* ✅ más compacto (antes 12px) */
   position:relative;
 }
 .search::before{
   content:"🔍";
   position:absolute;
-  left:12px;
+  left:10px;           /* ✅ más compacto */
   top:50%;
   transform:translateY(-50%);
-  font-size:16px;
-  opacity:.75;
+  font-size:14px;      /* ✅ más compacto */
+  opacity:.70;
 }
 .search input{
   width:100%;
-  padding:10px 12px 10px 42px;
-  font-size:16px;
+  padding:8px 10px 8px 36px; /* ✅ más compacto */
+  font-size:14px;            /* ✅ más compacto */
   font-weight:900;
-  border:3px solid #cbd5e1;
-  border-radius:16px;
+  border:2px solid #cbd5e1;  /* ✅ más compacto (antes 3px) */
+  border-radius:14px;        /* ✅ más compacto (antes 16px) */
   outline:none;
   background:#fff;
 }
@@ -137,7 +141,7 @@ table{
 
 thead th{
   position:sticky;
-  top:0;                 /* se queda fijo dentro del scroll */
+  top: var(--headerH);     /* ✅ ahora queda debajo del header fijo */
   z-index:10;
   background:#f8fafc;
   border-bottom:1px solid var(--line);
@@ -150,7 +154,7 @@ thead th{
 
 tbody td{
   border-bottom:1px solid var(--line);
-  padding:4px 4px;       /* compacto */
+  padding:4px 4px;
   font-size:13px;
   font-weight:1000;
   text-align:center;
@@ -163,13 +167,13 @@ tbody tr:last-child td{ border-bottom:none; }
 
 /* columnas */
 th.col-folio, td.col-folio{
-  width:30px;            /* más compacto */
+  width:30px;
   font-size:11px;
 }
 th.col-nombre, td.col-nombre{
   width:200px;
   text-align:left;
-  white-space:nowrap;    /* ✅ una sola línea */
+  white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
 }
@@ -180,7 +184,7 @@ th.col-ac, td.col-ac{
 
 /* pastillas */
 td.selCell{
-  padding:3px 0;         /* compacto */
+  padding:3px 0;
 }
 .selPill{
   display:inline-flex;
@@ -201,7 +205,7 @@ td.selCell{
   color:var(--pillHitTx);
 }
 
-/* celda aciertos (NO el número suelto) */
+/* celda aciertos */
 td.col-ac.win1{
   background:var(--azul1);
   color:#fff;
@@ -214,7 +218,7 @@ td.col-ac.win2{
 /* responsive */
 @media (max-width:520px){
   th.col-nombre, td.col-nombre{ width:170px; }
-  .title{ font-size:18px; }
+  .title{ font-size:15px; }
 }
 @media (max-width:420px){
   th.col-nombre, td.col-nombre{ width:150px; }
@@ -224,7 +228,7 @@ td.col-ac.win2{
 </head>
 
 <body>
-<div class="header">
+<div class="header" id="pageHeader">
   <div class="header-inner">
     <div class="title">
       <span class="mxg">QUINIELA</span> <span class="mxr">AZTECA</span>
@@ -258,6 +262,11 @@ let marcadores = [];   // "2-0" desde config
 
 const $ = (id) => document.getElementById(id);
 
+function syncHeaderHeight(){
+  const h = document.getElementById("pageHeader")?.offsetHeight || 0;
+  document.documentElement.style.setProperty("--headerH", h + "px");
+}
+
 function buildTableShell(){
   return `
     <thead>
@@ -278,14 +287,12 @@ function norm(v){ return String(v ?? "").trim().toUpperCase(); }
 function computePlaces(rows){
   const acs = rows.map(r => Number(r.aciertos)||0);
   const max = Math.max(...acs);
-  let second = null;
 
   const uniq = [...new Set(acs)].sort((a,b)=>b-a);
+  let secondVal = null;
   for (const a of uniq){
-    if (a < max){ second_parent=a; break; }
+    if (a < max){ secondVal = a; break; }
   }
-  // fix typo safe:
-  const secondVal = (typeof second_parent !== "undefined") ? second_parent : null;
 
   rows.forEach(r=>{
     const a = Number(r.aciertos)||0;
@@ -332,7 +339,7 @@ function applyFilter(){
   render(out);
 }
 
-/* Construir lista de partidos + marcador (derecha) + letra resultado */
+/* Lista de partidos + marcador (derecha) + letra resultado */
 function renderPartidos(cfg){
   const partidos = (cfg.partidos || []).slice(0,9);
   const box = $("partidosTxt");
@@ -390,7 +397,7 @@ async function load(){
         folio: r[iF],
         telefono: (iT>=0 ? r[iT] : ""),
         nombre: nombreShow.toLowerCase(),
-        nombre_show: nombreShow.toLowerCase(), // volvemos a minúsculas (más estable visualmente)
+        nombre_show: nombreShow.toLowerCase(), // minúsculas para más compacto visual
         sels: r.slice(startSel, endSel).slice(0,9),
         aciertos: r[iA],
         _lugar: 0
@@ -399,12 +406,12 @@ async function load(){
 
     computePlaces(raw);
 
-    // inyectar estructura de tabla 1 vez por carga
+    // construir tabla
     const tabla = $("tabla");
     tabla.innerHTML = buildTableShell();
+    syncHeaderHeight(); // ✅ importante para sticky thead
     render(raw);
 
-    // aplicar filtro si ya había escrito algo
     if ($("searchInput").value.trim()) applyFilter();
 
   } catch(err){
@@ -413,6 +420,8 @@ async function load(){
 }
 
 $("searchInput").addEventListener("input", applyFilter);
+
+window.addEventListener("resize", syncHeaderHeight);
 
 load();
 setInterval(load, REFRESH_MS);
