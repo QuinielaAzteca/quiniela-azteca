@@ -38,12 +38,6 @@
   --pillHitBg:#dcfce7;
   --pillHitBd:#86efac;
   --pillHitTx:#064e3b;
-
-  /* ✅ ANCHOS SINCRONIZADOS (Header fijo + Tabla) */
-  --wFolio: 22px;
-  --wNombre: 200px;
-  --wSel: 20px;
-  --wA: 24px;
 }
 
 *{box-sizing:border-box}
@@ -54,6 +48,7 @@ body{
   font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
   color:var(--fg);
   background: radial-gradient(1200px 520px at 50% -140px, #ffffff 0%, var(--bg) 55%, var(--bg2) 100%);
+  overflow-x:hidden;
 }
 
 /* ===== HEADER FIJO (bloque único) ===== */
@@ -61,15 +56,16 @@ body{
   position:sticky;
   top:0;
   z-index:50;
-  background: rgba(255,255,255,.92);
-  backdrop-filter: blur(8px);
+  background:#fff; /* ✅ sólido (sin blur) para evitar “blancos” al scroll */
   border-bottom:1px solid rgba(215,230,220,.85);
-  box-shadow: 0 10px 24px rgba(2,6,23,.05);
+  box-shadow: 0 6px 14px rgba(2,6,23,.06);
+  transform: translateZ(0); /* ✅ ayuda a estabilidad en móviles */
 }
 .header-inner{
   max-width:1100px;
   margin:auto;
   padding:8px 10px;
+  overflow:visible !important; /* ✅ por si algo lo cambió */
 }
 
 .headerCard{
@@ -204,7 +200,7 @@ body{
 
 .tableHeadGrid{
   display:grid;
-  grid-template-columns: var(--wFolio) var(--wNombre) repeat(9, var(--wSel)) var(--wA);
+  grid-template-columns: 22px 160px repeat(9, 20px) 28px; /* ✅ alineado con tabla */
   gap:0;
 }
 
@@ -220,7 +216,7 @@ body{
 .thCell:last-child{ border-right:none; }
 .thCell.left{ text-align:left; }
 
-/* tamaños específicos */
+/* tamaños específicos del encabezado fijo para que empaten */
 .thCell.folio{
   font-size:7px;
   font-weight:700;
@@ -237,6 +233,7 @@ body{
   max-width:1100px;
   margin:auto;
   padding:10px 12px 30px;
+  overflow:visible !important; /* ✅ sticky no debe romperse por overflow */
 }
 
 /* ===== TABLA (solo tbody) ===== */
@@ -246,6 +243,7 @@ body{
   overflow:hidden;
   background:#fff;
   box-shadow: var(--shadow);
+  transform: translateZ(0); /* ✅ ayuda a estabilidad en móviles */
 }
 
 table{
@@ -266,9 +264,9 @@ tbody td{
 tbody tr:nth-child(even){ background:#fbfdff; }
 tbody tr:last-child td{ border-bottom:none; }
 
-/* ✅ columnas sincronizadas con el header fijo */
+/* columnas */
 td.col-folio{
-  width:var(--wFolio);
+  width:22px;
   font-size:7px;
   font-weight:700;
   color:#334155;
@@ -276,7 +274,7 @@ td.col-folio{
   padding-right:3px;
 }
 td.col-nombre{
-  width:var(--wNombre);
+  width:160px; /* ✅ igual que grid del encabezado fijo */
   text-align:left;
   white-space:nowrap;
   overflow:hidden;
@@ -286,23 +284,19 @@ td.col-nombre{
   color:#0f172a;
 }
 td.col-ac{
-  width:var(--wA);
+  width:28px; /* ✅ igual que grid del encabezado fijo */
   font-size:12px;
   font-weight:1000;
 }
 
-/* ✅ cada selección también con ancho fijo */
-td.selCell{
-  width:var(--wSel);
-  padding:3px 0;
-}
-
+/* pastillas */
+td.selCell{ padding:3px 0; }
 .selPill{
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  width:18px;
-  height:20px;
+  width:20px;
+  height:22px;
   border-radius:12px;
   border:1px solid var(--pillBorder);
   font-weight:900;
@@ -320,26 +314,24 @@ td.selCell{
 td.col-ac.win1{ background:var(--azul1); color:#fff; }
 td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
 
-/* responsive: solo cambiamos variables (se mantiene alineado) */
+/* responsive */
 @media (max-width:520px){
-  :root{
-    --wNombre: 170px;
-    --wSel: 18px;
-    --wA: 24px;
-  }
   .title{ font-size:16px; }
   .partidos{ font-size:9px; gap:2px; }
   .p{ padding:2px 6px; }
   .chip{ font-size:9px; padding:2px 5px; }
+
+  .tableHeadGrid{ grid-template-columns: 22px 150px repeat(9, 18px) 26px; }
+  td.col-nombre{ width:150px; }
+  td.col-ac{ width:26px; }
+  .selPill{ width:18px; height:20px; font-size:11px; }
 }
 
 @media (max-width:420px){
-  :root{
-    --wNombre: 150px;
-    --wSel: 17px;
-    --wA: 24px;
-  }
-  .selPill{ width:16px; height:18px; font-size:11px; }
+  .tableHeadGrid{ grid-template-columns: 22px 135px repeat(9, 17px) 26px; }
+  td.col-nombre{ width:135px; }
+  td.col-ac{ width:26px; }
+  .selPill{ width:17px; height:19px; font-size:11px; }
 }
 </style>
 </head>
@@ -399,7 +391,8 @@ const BASE = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCu
 const ENDPOINT = BASE + "?mode=clasif";
 const CONFIG   = BASE + "?mode=config";
 
-const REFRESH_MS = 12000;
+/* ✅ Refresh más relajado para fluidez (tú dijiste que no importa tanto) */
+const REFRESH_MS = 20000; // 20s
 
 let raw = [];
 let resultados = [];
@@ -488,7 +481,25 @@ function renderPartidos(cfg){
   });
 }
 
+/* ✅ Pausa refresh mientras haces scroll (evita parpadeos/blancos) */
+let isScrolling = false;
+let scrollTO = null;
+window.addEventListener('scroll', () => {
+  isScrolling = true;
+  clearTimeout(scrollTO);
+  scrollTO = setTimeout(() => { isScrolling = false; }, 180);
+}, { passive:true });
+
+/* ✅ evita refrescar si estás escribiendo en el buscador */
+function isTyping(){
+  const a = document.activeElement;
+  return a && a.id === "searchInput";
+}
+
+let isLoading = false;
 async function load(){
+  if (isLoading) return;
+  isLoading = true;
   try{
     // config
     const cfgRes = await fetch(CONFIG, {cache:"no-store"}).then(r=>r.json());
@@ -534,20 +545,26 @@ async function load(){
 
     const tabla = $("tabla");
     tabla.innerHTML = buildBodyOnly();
-    render(raw);
-
-    if ($("searchInput").value.trim()) applyFilter();
-
+    // respeta búsqueda actual si existe
+    if ($("searchInput").value.trim()) {
+      applyFilter();
+    } else {
+      render(raw);
+    }
   } catch(err){
     console.error(err);
+  } finally {
+    isLoading = false;
   }
 }
 
 $("searchInput").addEventListener("input", applyFilter);
 
 load();
-setInterval(load, REFRESH_MS);
+setInterval(() => {
+  if (isScrolling || isTyping()) return;
+  load();
+}, REFRESH_MS);
 </script>
 </body>
 </html>
-
