@@ -41,7 +41,7 @@
 }
 
 *{box-sizing:border-box}
-html,body{overflow-x:hidden}
+html, body { overflow-x:hidden; }
 
 body{
   margin:0;
@@ -50,7 +50,7 @@ body{
   background: radial-gradient(1200px 520px at 50% -140px, #ffffff 0%, var(--bg) 55%, var(--bg2) 100%);
 }
 
-/* ===== HEADER FIJO ===== */
+/* ===== HEADER FIJO (bloque único) ===== */
 .header{
   position:sticky;
   top:0;
@@ -75,22 +75,27 @@ body{
 }
 .headerBar{
   height:6px;
-  background:linear-gradient(
-    90deg,
-    var(--l) 0%,
-    var(--l) 33%,
-    #ffffff 33%,
-    #ffffff 66%,
-    var(--v) 66%,
-    var(--v) 100%
-  );
+  background:linear-gradient(90deg, var(--l) 0%, var(--l) 33%, #ffffff 33%, #ffffff 66%, var(--v) 66%, var(--v) 100%);
 }
-.headerCardInner{ padding:6px 8px; }
+.headerCardInner{
+  padding:6px 8px;
+}
 
+/* marca + semana */
+.brandRow{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:6px;
+}
 .title{
+  margin:0;
   font-weight:1000;
   font-size:18px;
   letter-spacing:.04em;
+  line-height:1.05;
 }
 .title .mxg{color:var(--l)}
 .title .mxr{color:var(--v)}
@@ -99,9 +104,10 @@ body{
   font-size:12px;
   font-weight:900;
   color:var(--muted);
+  margin-top:2px;
 }
 
-/* ===== PARTIDOS ===== */
+/* ===== PARTIDOS ULTRA COMPACTOS ===== */
 .partidos{
   font-size:10px;
   font-weight:900;
@@ -111,8 +117,10 @@ body{
   gap:3px;
   margin-top:4px;
 }
+
 .p{
   display:flex;
+  align-items:center;
   justify-content:space-between;
   gap:8px;
   padding:3px 6px;
@@ -120,7 +128,8 @@ body{
   background: var(--rowA);
   border:1px solid rgba(215,230,220,.55);
 }
-.p:nth-child(even){ background:var(--rowB); }
+.p:nth-child(even){ background: var(--rowB); }
+
 .p .left{
   flex:1;
   white-space:nowrap;
@@ -128,8 +137,10 @@ body{
   text-overflow:ellipsis;
 }
 .p .right{
+  flex-shrink:0;
   display:flex;
   gap:5px;
+  align-items:center;
   white-space:nowrap;
 }
 
@@ -137,14 +148,17 @@ body{
   padding:2px 6px;
   border-radius:999px;
   border:1px solid var(--chipBd);
-  background:var(--chipBg);
+  background: var(--chipBg);
   font-size:10px;
   font-weight:1000;
+  line-height:1;
+  box-shadow:none;
+  color:var(--chipFg);
 }
 .chip.pick{
-  background:var(--okBg);
-  border-color:var(--okBd);
-  color:var(--okFg);
+  background: var(--okBg);
+  border-color: var(--okBd);
+  color: var(--okFg);
 }
 
 /* ===== BUSCADOR ===== */
@@ -158,6 +172,8 @@ body{
   left:10px;
   top:50%;
   transform:translateY(-50%);
+  font-size:14px;
+  opacity:.75;
 }
 .search input{
   width:100%;
@@ -166,101 +182,355 @@ body{
   font-weight:900;
   border:2px solid #cbd5e1;
   border-radius:14px;
+  outline:none;
   background:#fff;
 }
+.search input:focus{ border-color:#94a3b8; }
 
-/* ===== FILA FIJA DEL LISTADO ===== */
+/* ===== FILA FIJA DE ENCABEZADO (folio/nombre/1..9/A) ===== */
 .tableHeadRow{
   margin-top:6px;
   border:1px solid var(--line);
   border-radius:12px;
+  overflow:hidden;
   background:#f8fafc;
 }
+
 .tableHeadGrid{
   display:grid;
+  /* ✅ CAMBIO: nombre a 160px y selecciones a 20px para alinear */
   grid-template-columns: 22px 160px repeat(9, 20px) 30px;
+  gap:0;
 }
+
 .thCell{
   padding:6px 4px;
+  border-right:1px solid rgba(215,230,220,.7);
   font-size:11px;
   font-weight:1000;
+  letter-spacing:.04em;
   text-align:center;
+  color:#0f172a;
 }
+.thCell:last-child{ border-right:none; }
+.thCell.left{ text-align:left; }
+
+/* tamaños específicos */
 .thCell.folio{
   font-size:7px;
   font-weight:700;
   text-align:right;
+  padding-right:3px;
 }
 .thCell.nombre{
   font-size:10px;
-  font-weight:700;
-  text-align:left;
+  font-weight:600; /* ✅ menos pesado */
 }
 
-/* ===== TABLA ===== */
+/* ===== CONTENEDOR ===== */
 .wrap{
   max-width:1100px;
   margin:auto;
   padding:10px 12px 30px;
 }
+
+/* ===== TABLA (solo tbody) ===== */
 .tableBox{
   border:1px solid var(--line);
   border-radius:14px;
+  overflow:hidden;
   background:#fff;
-  box-shadow:var(--shadow);
+  box-shadow: var(--shadow);
 }
+
 table{
   width:100%;
   border-collapse:separate;
+  border-spacing:0;
   table-layout:fixed;
 }
+
 tbody td{
   border-bottom:1px solid var(--line);
-  padding:4px;
+  padding:4px 4px;
   text-align:center;
+  vertical-align:middle;
   font-weight:1000;
 }
+
+tbody tr:nth-child(even){ background:#fbfdff; }
+tbody tr:last-child td{ border-bottom:none; }
+
+/* columnas */
 td.col-folio{
   width:22px;
   font-size:7px;
   font-weight:700;
+  color:#334155;
   text-align:right;
+  padding-right:3px;
 }
 td.col-nombre{
-  width:160px;
+  width:160px;          /* ✅ CAMBIO: igual que el header */
   text-align:left;
-  font-size:10px;
-  font-weight:700;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
+  font-size:10px;
+  font-weight:600;      /* ✅ menos pesado */
+  color:#0f172a;
 }
 td.col-ac{
   width:30px;
+  font-size:12px;
+  font-weight:1000;
 }
-td.col-ac.win1{ background:var(--azul1); color:#fff; }
-td.col-ac.win2{ background:var(--azul2); }
 
+/* pastillas */
 td.selCell{ padding:3px 0; }
 .selPill{
-  width:20px;
-  height:22px;
-  border-radius:12px;
-  border:1px solid var(--pillBorder);
   display:inline-flex;
   align-items:center;
   justify-content:center;
+  width:20px;           /* ✅ CAMBIO: igual que el header */
+  height:22px;
+  border-radius:12px;
+  border:1px solid var(--pillBorder);
+  font-weight:900;
   font-size:12px;
+  line-height:1;
+  background:#fff;
 }
 .selPill.hit{
   background:var(--pillHitBg);
   border-color:var(--pillHitBd);
   color:var(--pillHitTx);
 }
+
+/* aciertos */
+td.col-ac.win1{ background:var(--azul1); color:#fff; }
+td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
+
+/* responsive */
+@media (max-width:520px){
+  .title{ font-size:16px; }
+  .partidos{ font-size:9px; gap:2px; }
+  .p{ padding:2px 6px; }
+  .chip{ font-size:9px; padding:2px 5px; }
+
+  .tableHeadGrid{ grid-template-columns: 22px 140px repeat(9, 20px) 30px; }
+  td.col-nombre{ width:140px; }
+}
+
+@media (max-width:420px){
+  .tableHeadGrid{ grid-template-columns: 22px 130px repeat(9, 18px) 30px; }
+  td.col-nombre{ width:130px; }
+  .selPill{ width:18px; height:20px; font-size:11px; }
+}
 </style>
 </head>
 
 <body>
-<!-- TODO TU JS Y HTML INTERNO QUEDA IGUAL -->
+<div class="header" id="header">
+  <div class="header-inner">
+    <div class="headerCard">
+      <div class="headerBar"></div>
+      <div class="headerCardInner">
+        <div class="brandRow">
+          <div>
+            <div class="title">
+              <span class="mxg">QUINIELA</span> <span class="mxr">AZTECA</span>
+            </div>
+            <div class="week" id="weekTxt"></div>
+          </div>
+        </div>
+
+        <div class="partidos" id="partidosTxt"></div>
+
+        <div class="search">
+          <input id="searchInput" placeholder="Busca aqui por telefono, nombre o folio" autocomplete="off">
+        </div>
+
+        <!-- ✅ FILA FIJA DEL ENCABEZADO DE LISTADO -->
+        <div class="tableHeadRow" aria-hidden="true">
+          <div class="tableHeadGrid" id="fixedHead">
+            <div class="thCell folio">#</div>
+            <div class="thCell left nombre">Nombre</div>
+            <div class="thCell">1</div>
+            <div class="thCell">2</div>
+            <div class="thCell">3</div>
+            <div class="thCell">4</div>
+            <div class="thCell">5</div>
+            <div class="thCell">6</div>
+            <div class="thCell">7</div>
+            <div class="thCell">8</div>
+            <div class="thCell">9</div>
+            <div class="thCell">A</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="tableBox">
+    <table id="tabla"></table>
+  </div>
+</div>
+
+<script>
+const BASE = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec";
+const ENDPOINT = BASE + "?mode=clasif";
+const CONFIG   = BASE + "?mode=config";
+
+const REFRESH_MS = 5000;
+
+let raw = [];
+let resultados = [];
+let marcadores = [];
+
+const $ = (id) => document.getElementById(id);
+
+function buildBodyOnly(){
+  return `<tbody></tbody>`;
+}
+
+function norm(v){ return String(v ?? "").trim().toUpperCase(); }
+
+function computePlaces(rows){
+  const acs = rows.map(r => Number(r.aciertos)||0);
+  const max = Math.max(...acs);
+
+  const uniq = [...new Set(acs)].sort((a,b)=>b-a);
+  let secondVal = null;
+  for (const a of uniq){
+    if (a < max){ secondVal = a; break; }
+  }
+
+  rows.forEach(r=>{
+    const a = Number(r.aciertos)||0;
+    r._lugar = (a===max) ? 1 : (secondVal!=null && a===secondVal ? 2 : 0);
+  });
+}
+
+function render(rows){
+  const tbody = document.querySelector("#tabla tbody");
+  tbody.innerHTML = "";
+
+  rows.forEach(r=>{
+    const tr = document.createElement("tr");
+
+    const selsHtml = r.sels.map((s,i)=>{
+      const ok = resultados[i] && norm(s) === norm(resultados[i]);
+      return `<td class="selCell"><span class="selPill ${ok?'hit':''}">${s || '-'}</span></td>`;
+    }).join("");
+
+    const acClass = (r._lugar===1) ? "win1" : (r._lugar===2) ? "win2" : "";
+
+    tr.innerHTML = `
+      <td class="col-folio">${r.folio ?? ''}</td>
+      <td class="col-nombre">${r.nombre_show ?? ''}</td>
+      ${selsHtml}
+      <td class="col-ac ${acClass}">${r.aciertos ?? ''}</td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+}
+
+function applyFilter(){
+  const q = $("searchInput").value.trim().toLowerCase();
+  if (!q){ render(raw); return; }
+
+  const out = raw.filter(r=>{
+    return String(r.folio ?? "").toLowerCase().includes(q) ||
+           String(r.telefono ?? "").toLowerCase().includes(q) ||
+           String(r.nombre ?? "").toLowerCase().includes(q);
+  });
+  render(out);
+}
+
+function renderPartidos(cfg){
+  const partidos = (cfg.partidos || []).slice(0,9);
+  const box = $("partidosTxt");
+  box.innerHTML = "";
+
+  partidos.forEach((p,i)=>{
+    const m = (marcadores[i] && String(marcadores[i]).trim()) ? String(marcadores[i]).trim() : "-";
+    const r = (resultados[i] && String(resultados[i]).trim()) ? String(resultados[i]).trim().toUpperCase() : "-";
+
+    const div = document.createElement("div");
+    div.className = "p";
+    div.innerHTML = `
+      <span class="left">${i+1} ${p.local} vs ${p.visita}</span>
+      <span class="right">
+        <span class="chip">${m}</span>
+        <span class="chip pick">${r}</span>
+      </span>
+    `;
+    box.appendChild(div);
+  });
+}
+
+async function load(){
+  try{
+    const cfgRes = await fetch(CONFIG, {cache:"no-store"}).then(r=>r.json());
+    const cfg = cfgRes.cfg || {};
+    $("weekTxt").textContent = cfg.subtitulo || "";
+
+    resultados = (cfg.resultados || []).slice(0,9);
+    marcadores = (cfg.marcadores || []).slice(0,9);
+    renderPartidos(cfg);
+
+    const res = await fetch(ENDPOINT, {cache:"no-store"}).then(r=>r.json());
+    const data = res.data || {headers:[], rows:[]};
+    const headers = (data.headers || []).map(x => String(x).toLowerCase());
+
+    const iF = headers.indexOf("folio");
+    const iN = headers.indexOf("nombre");
+    const iT = headers.indexOf("telefono_envio");
+    const iA = headers.indexOf("aciertos");
+
+    if (iF<0 || iN<0 || iA<0){
+      console.warn("Headers inválidos:", headers);
+      return;
+    }
+
+    const startSel = iN + 1;
+    const endSel   = iA;
+
+    raw = (data.rows || []).map(r=>{
+      const nombreShow = String(r[iN] ?? "").trim();
+      return {
+        folio: r[iF],
+        telefono: (iT>=0 ? r[iT] : ""),
+        nombre: nombreShow.toLowerCase(),
+        nombre_show: nombreShow,
+        sels: r.slice(startSel, endSel).slice(0,9),
+        aciertos: r[iA],
+        _lugar: 0
+      };
+    });
+
+    computePlaces(raw);
+
+    const tabla = $("tabla");
+    tabla.innerHTML = buildBodyOnly();
+    render(raw);
+
+    if ($("searchInput").value.trim()) applyFilter();
+
+  } catch(err){
+    console.error(err);
+  }
+}
+
+$("searchInput").addEventListener("input", applyFilter);
+
+load();
+setInterval(load, REFRESH_MS);
+</script>
 </body>
 </html>
