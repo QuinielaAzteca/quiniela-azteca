@@ -38,6 +38,12 @@
   --pillHitBg:#dcfce7;
   --pillHitBd:#86efac;
   --pillHitTx:#064e3b;
+
+  /* ✅ ANCHOS SINCRONIZADOS (Header fijo + Tabla) */
+  --wFolio: 22px;
+  --wNombre: 200px;
+  --wSel: 20px;
+  --wA: 24px;
 }
 
 *{box-sizing:border-box}
@@ -198,8 +204,7 @@ body{
 
 .tableHeadGrid{
   display:grid;
-  /* ✅ CAMBIO: nombre a 160px y selecciones a 20px para alinear */
-  grid-template-columns: 22px 160px repeat(9, 20px) 30px;
+  grid-template-columns: var(--wFolio) var(--wNombre) repeat(9, var(--wSel)) var(--wA);
   gap:0;
 }
 
@@ -224,7 +229,7 @@ body{
 }
 .thCell.nombre{
   font-size:10px;
-  font-weight:600; /* ✅ menos pesado */
+  font-weight:700;
 }
 
 /* ===== CONTENEDOR ===== */
@@ -261,9 +266,9 @@ tbody td{
 tbody tr:nth-child(even){ background:#fbfdff; }
 tbody tr:last-child td{ border-bottom:none; }
 
-/* columnas */
+/* ✅ columnas sincronizadas con el header fijo */
 td.col-folio{
-  width:22px;
+  width:var(--wFolio);
   font-size:7px;
   font-weight:700;
   color:#334155;
@@ -271,29 +276,33 @@ td.col-folio{
   padding-right:3px;
 }
 td.col-nombre{
-  width:160px;          /* ✅ CAMBIO: igual que el header */
+  width:var(--wNombre);
   text-align:left;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
   font-size:10px;
-  font-weight:600;      /* ✅ menos pesado */
+  font-weight:700;
   color:#0f172a;
 }
 td.col-ac{
-  width:30px;
+  width:var(--wA);
   font-size:12px;
   font-weight:1000;
 }
 
-/* pastillas */
-td.selCell{ padding:3px 0; }
+/* ✅ cada selección también con ancho fijo */
+td.selCell{
+  width:var(--wSel);
+  padding:3px 0;
+}
+
 .selPill{
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  width:20px;           /* ✅ CAMBIO: igual que el header */
-  height:22px;
+  width:18px;
+  height:20px;
   border-radius:12px;
   border:1px solid var(--pillBorder);
   font-weight:900;
@@ -311,21 +320,26 @@ td.selCell{ padding:3px 0; }
 td.col-ac.win1{ background:var(--azul1); color:#fff; }
 td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
 
-/* responsive */
+/* responsive: solo cambiamos variables (se mantiene alineado) */
 @media (max-width:520px){
+  :root{
+    --wNombre: 170px;
+    --wSel: 18px;
+    --wA: 24px;
+  }
   .title{ font-size:16px; }
   .partidos{ font-size:9px; gap:2px; }
   .p{ padding:2px 6px; }
   .chip{ font-size:9px; padding:2px 5px; }
-
-  .tableHeadGrid{ grid-template-columns: 22px 140px repeat(9, 20px) 30px; }
-  td.col-nombre{ width:140px; }
 }
 
 @media (max-width:420px){
-  .tableHeadGrid{ grid-template-columns: 22px 130px repeat(9, 18px) 30px; }
-  td.col-nombre{ width:130px; }
-  .selPill{ width:18px; height:20px; font-size:11px; }
+  :root{
+    --wNombre: 150px;
+    --wSel: 17px;
+    --wA: 24px;
+  }
+  .selPill{ width:16px; height:18px; font-size:11px; }
 }
 </style>
 </head>
@@ -476,6 +490,7 @@ function renderPartidos(cfg){
 
 async function load(){
   try{
+    // config
     const cfgRes = await fetch(CONFIG, {cache:"no-store"}).then(r=>r.json());
     const cfg = cfgRes.cfg || {};
     $("weekTxt").textContent = cfg.subtitulo || "";
@@ -484,6 +499,7 @@ async function load(){
     marcadores = (cfg.marcadores || []).slice(0,9);
     renderPartidos(cfg);
 
+    // clasif
     const res = await fetch(ENDPOINT, {cache:"no-store"}).then(r=>r.json());
     const data = res.data || {headers:[], rows:[]};
     const headers = (data.headers || []).map(x => String(x).toLowerCase());
