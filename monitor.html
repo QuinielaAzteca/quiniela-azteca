@@ -579,9 +579,7 @@ function markScrolling(){
   if (scrollTimer) clearTimeout(scrollTimer);
   scrollTimer = setTimeout(()=>{
     isUserScrolling = false;
-    // al soltar, re-render con lo que toque
-    if ($("searchInput").value.trim()) applyFilter();
-    else renderChunked(raw);
+    // ✅ NO re-render al soltar (evita que se regrese al inicio)
   }, 140);
 }
 
@@ -653,9 +651,14 @@ async function load(initial=false){
       tabla.innerHTML = buildBodyOnly();
     }
 
-    // primera vez: render chunked
-    if ($("searchInput").value.trim()) applyFilter();
-    else renderChunked(raw);
+    // ✅ guardar/restaurar scroll al actualizar
+    const box = $("tableBox");
+    const prevTop = box ? box.scrollTop : 0;
+
+    if ($("searchInput").value.trim()) await applyFilter();
+    else await renderChunked(raw);
+
+    if (box && !isUserScrolling) box.scrollTop = prevTop;
 
     hideLoading();
   } catch(err){
