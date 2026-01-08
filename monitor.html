@@ -193,7 +193,32 @@ body{
 }
 .search input:focus{ border-color:#94a3b8; }
 
-/* ===== FILA FIJA DE ENCABEZADO (ahora TABLE para que NUNCA se desalineen) ===== */
+/* ===== AVISO "CARGANDO LISTADO" ===== */
+.loadingRow{
+  margin-top:6px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 10px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background: rgba(248,250,252,.95);
+  color: var(--muted);
+  font-size:12px;
+  font-weight:800;
+}
+.loadingRow[hidden]{ display:none; }
+
+.spinner{
+  width:14px; height:14px;
+  border-radius:50%;
+  border:2px solid rgba(71,85,105,.25);
+  border-top-color: rgba(71,85,105,.9);
+  animation: spin .8s linear infinite;
+}
+@keyframes spin{ to{ transform:rotate(360deg);} }
+
+/* ===== FILA FIJA DE ENCABEZADO (TABLE + COLGROUP) ===== */
 .tableHeadRow{
   margin-top:6px;
   border:1px solid var(--line);
@@ -201,8 +226,6 @@ body{
   overflow:hidden;
   background:#f8fafc;
 }
-
-/* tabla del header fijo */
 .headTable{
   width:100%;
   border-collapse:separate;
@@ -240,13 +263,17 @@ body{
   padding:10px 12px 30px;
 }
 
-/* ===== TABLA (solo tbody) ===== */
+/* ===== TABLA ===== */
 .tableBox{
   border:1px solid var(--line);
   border-radius:14px;
   overflow:hidden;
   background:#fff;
   box-shadow: var(--shadow);
+
+  /* ayuda a evitar "blancos" en algunos móviles */
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 table{
@@ -267,7 +294,7 @@ tbody td{
 tbody tr:nth-child(even){ background:#fbfdff; }
 tbody tr:last-child td{ border-bottom:none; }
 
-/* ✅ columnas sincronizadas con el header fijo */
+/* columnas sincronizadas */
 td.col-folio{
   width:var(--wFolio);
   font-size:7px;
@@ -292,7 +319,7 @@ td.col-ac{
   font-weight:1000;
 }
 
-/* ✅ cada selección también con ancho fijo */
+/* selecciones con ancho fijo */
 td.selCell{
   width:var(--wSel);
   padding:3px 0;
@@ -351,6 +378,7 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
     <div class="headerCard">
       <div class="headerBar"></div>
       <div class="headerCardInner">
+
         <div class="brandRow">
           <div>
             <div class="title">
@@ -366,7 +394,13 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
           <input id="searchInput" placeholder="Busca aqui por telefono, nombre o folio" autocomplete="off">
         </div>
 
-        <!-- ✅ FILA FIJA DEL ENCABEZADO DE LISTADO (TABLE + COLGROUP) -->
+        <!-- ✅ aviso discreto -->
+        <div class="loadingRow" id="loadingRow" hidden>
+          <span class="spinner" aria-hidden="true"></span>
+          <span id="loadingTxt">Cargando listado…</span>
+        </div>
+
+        <!-- ✅ FILA FIJA DEL ENCABEZADO DE LISTADO -->
         <div class="tableHeadRow" aria-hidden="true">
           <table class="headTable">
             <colgroup>
@@ -394,7 +428,7 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
 </div>
 
 <div class="wrap">
-  <div class="tableBox">
+  <div class="tableBox" id="tableBox">
     <table id="tabla"></table>
   </div>
 </div>
@@ -404,26 +438,43 @@ const BASE = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCu
 const ENDPOINT = BASE + "?mode=clasif";
 const CONFIG   = BASE + "?mode=config";
 
-const REFRESH_MS = 5000;
+/* ✅ menos agresivo para estabilidad */
+const REFRESH_MS = 12000;
 
 let raw = [];
 let resultados = [];
 let marcadores = [];
 
+let lastCfgSig = "";
+let lastDataSig = "";
+
+let isUserScrolling = false;
+let scrollTimer = null;
+
 const $ = (id) => document.getElementById(id);
 
-function buildBodyOnly(){
-  // ✅ mismo colgroup que el header fijo (para alineación perfecta)
-  const colsSel = Array.from({length:9}, () => `<col style="width:var(--wSel)">`).join("");
-  return `
-    <colgroup>
-      <col style="width:var(--wFolio)">
-      <col style="width:var(--wNombre)">
-      ${colsSel}
-      <col style="width:var(--wA)">
-    </colgroup>
-    <tbody></tbody>
-  `;
+function showLoading(msg="Cargando listado…"){
+  $("loadingTxt").textContent = msg;
+  $("loadingRow").hidden = false;
+}
+function hideLoading(){
+  $("loadingRow").hidden = true;
+}
+
+/* firma simple para evitar renders si no hay cambios */
+function sigFromObject(obj){
+  try{
+    return JSON.stringify(obj).length + ":" + JSON.stringify(obj).slice(0,400);
+  }catch(e){
+    return String(Date.now());
+  }
+}
+function sigFromRows(rows){
+  // firma rápida: tamaño + primeros/últimos renglones
+  const n = rows.length;
+  const first = n ? rows[0].slice(0,18).join("|") : "";
+  const last  = n ? rows[n-1].slice(0,18).join("|") : "";
+  return n + "::" + first + "::" + last;
 }
 
 function norm(v){ return String(v ?? "").trim().toUpperCase(); }
@@ -444,9 +495,27 @@ function computePlaces(rows){
   });
 }
 
+function buildBodyOnly(){
+  const colsSel = Array.from({length:9}, () => `<col style="width:var(--wSel)">`).join("");
+  return `
+    <colgroup>
+      <col style="width:var(--wFolio)">
+      <col style="width:var(--wNombre)">
+      ${colsSel}
+      <col style="width:var(--wA)">
+    </colgroup>
+    <tbody></tbody>
+  `;
+}
+
 function render(rows){
   const tbody = document.querySelector("#tabla tbody");
-  tbody.innerHTML = "";
+  if (!tbody) return;
+
+  // ✅ si el usuario está scrolleando, no renderizamos (evita “blancos”)
+  if (isUserScrolling) return;
+
+  const frag = document.createDocumentFragment();
 
   rows.forEach(r=>{
     const tr = document.createElement("tr");
@@ -464,9 +533,11 @@ function render(rows){
       ${selsHtml}
       <td class="col-ac ${acClass}">${r.aciertos ?? ''}</td>
     `;
-
-    tbody.appendChild(tr);
+    frag.appendChild(tr);
   });
+
+  tbody.innerHTML = "";
+  tbody.appendChild(frag);
 }
 
 function applyFilter(){
@@ -503,18 +574,41 @@ function renderPartidos(cfg){
   });
 }
 
-async function load(){
+/* Detectar scroll del listado para pausar render */
+function markScrolling(){
+  isUserScrolling = true;
+  if (scrollTimer) clearTimeout(scrollTimer);
+  scrollTimer = setTimeout(()=>{
+    isUserScrolling = false;
+    // al terminar scroll, re-render con filtro actual
+    if ($("searchInput").value.trim()) applyFilter();
+    else render(raw);
+  }, 160);
+}
+
+async function load(initial=false){
   try{
-    // config
+    if (initial) showLoading("Cargando listado…");
+
+    // --- CONFIG ---
     const cfgRes = await fetch(CONFIG, {cache:"no-store"}).then(r=>r.json());
     const cfg = cfgRes.cfg || {};
-    $("weekTxt").textContent = cfg.subtitulo || "";
+    const cfgSig = sigFromObject({
+      subtitulo: cfg.subtitulo,
+      resultados: (cfg.resultados||[]).slice(0,9),
+      marcadores: (cfg.marcadores||[]).slice(0,9),
+      partidos: (cfg.partidos||[]).slice(0,9).map(p=>({l:p.local,v:p.visita}))
+    });
 
-    resultados = (cfg.resultados || []).slice(0,9);
-    marcadores = (cfg.marcadores || []).slice(0,9);
-    renderPartidos(cfg);
+    if (cfgSig !== lastCfgSig){
+      lastCfgSig = cfgSig;
+      $("weekTxt").textContent = cfg.subtitulo || "";
+      resultados = (cfg.resultados || []).slice(0,9);
+      marcadores = (cfg.marcadores || []).slice(0,9);
+      renderPartidos(cfg);
+    }
 
-    // clasif
+    // --- CLASIF ---
     const res = await fetch(ENDPOINT, {cache:"no-store"}).then(r=>r.json());
     const data = res.data || {headers:[], rows:[]};
     const headers = (data.headers || []).map(x => String(x).toLowerCase());
@@ -526,13 +620,24 @@ async function load(){
 
     if (iF<0 || iN<0 || iA<0){
       console.warn("Headers inválidos:", headers);
+      hideLoading();
       return;
     }
+
+    const rows = data.rows || [];
+    const dataSig = sigFromRows(rows);
+
+    // ✅ si no cambió nada, no tocamos DOM (evita tirones y blancos)
+    if (dataSig === lastDataSig){
+      hideLoading();
+      return;
+    }
+    lastDataSig = dataSig;
 
     const startSel = iN + 1;
     const endSel   = iA;
 
-    raw = (data.rows || []).map(r=>{
+    raw = rows.map(r=>{
       const nombreShow = String(r[iN] ?? "").trim();
       return {
         folio: r[iF],
@@ -548,20 +653,34 @@ async function load(){
     computePlaces(raw);
 
     const tabla = $("tabla");
-    tabla.innerHTML = buildBodyOnly();
-    render(raw);
+    if (!tabla.querySelector("tbody")){
+      tabla.innerHTML = buildBodyOnly();
+    }
 
+    // Render (si está scrolleando, se pospone)
     if ($("searchInput").value.trim()) applyFilter();
+    else render(raw);
 
+    hideLoading();
   } catch(err){
     console.error(err);
+    hideLoading();
   }
 }
 
 $("searchInput").addEventListener("input", applyFilter);
 
-load();
-setInterval(load, REFRESH_MS);
+// ✅ escuchar scroll en el área del listado
+$("tableBox").addEventListener("scroll", markScrolling, {passive:true});
+window.addEventListener("scroll", ()=>{
+  // por si el scroll lo maneja el documento (algunos móviles)
+  markScrolling();
+}, {passive:true});
+
+// Primera carga
+load(true);
+// Refresh
+setInterval(()=>load(false), REFRESH_MS);
 </script>
 </body>
 </html>
