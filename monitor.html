@@ -39,7 +39,7 @@
   --pillHitBd:#86efac;
   --pillHitTx:#064e3b;
 
-  /* ancho fijo para alinear encabezado y tabla */
+  /* anchos (alineación) */
   --wFolio:22px;
   --wNombre:160px;
   --wSel:20px;
@@ -59,7 +59,7 @@ body{
   background: radial-gradient(1200px 520px at 50% -140px, #ffffff 0%, var(--bg) 55%, var(--bg2) 100%);
 }
 
-/* ===== BLOQUE SUPERIOR FIJO (a prueba de todo) ===== */
+/* ===== BLOQUE SUPERIOR FIJO ===== */
 .header{
   position:fixed;
   top:0; left:0; right:0;
@@ -73,7 +73,6 @@ body{
   max-width:1100px;
   margin:auto;
   padding:8px 10px;
-  overflow:visible;
 }
 
 .headerCard{
@@ -89,7 +88,6 @@ body{
 }
 .headerCardInner{ padding:6px 8px; }
 
-/* marca + semana */
 .brandRow{
   display:flex;
   align-items:flex-end;
@@ -259,7 +257,7 @@ body{
   font-weight:700;
 }
 
-/* ===== CONTENEDOR LISTA (solo esto scrollea) ===== */
+/* ===== CONTENEDOR LISTA ===== */
 .wrap{
   max-width:1100px;
   margin:auto;
@@ -275,12 +273,20 @@ body{
   background:#fff;
   box-shadow: var(--shadow);
 }
+
 table{
   width:100%;
   border-collapse:separate;
   border-spacing:0;
   table-layout:fixed;
 }
+
+/* ✅ colgroup controla el ancho real de columnas (alineación) */
+col.c-folio{ width:var(--wFolio); }
+col.c-nombre{ width:var(--wNombre); }
+col.c-sel{ width:var(--wSel); }
+col.c-ac{ width:var(--wA); }
+
 tbody td{
   border-bottom:1px solid var(--line);
   padding:4px 4px;
@@ -291,9 +297,7 @@ tbody td{
 tbody tr:nth-child(even){ background:#fbfdff; }
 tbody tr:last-child td{ border-bottom:none; }
 
-/* columnas: deben empatar con la grid */
 td.col-folio{
-  width:var(--wFolio);
   font-size:7px;
   font-weight:700;
   color:#334155;
@@ -301,7 +305,6 @@ td.col-folio{
   padding-right:3px;
 }
 td.col-nombre{
-  width:var(--wNombre);
   text-align:left;
   white-space:nowrap;
   overflow:hidden;
@@ -311,13 +314,12 @@ td.col-nombre{
   color:#0f172a;
 }
 td.col-ac{
-  width:var(--wA);
   font-size:11px;
   font-weight:1000;
 }
 
 /* pastillas */
-td.selCell{ padding:3px 0; width:var(--wSel); }
+td.selCell{ padding:3px 0; }
 .selPill{
   display:inline-flex;
   align-items:center;
@@ -397,7 +399,17 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
 
 <div class="wrap">
   <div class="tableBox">
-    <table id="tabla"><tbody></tbody></table>
+    <table id="tabla">
+      <!-- ✅ colgroup fijo para alinear con el header -->
+      <colgroup>
+        <col class="c-folio">
+        <col class="c-nombre">
+        <col class="c-sel"><col class="c-sel"><col class="c-sel"><col class="c-sel"><col class="c-sel">
+        <col class="c-sel"><col class="c-sel"><col class="c-sel"><col class="c-sel">
+        <col class="c-ac">
+      </colgroup>
+      <tbody></tbody>
+    </table>
   </div>
 </div>
 
@@ -406,7 +418,7 @@ const BASE = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCu
 const ENDPOINT = BASE + "?mode=clasif";
 const CONFIG   = BASE + "?mode=config";
 
-/* ✅ refresco más tranquilo para fluidez */
+/* refresco tranquilo */
 const REFRESH_MS = 12000;
 
 let raw = [];
@@ -445,7 +457,6 @@ function updateFixedHeight(){
 
 function norm(v){ return String(v ?? "").trim().toUpperCase(); }
 
-/* hash simple y rápido para detectar cambios */
 function djb2(str){
   let h = 5381;
   for (let i=0; i<str.length; i++){
@@ -538,14 +549,18 @@ async function fetchJson(url){
 
 async function load(){
   try{
-    // si el usuario está escribiendo, no molestamos
     if (document.activeElement && document.activeElement.id === "searchInput") return;
 
     setLoading(true, firstLoadDone ? "Actualizando…" : "Cargando listado…");
 
+    /* ✅ primera carga más rápida: config + clasif en paralelo */
+    const [cfgRes, clasRes] = await Promise.all([
+      fetchJson(CONFIG),
+      fetchJson(ENDPOINT)
+    ]);
+
     // CONFIG
-    const cfgRes = await fetchJson(CONFIG);
-    const cfg = cfgRes.cfg || {};
+    const cfg = (cfgRes && cfgRes.cfg) ? cfgRes.cfg : {};
     const cfgStr = JSON.stringify({
       subtitulo: cfg.subtitulo || "",
       partidos: (cfg.partidos||[]).slice(0,9),
@@ -555,18 +570,13 @@ async function load(){
     const hashCfg = djb2(cfgStr);
 
     // CLASIF
-    const clasRes = await fetchJson(ENDPOINT);
-    const data = clasRes.data || {headers:[], rows:[]};
-
-    // OJO: hash solo con headers + rows (sin reordenar)
+    const data = (clasRes && clasRes.data) ? clasRes.data : {headers:[], rows:[]};
     const tblStr = JSON.stringify({ h:data.headers || [], r:data.rows || [] });
     const hashTbl = djb2(tblStr);
 
-    // si no cambió nada, no re-renderizamos
     const cfgChanged = hashCfg !== lastHashCfg;
     const tblChanged = hashTbl !== lastHashTbl;
 
-    // actualizar estado config (si cambió)
     if (cfgChanged){
       $("weekTxt").textContent = cfg.subtitulo || "";
       resultados = (cfg.resultados || []).slice(0,9);
@@ -575,7 +585,6 @@ async function load(){
       lastHashCfg = hashCfg;
     }
 
-    // reconstruir raw (si cambió tabla)
     if (tblChanged){
       const headers = (data.headers || []).map(x => String(x).toLowerCase());
       const iF = headers.indexOf("folio");
@@ -603,7 +612,6 @@ async function load(){
       computePlaces(raw);
       lastHashTbl = hashTbl;
 
-      // render (respetando filtro si existe)
       if ($("searchInput").value.trim()) applyFilter();
       else render(raw);
     }
@@ -612,22 +620,16 @@ async function load(){
     firstLoadDone = true;
 
   } catch(err){
-    // si falla, solo ocultamos el loader; no rompemos la pantalla
     console.error(err);
   } finally {
     setLoading(false);
-    // asegurar padding correcto del bloque fijo
     updateFixedHeight();
   }
 }
 
 window.addEventListener("resize", updateFixedHeight);
-$("searchInput").addEventListener("input", () => {
-  // al filtrar, no hacemos "loading", es instantáneo
-  applyFilter();
-});
+$("searchInput").addEventListener("input", applyFilter);
 
-// primera carga + timer
 document.addEventListener("DOMContentLoaded", async ()=>{
   updateFixedHeight();
   await load();
