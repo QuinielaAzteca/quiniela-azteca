@@ -221,7 +221,7 @@ body{
 @keyframes sp{ to { transform:rotate(360deg); } }
 .hidden{ display:none !important; }
 
-/* ===== FILA FIJA (#/Nombre/1..9/A) ===== */
+/* ===== ENCABEZADO FIJO COMO TABLA (A PRUEBA DE BALAS) ===== */
 .tableHeadRow{
   margin-top:6px;
   border:1px solid var(--line);
@@ -229,13 +229,15 @@ body{
   overflow:hidden;
   background:#f8fafc;
 }
-.tableHeadGrid{
-  display:grid;
-  grid-template-columns: var(--wFolio) var(--wNombre) repeat(9, var(--wSel)) var(--wA);
-  gap:0;
-  justify-content:start;
+
+#fixedHeadTable{
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0;
+  table-layout:fixed;
+  font-variant-numeric: tabular-nums;
 }
-.thCell{
+#fixedHeadTable th{
   padding:6px 4px;
   border-right:1px solid rgba(215,230,220,.7);
   font-size:11px;
@@ -244,15 +246,16 @@ body{
   text-align:center;
   color:#0f172a;
 }
-.thCell:last-child{ border-right:none; }
-.thCell.left{ text-align:left; }
-.thCell.folio{
+#fixedHeadTable th:last-child{ border-right:none; }
+#fixedHeadTable th.left{ text-align:left; }
+
+#fixedHeadTable th.folio{
   font-size:7px;
   font-weight:700;
   text-align:right;
   padding-right:3px;
 }
-.thCell.nombre{
+#fixedHeadTable th.nombre{
   font-size:10px;
   font-weight:700;
 }
@@ -279,6 +282,7 @@ table{
   border-collapse:separate;
   border-spacing:0;
   table-layout:fixed;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ✅ colgroup controla el ancho real de columnas (alineación) */
@@ -381,15 +385,25 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
           <div style="font-variant-numeric: tabular-nums;">⏱ <span id="lastOk">—</span></div>
         </div>
 
+        <!-- ✅ ENCABEZADO FIJO COMO TABLA -->
         <div class="tableHeadRow" aria-hidden="true">
-          <div class="tableHeadGrid" id="fixedHead">
-            <div class="thCell folio">#</div>
-            <div class="thCell left nombre">Nombre</div>
-            <div class="thCell">1</div><div class="thCell">2</div><div class="thCell">3</div>
-            <div class="thCell">4</div><div class="thCell">5</div><div class="thCell">6</div>
-            <div class="thCell">7</div><div class="thCell">8</div><div class="thCell">9</div>
-            <div class="thCell">A</div>
-          </div>
+          <table id="fixedHeadTable">
+            <colgroup>
+              <col class="c-folio">
+              <col class="c-nombre">
+              <col class="c-sel"><col class="c-sel"><col class="c-sel"><col class="c-sel"><col class="c-sel">
+              <col class="c-sel"><col class="c-sel"><col class="c-sel"><col class="c-sel">
+              <col class="c-ac">
+            </colgroup>
+            <thead>
+              <tr>
+                <th class="folio">#</th>
+                <th class="left nombre">Nombre</th>
+                <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th>
+                <th>A</th>
+              </tr>
+            </thead>
+          </table>
         </div>
 
       </div>
@@ -400,7 +414,6 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
 <div class="wrap">
   <div class="tableBox">
     <table id="tabla">
-      <!-- ✅ colgroup fijo para alinear con el header -->
       <colgroup>
         <col class="c-folio">
         <col class="c-nombre">
@@ -425,8 +438,6 @@ let raw = [];
 let resultados = [];
 let marcadores = [];
 
-let lastHashCfg = "";
-let lastHashTbl = "";
 let firstLoadDone = false;
 
 const $ = (id) => document.getElementById(id);
@@ -456,14 +467,6 @@ function updateFixedHeight(){
 }
 
 function norm(v){ return String(v ?? "").trim().toUpperCase(); }
-
-function djb2(str){
-  let h = 5381;
-  for (let i=0; i<str.length; i++){
-    h = ((h << 5) + h) ^ str.charCodeAt(i);
-  }
-  return (h >>> 0).toString(16);
-}
 
 function computePlaces(rows){
   const acs = rows.map(r => Number(r.aciertos)||0);
@@ -553,68 +556,50 @@ async function load(){
 
     setLoading(true, firstLoadDone ? "Actualizando…" : "Cargando listado…");
 
-    /* ✅ primera carga más rápida: config + clasif en paralelo */
     const [cfgRes, clasRes] = await Promise.all([
       fetchJson(CONFIG),
       fetchJson(ENDPOINT)
     ]);
 
-    // CONFIG
+    // config
     const cfg = (cfgRes && cfgRes.cfg) ? cfgRes.cfg : {};
-    const cfgStr = JSON.stringify({
-      subtitulo: cfg.subtitulo || "",
-      partidos: (cfg.partidos||[]).slice(0,9),
-      resultados: (cfg.resultados||[]).slice(0,9),
-      marcadores: (cfg.marcadores||[]).slice(0,9)
-    });
-    const hashCfg = djb2(cfgStr);
+    $("weekTxt").textContent = cfg.subtitulo || "";
 
-    // CLASIF
+    resultados = (cfg.resultados || []).slice(0,9);
+    marcadores = (cfg.marcadores || []).slice(0,9);
+    renderPartidos(cfg);
+
+    // clasif
     const data = (clasRes && clasRes.data) ? clasRes.data : {headers:[], rows:[]};
-    const tblStr = JSON.stringify({ h:data.headers || [], r:data.rows || [] });
-    const hashTbl = djb2(tblStr);
+    const headers = (data.headers || []).map(x => String(x).toLowerCase());
 
-    const cfgChanged = hashCfg !== lastHashCfg;
-    const tblChanged = hashTbl !== lastHashTbl;
+    const iF = headers.indexOf("folio");
+    const iN = headers.indexOf("nombre");
+    const iT = headers.indexOf("telefono_envio");
+    const iA = headers.indexOf("aciertos");
 
-    if (cfgChanged){
-      $("weekTxt").textContent = cfg.subtitulo || "";
-      resultados = (cfg.resultados || []).slice(0,9);
-      marcadores = (cfg.marcadores || []).slice(0,9);
-      renderPartidos(cfg);
-      lastHashCfg = hashCfg;
-    }
+    if (iF<0 || iN<0 || iA<0) return;
 
-    if (tblChanged){
-      const headers = (data.headers || []).map(x => String(x).toLowerCase());
-      const iF = headers.indexOf("folio");
-      const iN = headers.indexOf("nombre");
-      const iT = headers.indexOf("telefono_envio");
-      const iA = headers.indexOf("aciertos");
-      if (iF<0 || iN<0 || iA<0) throw new Error("Headers inválidos");
+    const startSel = iN + 1;
+    const endSel   = iA;
 
-      const startSel = iN + 1;
-      const endSel   = iA;
+    raw = (data.rows || []).map(r=>{
+      const nombreShow = String(r[iN] ?? "").trim();
+      return {
+        folio: r[iF],
+        telefono: (iT>=0 ? r[iT] : ""),
+        nombre: nombreShow.toLowerCase(),
+        nombre_show: nombreShow,
+        sels: r.slice(startSel, endSel).slice(0,9),
+        aciertos: r[iA],
+        _lugar: 0
+      };
+    });
 
-      raw = (data.rows || []).map(r=>{
-        const nombreShow = String(r[iN] ?? "").trim();
-        return {
-          folio: r[iF],
-          telefono: (iT>=0 ? r[iT] : ""),
-          nombre: nombreShow.toLowerCase(),
-          nombre_show: nombreShow,
-          sels: r.slice(startSel, endSel).slice(0,9),
-          aciertos: r[iA],
-          _lugar: 0
-        };
-      });
+    computePlaces(raw);
 
-      computePlaces(raw);
-      lastHashTbl = hashTbl;
-
-      if ($("searchInput").value.trim()) applyFilter();
-      else render(raw);
-    }
+    if ($("searchInput").value.trim()) applyFilter();
+    else render(raw);
 
     $("lastOk").textContent = nowStr();
     firstLoadDone = true;
