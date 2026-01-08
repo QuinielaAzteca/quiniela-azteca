@@ -39,18 +39,15 @@
   --pillHitBd:#86efac;
   --pillHitTx:#064e3b;
 
-  /* anchos (alineación) */
-  --wFolio:22px;
-  --wNombre:160px;
-  --wSel:20px;
-  --wA:26px;
-
-  /* altura del bloque fijo (se calcula por JS) */
-  --fixedH: 260px;
+  /* ✅ ANCHOS SINCRONIZADOS (Header fijo + Tabla) */
+  --wFolio: 22px;
+  --wNombre: 200px;
+  --wSel: 20px;
+  --wA: 24px;
 }
 
 *{box-sizing:border-box}
-html, body { overflow-x:hidden; height:100%; }
+html, body { overflow-x:hidden; }
 
 body{
   margin:0;
@@ -59,10 +56,10 @@ body{
   background: radial-gradient(1200px 520px at 50% -140px, #ffffff 0%, var(--bg) 55%, var(--bg2) 100%);
 }
 
-/* ===== BLOQUE SUPERIOR FIJO ===== */
+/* ===== HEADER FIJO (bloque único) ===== */
 .header{
-  position:fixed;
-  top:0; left:0; right:0;
+  position:sticky;
+  top:0;
   z-index:50;
   background: rgba(255,255,255,.92);
   backdrop-filter: blur(8px);
@@ -86,8 +83,11 @@ body{
   height:6px;
   background:linear-gradient(90deg, var(--l) 0%, var(--l) 33%, #ffffff 33%, #ffffff 66%, var(--v) 66%, var(--v) 100%);
 }
-.headerCardInner{ padding:6px 8px; }
+.headerCardInner{
+  padding:6px 8px;
+}
 
+/* marca + semana */
 .brandRow{
   display:flex;
   align-items:flex-end;
@@ -105,6 +105,7 @@ body{
 }
 .title .mxg{color:var(--l)}
 .title .mxr{color:var(--v)}
+
 .week{
   font-size:12px;
   font-weight:900;
@@ -112,7 +113,7 @@ body{
   margin-top:2px;
 }
 
-/* ===== PARTIDOS COMPACTOS ===== */
+/* ===== PARTIDOS ULTRA COMPACTOS ===== */
 .partidos{
   font-size:10px;
   font-weight:900;
@@ -122,6 +123,7 @@ body{
   gap:3px;
   margin-top:4px;
 }
+
 .p{
   display:flex;
   align-items:center;
@@ -133,6 +135,7 @@ body{
   border:1px solid rgba(215,230,220,.55);
 }
 .p:nth-child(even){ background: var(--rowB); }
+
 .p .left{
   flex:1;
   white-space:nowrap;
@@ -146,6 +149,7 @@ body{
   align-items:center;
   white-space:nowrap;
 }
+
 .chip{
   padding:2px 6px;
   border-radius:999px;
@@ -164,11 +168,15 @@ body{
 }
 
 /* ===== BUSCADOR ===== */
-.search{ margin-top:6px; position:relative; }
+.search{
+  margin-top:6px;
+  position:relative;
+}
 .search::before{
   content:"🔍";
   position:absolute;
-  left:10px; top:50%;
+  left:10px;
+  top:50%;
   transform:translateY(-50%);
   font-size:14px;
   opacity:.75;
@@ -185,43 +193,7 @@ body{
 }
 .search input:focus{ border-color:#94a3b8; }
 
-/* ===== AVISO DISCRETO ===== */
-.loadingLine{
-  margin-top:6px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  font-size:11px;
-  font-weight:900;
-  color:var(--muted);
-  padding:4px 6px;
-  border-radius:10px;
-  background: rgba(248,250,252,.9);
-  border:1px solid rgba(215,230,220,.7);
-}
-.loadingLine .pill{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  padding:2px 8px;
-  border-radius:999px;
-  border:1px solid rgba(203,213,225,.9);
-  background:#fff;
-  color:#0f172a;
-  font-weight:900;
-}
-.spinner{
-  width:10px; height:10px;
-  border-radius:50%;
-  border:2px solid rgba(148,163,184,.6);
-  border-top-color:#0f172a;
-  animation: sp 0.9s linear infinite;
-}
-@keyframes sp{ to { transform:rotate(360deg); } }
-.hidden{ display:none !important; }
-
-/* ===== ENCABEZADO FIJO COMO TABLA (A PRUEBA DE BALAS) ===== */
+/* ===== FILA FIJA DE ENCABEZADO (ahora TABLE para que NUNCA se desalineen) ===== */
 .tableHeadRow{
   margin-top:6px;
   border:1px solid var(--line);
@@ -230,14 +202,14 @@ body{
   background:#f8fafc;
 }
 
-#fixedHeadTable{
+/* tabla del header fijo */
+.headTable{
   width:100%;
   border-collapse:separate;
   border-spacing:0;
   table-layout:fixed;
-  font-variant-numeric: tabular-nums;
 }
-#fixedHeadTable th{
+.headTable th{
   padding:6px 4px;
   border-right:1px solid rgba(215,230,220,.7);
   font-size:11px;
@@ -245,30 +217,30 @@ body{
   letter-spacing:.04em;
   text-align:center;
   color:#0f172a;
+  white-space:nowrap;
 }
-#fixedHeadTable th:last-child{ border-right:none; }
-#fixedHeadTable th.left{ text-align:left; }
+.headTable th:last-child{ border-right:none; }
+.headTable th.left{ text-align:left; }
 
-#fixedHeadTable th.folio{
+.headTable th.folio{
   font-size:7px;
   font-weight:700;
   text-align:right;
   padding-right:3px;
 }
-#fixedHeadTable th.nombre{
+.headTable th.nombre{
   font-size:10px;
   font-weight:700;
 }
 
-/* ===== CONTENEDOR LISTA ===== */
+/* ===== CONTENEDOR ===== */
 .wrap{
   max-width:1100px;
   margin:auto;
   padding:10px 12px 30px;
-  padding-top: calc(var(--fixedH) + 10px);
 }
 
-/* ===== TABLA ===== */
+/* ===== TABLA (solo tbody) ===== */
 .tableBox{
   border:1px solid var(--line);
   border-radius:14px;
@@ -282,14 +254,7 @@ table{
   border-collapse:separate;
   border-spacing:0;
   table-layout:fixed;
-  font-variant-numeric: tabular-nums;
 }
-
-/* ✅ colgroup controla el ancho real de columnas (alineación) */
-col.c-folio{ width:var(--wFolio); }
-col.c-nombre{ width:var(--wNombre); }
-col.c-sel{ width:var(--wSel); }
-col.c-ac{ width:var(--wA); }
 
 tbody td{
   border-bottom:1px solid var(--line);
@@ -298,10 +263,13 @@ tbody td{
   vertical-align:middle;
   font-weight:1000;
 }
+
 tbody tr:nth-child(even){ background:#fbfdff; }
 tbody tr:last-child td{ border-bottom:none; }
 
+/* ✅ columnas sincronizadas con el header fijo */
 td.col-folio{
+  width:var(--wFolio);
   font-size:7px;
   font-weight:700;
   color:#334155;
@@ -309,27 +277,33 @@ td.col-folio{
   padding-right:3px;
 }
 td.col-nombre{
+  width:var(--wNombre);
   text-align:left;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
   font-size:10px;
-  font-weight:600;
+  font-weight:700;
   color:#0f172a;
 }
 td.col-ac{
-  font-size:11px;
+  width:var(--wA);
+  font-size:12px;
   font-weight:1000;
 }
 
-/* pastillas */
-td.selCell{ padding:3px 0; }
+/* ✅ cada selección también con ancho fijo */
+td.selCell{
+  width:var(--wSel);
+  padding:3px 0;
+}
+
 .selPill{
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  width:var(--wSel);
-  height:22px;
+  width:18px;
+  height:20px;
   border-radius:12px;
   border:1px solid var(--pillBorder);
   font-weight:900;
@@ -347,14 +321,26 @@ td.selCell{ padding:3px 0; }
 td.col-ac.win1{ background:var(--azul1); color:#fff; }
 td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
 
-/* responsive */
+/* responsive: solo cambiamos variables (se mantiene alineado) */
 @media (max-width:520px){
-  :root{ --wNombre:150px; --wSel:18px; --wA:24px; }
+  :root{
+    --wNombre: 170px;
+    --wSel: 18px;
+    --wA: 24px;
+  }
   .title{ font-size:16px; }
   .partidos{ font-size:9px; gap:2px; }
   .p{ padding:2px 6px; }
   .chip{ font-size:9px; padding:2px 5px; }
-  .search input{ font-size:13px; }
+}
+
+@media (max-width:420px){
+  :root{
+    --wNombre: 150px;
+    --wSel: 17px;
+    --wA: 24px;
+  }
+  .selPill{ width:16px; height:18px; font-size:11px; }
 }
 </style>
 </head>
@@ -380,20 +366,16 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
           <input id="searchInput" placeholder="Busca aqui por telefono, nombre o folio" autocomplete="off">
         </div>
 
-        <div class="loadingLine hidden" id="loadingLine">
-          <div class="pill"><span class="spinner"></span><span id="loadingTxt">Cargando listado…</span></div>
-          <div style="font-variant-numeric: tabular-nums;">⏱ <span id="lastOk">—</span></div>
-        </div>
-
-        <!-- ✅ ENCABEZADO FIJO COMO TABLA -->
+        <!-- ✅ FILA FIJA DEL ENCABEZADO DE LISTADO (TABLE + COLGROUP) -->
         <div class="tableHeadRow" aria-hidden="true">
-          <table id="fixedHeadTable">
+          <table class="headTable">
             <colgroup>
-              <col class="c-folio">
-              <col class="c-nombre">
-              <col class="c-sel"><col class="c-sel"><col class="c-sel"><col class="c-sel"><col class="c-sel">
-              <col class="c-sel"><col class="c-sel"><col class="c-sel"><col class="c-sel">
-              <col class="c-ac">
+              <col style="width:var(--wFolio)">
+              <col style="width:var(--wNombre)">
+              <col style="width:var(--wSel)"><col style="width:var(--wSel)"><col style="width:var(--wSel)">
+              <col style="width:var(--wSel)"><col style="width:var(--wSel)"><col style="width:var(--wSel)">
+              <col style="width:var(--wSel)"><col style="width:var(--wSel)"><col style="width:var(--wSel)">
+              <col style="width:var(--wA)">
             </colgroup>
             <thead>
               <tr>
@@ -413,16 +395,7 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
 
 <div class="wrap">
   <div class="tableBox">
-    <table id="tabla">
-      <colgroup>
-        <col class="c-folio">
-        <col class="c-nombre">
-        <col class="c-sel"><col class="c-sel"><col class="c-sel"><col class="c-sel"><col class="c-sel">
-        <col class="c-sel"><col class="c-sel"><col class="c-sel"><col class="c-sel">
-        <col class="c-ac">
-      </colgroup>
-      <tbody></tbody>
-    </table>
+    <table id="tabla"></table>
   </div>
 </div>
 
@@ -431,39 +404,26 @@ const BASE = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCu
 const ENDPOINT = BASE + "?mode=clasif";
 const CONFIG   = BASE + "?mode=config";
 
-/* refresco tranquilo */
-const REFRESH_MS = 12000;
+const REFRESH_MS = 5000;
 
 let raw = [];
 let resultados = [];
 let marcadores = [];
 
-let firstLoadDone = false;
-
 const $ = (id) => document.getElementById(id);
 
-function nowStr(){
-  const d = new Date();
-  const hh = String(d.getHours()).padStart(2,'0');
-  const mm = String(d.getMinutes()).padStart(2,'0');
-  const ss = String(d.getSeconds()).padStart(2,'0');
-  return `${hh}:${mm}:${ss}`;
-}
-
-function setLoading(on, msg){
-  const line = $("loadingLine");
-  if (!line) return;
-  if (on){
-    $("loadingTxt").textContent = msg || "Cargando listado…";
-    line.classList.remove("hidden");
-  } else {
-    line.classList.add("hidden");
-  }
-}
-
-function updateFixedHeight(){
-  const h = $("header")?.offsetHeight || 260;
-  document.documentElement.style.setProperty("--fixedH", h + "px");
+function buildBodyOnly(){
+  // ✅ mismo colgroup que el header fijo (para alineación perfecta)
+  const colsSel = Array.from({length:9}, () => `<col style="width:var(--wSel)">`).join("");
+  return `
+    <colgroup>
+      <col style="width:var(--wFolio)">
+      <col style="width:var(--wNombre)">
+      ${colsSel}
+      <col style="width:var(--wA)">
+    </colgroup>
+    <tbody></tbody>
+  `;
 }
 
 function norm(v){ return String(v ?? "").trim().toUpperCase(); }
@@ -486,7 +446,6 @@ function computePlaces(rows){
 
 function render(rows){
   const tbody = document.querySelector("#tabla tbody");
-  if (!tbody) return;
   tbody.innerHTML = "";
 
   rows.forEach(r=>{
@@ -544,25 +503,11 @@ function renderPartidos(cfg){
   });
 }
 
-async function fetchJson(url){
-  const res = await fetch(url, { cache:"no-store" });
-  const txt = await res.text();
-  try { return JSON.parse(txt); } catch { throw new Error("JSON inválido"); }
-}
-
 async function load(){
   try{
-    if (document.activeElement && document.activeElement.id === "searchInput") return;
-
-    setLoading(true, firstLoadDone ? "Actualizando…" : "Cargando listado…");
-
-    const [cfgRes, clasRes] = await Promise.all([
-      fetchJson(CONFIG),
-      fetchJson(ENDPOINT)
-    ]);
-
     // config
-    const cfg = (cfgRes && cfgRes.cfg) ? cfgRes.cfg : {};
+    const cfgRes = await fetch(CONFIG, {cache:"no-store"}).then(r=>r.json());
+    const cfg = cfgRes.cfg || {};
     $("weekTxt").textContent = cfg.subtitulo || "";
 
     resultados = (cfg.resultados || []).slice(0,9);
@@ -570,7 +515,8 @@ async function load(){
     renderPartidos(cfg);
 
     // clasif
-    const data = (clasRes && clasRes.data) ? clasRes.data : {headers:[], rows:[]};
+    const res = await fetch(ENDPOINT, {cache:"no-store"}).then(r=>r.json());
+    const data = res.data || {headers:[], rows:[]};
     const headers = (data.headers || []).map(x => String(x).toLowerCase());
 
     const iF = headers.indexOf("folio");
@@ -578,7 +524,10 @@ async function load(){
     const iT = headers.indexOf("telefono_envio");
     const iA = headers.indexOf("aciertos");
 
-    if (iF<0 || iN<0 || iA<0) return;
+    if (iF<0 || iN<0 || iA<0){
+      console.warn("Headers inválidos:", headers);
+      return;
+    }
 
     const startSel = iN + 1;
     const endSel   = iA;
@@ -598,28 +547,21 @@ async function load(){
 
     computePlaces(raw);
 
-    if ($("searchInput").value.trim()) applyFilter();
-    else render(raw);
+    const tabla = $("tabla");
+    tabla.innerHTML = buildBodyOnly();
+    render(raw);
 
-    $("lastOk").textContent = nowStr();
-    firstLoadDone = true;
+    if ($("searchInput").value.trim()) applyFilter();
 
   } catch(err){
     console.error(err);
-  } finally {
-    setLoading(false);
-    updateFixedHeight();
   }
 }
 
-window.addEventListener("resize", updateFixedHeight);
 $("searchInput").addEventListener("input", applyFilter);
 
-document.addEventListener("DOMContentLoaded", async ()=>{
-  updateFixedHeight();
-  await load();
-  setInterval(load, REFRESH_MS);
-});
+load();
+setInterval(load, REFRESH_MS);
 </script>
 </body>
 </html>
