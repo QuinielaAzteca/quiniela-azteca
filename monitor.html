@@ -502,13 +502,15 @@ async function renderChunked(rows){
   if (isUserScrolling) return;
 
   tbody.innerHTML = "";
-  const frag = document.createDocumentFragment();
 
   const CHUNK = 180;
   let i = 0;
 
   while (i < rows.length){
     if (isUserScrolling) return;
+
+    // ✅ IMPORTANTE: fragmento NUEVO por chunk
+    const frag = document.createDocumentFragment();
 
     const end = Math.min(i + CHUNK, rows.length);
     for (; i < end; i++){
@@ -538,7 +540,6 @@ async function renderChunked(rows){
     await new Promise(requestAnimationFrame);
   }
 }
-
 function applyFilter(){
   const q = $("searchInput").value.trim().toLowerCase();
   if (!q){ renderChunked(raw); return; }
@@ -677,3 +678,4 @@ setInterval(()=>load(false), REFRESH_MS);
 </script>
 </body>
 </html>
+
