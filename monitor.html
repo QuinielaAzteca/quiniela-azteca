@@ -39,7 +39,7 @@
   --pillHitBd:#86efac;
   --pillHitTx:#064e3b;
 
-  /* ✅ ANCHOS SINCRONIZADOS (Header fijo + Tabla) */
+  /* ✅ ANCHOS SINCRONIZADOS */
   --wFolio: 22px;
   --wNombre: 200px;
   --wSel: 20px;
@@ -47,18 +47,13 @@
 }
 
 *{box-sizing:border-box}
-
-/* ✅ SOLO EL LISTADO SCROLLEA */
 html, body { height:100%; overflow:hidden; }
+
 body{
   margin:0;
   font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
   color:var(--fg);
   background: radial-gradient(1200px 520px at 50% -140px, #ffffff 0%, var(--bg) 55%, var(--bg2) 100%);
-}
-
-/* ✅ layout estable (sin cálculos raros) */
-body{
   display:flex;
   flex-direction:column;
   min-height:100vh;
@@ -69,11 +64,9 @@ body{
   position:sticky;
   top:0;
   z-index:50;
-  background:#fff; /* ✅ sólido */
+  background:#fff;
   border-bottom:1px solid rgba(215,230,220,.85);
   box-shadow: 0 10px 24px rgba(2,6,23,.05);
-
-  /* ✅ en móviles ayuda, pero sin forzar compositing del scroller */
   contain: paint;
 }
 .header-inner{
@@ -162,7 +155,6 @@ body{
   font-size:10px;
   font-weight:1000;
   line-height:1;
-  box-shadow:none;
   color:var(--chipFg);
 }
 .chip.pick{
@@ -171,8 +163,17 @@ body{
   color: var(--okFg);
 }
 
-/* ===== BUSCADOR ===== */
-.search{ margin-top:6px; position:relative; }
+/* ===== BUSCADOR + BOTÓN ===== */
+.searchRow{
+  margin-top:6px;
+  display:flex;
+  gap:8px;
+  align-items:stretch;
+}
+.search{
+  position:relative;
+  flex:1;
+}
 .search::before{
   content:"🔍";
   position:absolute;
@@ -193,6 +194,42 @@ body{
   background:#fff;
 }
 .search input:focus{ border-color:#94a3b8; }
+
+.btn{
+  border:2px solid #cbd5e1;
+  background:#fff;
+  border-radius:14px;
+  padding:8px 10px;
+  font-weight:900;
+  font-size:13px;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.btn:active{ transform: translateY(1px); }
+
+/* ===== AVISO CARGANDO ===== */
+.loadingRow{
+  margin-top:6px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 10px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background: rgba(248,250,252,.95);
+  color: var(--muted);
+  font-size:12px;
+  font-weight:800;
+}
+.loadingRow[hidden]{ display:none; }
+.spinner{
+  width:14px; height:14px;
+  border-radius:50%;
+  border:2px solid rgba(71,85,105,.25);
+  border-top-color: rgba(71,85,105,.9);
+  animation: spin .8s linear infinite;
+}
+@keyframes spin{ to{ transform:rotate(360deg);} }
 
 /* ===== ENCABEZADO FIJO DEL LISTADO ===== */
 .tableHeadRow{
@@ -229,34 +266,27 @@ body{
   font-weight:700;
 }
 
-/* ✅ el wrap ahora ocupa todo lo restante (flex) */
+/* ✅ wrap ocupa resto */
 .wrap{
   max-width:1100px;
   width:100%;
   margin:auto;
   padding:10px 12px 14px;
-
   flex:1 1 auto;
-  min-height:0;   /* ✅ clave para que el scroller llegue al final */
+  min-height:0;
   overflow:hidden;
 }
 
-/* ===== LISTADO SCROLLEA AQUÍ ===== */
+/* ✅ solo aquí scrollea */
 .tableBox{
   border:1px solid var(--line);
   border-radius:14px;
   overflow:auto;
   -webkit-overflow-scrolling: touch;
-
   background:#fff;
   box-shadow: var(--shadow);
-
   height:100%;
   min-height:0;
-
-  /* ✅ QUITAMOS esto porque provoca blancos/atorones */
-  /* transform: translateZ(0); */
-  /* will-change: scroll-position; */
 }
 
 table{
@@ -265,7 +295,6 @@ table{
   border-spacing:0;
   table-layout:fixed;
 }
-
 tbody td{
   border-bottom:1px solid var(--line);
   padding:4px 4px;
@@ -348,6 +377,7 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
     <div class="headerCard">
       <div class="headerBar"></div>
       <div class="headerCardInner">
+
         <div class="brandRow">
           <div>
             <div class="title">
@@ -359,23 +389,28 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
 
         <div class="partidos" id="partidosTxt"></div>
 
-        <div class="search">
-          <input id="searchInput" placeholder="Busca aqui por telefono, nombre o folio" autocomplete="off">
+        <!-- ✅ buscador + botón actualizar (manual) -->
+        <div class="searchRow">
+          <div class="search">
+            <input id="searchInput" placeholder="Busca aqui por telefono, nombre o folio" autocomplete="off">
+          </div>
+          <button class="btn" id="btnRefresh" type="button">Actualizar</button>
         </div>
 
+        <!-- ✅ aviso -->
+        <div class="loadingRow" id="loadingRow" hidden>
+          <span class="spinner" aria-hidden="true"></span>
+          <span id="loadingTxt">Cargando listado…</span>
+        </div>
+
+        <!-- ✅ fila fija del encabezado -->
         <div class="tableHeadRow" aria-hidden="true">
           <div class="tableHeadGrid" id="fixedHead">
             <div class="thCell folio">#</div>
             <div class="thCell left nombre">Nombre</div>
-            <div class="thCell">1</div>
-            <div class="thCell">2</div>
-            <div class="thCell">3</div>
-            <div class="thCell">4</div>
-            <div class="thCell">5</div>
-            <div class="thCell">6</div>
-            <div class="thCell">7</div>
-            <div class="thCell">8</div>
-            <div class="thCell">9</div>
+            <div class="thCell">1</div><div class="thCell">2</div><div class="thCell">3</div>
+            <div class="thCell">4</div><div class="thCell">5</div><div class="thCell">6</div>
+            <div class="thCell">7</div><div class="thCell">8</div><div class="thCell">9</div>
             <div class="thCell">A</div>
           </div>
         </div>
@@ -396,13 +431,18 @@ const BASE = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCu
 const ENDPOINT = BASE + "?mode=clasif";
 const CONFIG   = BASE + "?mode=config";
 
-const REFRESH_MS = 5000;
-
 let raw = [];
 let resultados = [];
 let marcadores = [];
+let lastCfgSig = "";   // ✅ para saber si cambió config
 
 const $ = (id) => document.getElementById(id);
+
+function showLoading(msg="Cargando listado…"){
+  $("loadingTxt").textContent = msg;
+  $("loadingRow").hidden = false;
+}
+function hideLoading(){ $("loadingRow").hidden = true; }
 
 function buildBodyOnly(){
   return `<tbody></tbody>`;
@@ -410,16 +450,23 @@ function buildBodyOnly(){
 
 function norm(v){ return String(v ?? "").trim().toUpperCase(); }
 
+function sigCfg(cfg){
+  // ✅ firma estable: si cambias marcador/resultado/partidos/subtitulo => cambia
+  const s = {
+    subtitulo: cfg.subtitulo || "",
+    resultados: (cfg.resultados||[]).slice(0,9),
+    marcadores: (cfg.marcadores||[]).slice(0,9),
+    partidos: (cfg.partidos||[]).slice(0,9).map(p=>`${p.local}|${p.visita}`)
+  };
+  return JSON.stringify(s);
+}
+
 function computePlaces(rows){
   const acs = rows.map(r => Number(r.aciertos)||0);
   const max = Math.max(...acs);
-
   const uniq = [...new Set(acs)].sort((a,b)=>b-a);
   let secondVal = null;
-  for (const a of uniq){
-    if (a < max){ secondVal = a; break; }
-  }
-
+  for (const a of uniq){ if (a < max){ secondVal = a; break; } }
   rows.forEach(r=>{
     const a = Number(r.aciertos)||0;
     r._lugar = (a===max) ? 1 : (secondVal!=null && a===secondVal ? 2 : 0);
@@ -485,25 +532,44 @@ function renderPartidos(cfg){
   });
 }
 
-/* ✅ pausa refresh mientras scrolleas EL LISTADO (no el window) */
-let isScrollingList = false;
-let scrollTO = null;
-$("tableBox").addEventListener("scroll", () => {
-  isScrollingList = true;
-  clearTimeout(scrollTO);
-  scrollTO = setTimeout(() => { isScrollingList = false; }, 220);
-}, { passive:true });
+/* ✅ guarda/restaura posición del scroll para NO volver al inicio */
+function withScrollPreserved(fn){
+  const box = $("tableBox");
+  const prev = box.scrollTop;
+  fn();
+  // restaura en el próximo frame (más confiable en móviles)
+  requestAnimationFrame(() => { box.scrollTop = prev; });
+}
 
-async function load(){
+/* ✅ Carga completa (solo manual o cuando cambie CONFIG) */
+let isLoading = false;
+async function load(force=false){
+  if (isLoading) return;
+  isLoading = true;
+
   try{
+    showLoading(force ? "Cargando listado…" : "Actualizando…");
+
+    // CONFIG
     const cfgRes = await fetch(CONFIG, {cache:"no-store"}).then(r=>r.json());
     const cfg = cfgRes.cfg || {};
-    $("weekTxt").textContent = cfg.subtitulo || "";
+    const cfgSig = sigCfg(cfg);
 
+    // Si NO cambió config y NO forzaste, no hacemos nada (cero re-render)
+    if (!force && cfgSig === lastCfgSig){
+      hideLoading();
+      isLoading = false;
+      return;
+    }
+
+    lastCfgSig = cfgSig;
+
+    $("weekTxt").textContent = cfg.subtitulo || "";
     resultados = (cfg.resultados || []).slice(0,9);
     marcadores = (cfg.marcadores || []).slice(0,9);
     renderPartidos(cfg);
 
+    // CLASIF (re-carga listado solo cuando config cambió o force)
     const res = await fetch(ENDPOINT, {cache:"no-store"}).then(r=>r.json());
     const data = res.data || {headers:[], rows:[]};
     const headers = (data.headers || []).map(x => String(x).toLowerCase());
@@ -515,6 +581,8 @@ async function load(){
 
     if (iF<0 || iN<0 || iA<0){
       console.warn("Headers inválidos:", headers);
+      hideLoading();
+      isLoading = false;
       return;
     }
 
@@ -537,26 +605,58 @@ async function load(){
     computePlaces(raw);
 
     const tabla = $("tabla");
-    tabla.innerHTML = buildBodyOnly();
-
-    /* ✅ si estás scrolleando, no re-renderizamos (evita atorones y “cortes”) */
-    if (!isScrollingList){
-      render(raw);
-      if ($("searchInput").value.trim()) applyFilter();
+    if (!tabla.querySelector("tbody")){
+      tabla.innerHTML = buildBodyOnly();
+    } else {
+      // aseguramos que exista (tu estructura original)
+      tabla.innerHTML = buildBodyOnly();
     }
 
+    // ✅ render preservando scroll
+    withScrollPreserved(() => {
+      if ($("searchInput").value.trim()) applyFilter();
+      else render(raw);
+    });
+
+    hideLoading();
   } catch(err){
     console.error(err);
+    hideLoading();
+  } finally {
+    isLoading = false;
   }
 }
 
-$("searchInput").addEventListener("input", applyFilter);
+$("searchInput").addEventListener("input", () => {
+  // ✅ filtrar SIN resetear al inicio
+  withScrollPreserved(applyFilter);
+});
 
-load();
-setInterval(() => {
-  if (isScrollingList) return;
-  load();
-}, REFRESH_MS);
+$("btnRefresh").addEventListener("click", () => load(true));
+
+/* ✅ primera carga rápida */
+load(true);
+
+/*
+  ✅ Si quieres que se “actualice solo” cuando tú cambies config SIN tiempo real:
+  - Puedes dejarlo manual con el botón (lo más estable).
+  - O activar este “poll” MUY ligero SOLO de CONFIG (cada 2s) que NO toca el DOM si no hay cambios.
+  - Si no lo quieres, deja POLL_CONFIG_MS = 0
+*/
+const POLL_CONFIG_MS = 2000; // pon 0 para apagarlo
+if (POLL_CONFIG_MS > 0){
+  setInterval(async () => {
+    if (isLoading) return;
+    try{
+      const cfgRes = await fetch(CONFIG, {cache:"no-store"}).then(r=>r.json());
+      const cfg = cfgRes.cfg || {};
+      const cfgSig = sigCfg(cfg);
+      if (cfgSig !== lastCfgSig){
+        load(true);
+      }
+    } catch(e){}
+  }, POLL_CONFIG_MS);
+}
 </script>
 </body>
 </html>
