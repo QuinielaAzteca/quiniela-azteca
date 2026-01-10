@@ -440,6 +440,10 @@ let lastDataSig = "";
 let isUserScrolling = false;
 let scrollTimer = null;
 
+/* ✅ NUEVO: para no re-render durante scroll y no “cortar” el listado */
+let pendingRowsToRender = null;
+let pendingRenderTimer = null;
+
 const $ = (id) => document.getElementById(id);
 
 function showLoading(msg="Cargando listado…"){
@@ -502,15 +506,13 @@ async function renderChunked(rows){
   if (isUserScrolling) return;
 
   tbody.innerHTML = "";
+  const frag = document.createDocumentFragment();
 
   const CHUNK = 180;
   let i = 0;
 
   while (i < rows.length){
     if (isUserScrolling) return;
-
-    // ✅ IMPORTANTE: fragmento NUEVO por chunk
-    const frag = document.createDocumentFragment();
 
     const end = Math.min(i + CHUNK, rows.length);
     for (; i < end; i++){
@@ -540,16 +542,22 @@ async function renderChunked(rows){
     await new Promise(requestAnimationFrame);
   }
 }
+
+/* ✅ filtro sin reventar scroll */
 function applyFilter(){
   const q = $("searchInput").value.trim().toLowerCase();
-  if (!q){ renderChunked(raw); return; }
-
-  const out = raw.filter(r=>{
+  const rowsToShow = !q ? raw : raw.filter(r=>{
     return String(r.folio ?? "").toLowerCase().includes(q) ||
            String(r.telefono ?? "").toLowerCase().includes(q) ||
            String(r.nombre ?? "").toLowerCase().includes(q);
   });
-  renderChunked(out);
+
+  if (isUserScrolling){
+    pendingRowsToRender = rowsToShow;
+    return;
+  }
+  pendingRowsToRender = null;
+  renderChunked(rowsToShow);
 }
 
 function renderPartidos(cfg){
@@ -574,14 +582,24 @@ function renderPartidos(cfg){
   });
 }
 
-/* ✅ scroll real (del listado) */
+/* ✅ scroll real (del listado) — FIX: ya NO re-renderiza y NO “corta” */
 function markScrolling(){
   isUserScrolling = true;
+
   if (scrollTimer) clearTimeout(scrollTimer);
   scrollTimer = setTimeout(()=>{
     isUserScrolling = false;
-    // ✅ NO re-render al soltar (evita que se regrese al inicio)
-  }, 140);
+
+    // render pendiente (una sola vez) al soltar scroll
+    if (pendingRenderTimer) clearTimeout(pendingRenderTimer);
+    pendingRenderTimer = setTimeout(async ()=>{
+      if (!pendingRowsToRender) return;
+      const rows = pendingRowsToRender;
+      pendingRowsToRender = null;
+      await renderChunked(rows);
+    }, 50);
+
+  }, 220);
 }
 
 async function load(initial=false){
@@ -652,14 +670,20 @@ async function load(initial=false){
       tabla.innerHTML = buildBodyOnly();
     }
 
-    // ✅ guardar/restaurar scroll al actualizar
-    const box = $("tableBox");
-    const prevTop = box ? box.scrollTop : 0;
+    // ✅ decidir qué renderizar (sin reventar scroll)
+    const q = $("searchInput").value.trim().toLowerCase();
+    const rowsToShow = !q ? raw : raw.filter(r=>{
+      return String(r.folio ?? "").toLowerCase().includes(q) ||
+             String(r.telefono ?? "").toLowerCase().includes(q) ||
+             String(r.nombre ?? "").toLowerCase().includes(q);
+    });
 
-    if ($("searchInput").value.trim()) await applyFilter();
-    else await renderChunked(raw);
-
-    if (box && !isUserScrolling) box.scrollTop = prevTop;
+    if (isUserScrolling){
+      pendingRowsToRender = rowsToShow;
+    } else {
+      pendingRowsToRender = null;
+      await renderChunked(rowsToShow);
+    }
 
     hideLoading();
   } catch(err){
@@ -678,4 +702,3 @@ setInterval(()=>load(false), REFRESH_MS);
 </script>
 </body>
 </html>
-
