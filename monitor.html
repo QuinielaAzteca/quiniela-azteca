@@ -38,37 +38,39 @@
   --pillHitBg:#dcfce7;
   --pillHitBd:#86efac;
   --pillHitTx:#064e3b;
-
-  /* ✅ ANCHOS SINCRONIZADOS (Header fijo + Tabla) */
-  --wFolio: 22px;
-  --wNombre: 200px;
-  --wSel: 20px;
-  --wA: 24px;
 }
 
 *{box-sizing:border-box}
-html, body { height:100%; overflow:hidden; } /* ✅ ya NO scrollea el body */
+
+/* ✅ clave: body NO scrollea; solo scrollea el listado */
+html, body { height:100%; overflow:hidden; }
+
 body{
   margin:0;
   font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
   color:var(--fg);
   background: radial-gradient(1200px 520px at 50% -140px, #ffffff 0%, var(--bg) 55%, var(--bg2) 100%);
+  overflow:hidden;
+
+  /* ✅ layout: header arriba + listado abajo */
+  display:flex;
+  flex-direction:column;
 }
 
-/* ===== HEADER FIJO (bloque único) ===== */
+/* ===== HEADER (SIEMPRE VISIBLE) ===== */
 .header{
-  position:sticky;
-  top:0;
+  position:relative; /* ✅ no dependemos de sticky; como body no scrollea, siempre queda arriba */
   z-index:50;
-  background: rgba(255,255,255,.92);
-  backdrop-filter: blur(8px);
+  background:#fff;
   border-bottom:1px solid rgba(215,230,220,.85);
-  box-shadow: 0 10px 24px rgba(2,6,23,.05);
+  box-shadow: 0 6px 14px rgba(2,6,23,.06);
+  transform: translateZ(0);
 }
 .header-inner{
   max-width:1100px;
   margin:auto;
   padding:8px 10px;
+  overflow:visible !important;
 }
 
 .headerCard{
@@ -82,8 +84,11 @@ body{
   height:6px;
   background:linear-gradient(90deg, var(--l) 0%, var(--l) 33%, #ffffff 33%, #ffffff 66%, var(--v) 66%, var(--v) 100%);
 }
-.headerCardInner{ padding:6px 8px; }
+.headerCardInner{
+  padding:6px 8px;
+}
 
+/* marca + semana */
 .brandRow{
   display:flex;
   align-items:flex-end;
@@ -119,6 +124,7 @@ body{
   gap:3px;
   margin-top:4px;
 }
+
 .p{
   display:flex;
   align-items:center;
@@ -130,6 +136,7 @@ body{
   border:1px solid rgba(215,230,220,.55);
 }
 .p:nth-child(even){ background: var(--rowB); }
+
 .p .left{
   flex:1;
   white-space:nowrap;
@@ -143,6 +150,7 @@ body{
   align-items:center;
   white-space:nowrap;
 }
+
 .chip{
   padding:2px 6px;
   border-radius:999px;
@@ -151,6 +159,7 @@ body{
   font-size:10px;
   font-weight:1000;
   line-height:1;
+  box-shadow:none;
   color:var(--chipFg);
 }
 .chip.pick{
@@ -160,7 +169,10 @@ body{
 }
 
 /* ===== BUSCADOR ===== */
-.search{ margin-top:6px; position:relative; }
+.search{
+  margin-top:6px;
+  position:relative;
+}
 .search::before{
   content:"🔍";
   position:absolute;
@@ -182,31 +194,7 @@ body{
 }
 .search input:focus{ border-color:#94a3b8; }
 
-/* ===== AVISO "CARGANDO LISTADO" ===== */
-.loadingRow{
-  margin-top:6px;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:6px 10px;
-  border:1px solid var(--line);
-  border-radius:12px;
-  background: rgba(248,250,252,.95);
-  color: var(--muted);
-  font-size:12px;
-  font-weight:800;
-}
-.loadingRow[hidden]{ display:none; }
-.spinner{
-  width:14px; height:14px;
-  border-radius:50%;
-  border:2px solid rgba(71,85,105,.25);
-  border-top-color: rgba(71,85,105,.9);
-  animation: spin .8s linear infinite;
-}
-@keyframes spin{ to{ transform:rotate(360deg);} }
-
-/* ===== FILA FIJA (encabezado de listado) ===== */
+/* ===== FILA FIJA DE ENCABEZADO (folio/nombre/1..9/A) ===== */
 .tableHeadRow{
   margin-top:6px;
   border:1px solid var(--line);
@@ -214,13 +202,14 @@ body{
   overflow:hidden;
   background:#f8fafc;
 }
-.headTable{
-  width:100%;
-  border-collapse:separate;
-  border-spacing:0;
-  table-layout:fixed;
+
+.tableHeadGrid{
+  display:grid;
+  grid-template-columns: 22px 160px repeat(9, 20px) 28px;
+  gap:0;
 }
-.headTable th{
+
+.thCell{
   padding:6px 4px;
   border-right:1px solid rgba(215,230,220,.7);
   font-size:11px;
@@ -228,44 +217,48 @@ body{
   letter-spacing:.04em;
   text-align:center;
   color:#0f172a;
-  white-space:nowrap;
 }
-.headTable th:last-child{ border-right:none; }
-.headTable th.left{ text-align:left; }
-.headTable th.folio{
+.thCell:last-child{ border-right:none; }
+.thCell.left{ text-align:left; }
+
+.thCell.folio{
   font-size:7px;
   font-weight:700;
   text-align:right;
   padding-right:3px;
 }
-.headTable th.nombre{
+.thCell.nombre{
   font-size:10px;
   font-weight:700;
 }
 
-/* ===== CONTENEDOR (alto fijo) ===== */
+/* ===== CONTENEDOR: OCUPA LO RESTANTE DE LA PANTALLA ===== */
 .wrap{
-  max-width:1100px;
-  margin:auto;
+  width:100%;
+  flex:1;           /* ✅ ocupa el resto del viewport */
+  min-height:0;     /* ✅ IMPORTANTÍSIMO para que el overflow funcione en flex */
+  overflow:hidden;  /* ✅ nada de scroll aquí */
   padding:10px 12px 14px;
-  height: calc(100vh - 0px);
-  overflow:hidden; /* ✅ la pantalla nunca “salta” */
 }
 
-/* ===== LISTADO: AHORA SÍ ES EL QUE SCROLLEA ===== */
+.wrapInner{
+  max-width:1100px;
+  height:100%;
+  margin:auto;
+  min-height:0;
+}
+
+/* ===== LISTADO: ESTE ES EL ÚNICO QUE SCROLLEA ===== */
 .tableBox{
   border:1px solid var(--line);
   border-radius:14px;
-  overflow:auto;                 /* ✅ scroll aquí */
+  overflow:auto;                /* ✅ scroll aquí */
   background:#fff;
   box-shadow: var(--shadow);
-  -webkit-overflow-scrolling: touch;
   transform: translateZ(0);
-  will-change: scroll-position;
+  -webkit-overflow-scrolling: touch;
 
-  /* ✅ ocupa toda la pantalla restante */
-  height: 100%;
-  max-height: 100%;
+  height:100%;                  /* ✅ ocupa todo el alto disponible */
 }
 
 table{
@@ -282,12 +275,13 @@ tbody td{
   vertical-align:middle;
   font-weight:1000;
 }
+
 tbody tr:nth-child(even){ background:#fbfdff; }
 tbody tr:last-child td{ border-bottom:none; }
 
-/* ✅ columnas sincronizadas */
+/* columnas */
 td.col-folio{
-  width:var(--wFolio);
+  width:22px;
   font-size:7px;
   font-weight:700;
   color:#334155;
@@ -295,7 +289,7 @@ td.col-folio{
   padding-right:3px;
 }
 td.col-nombre{
-  width:var(--wNombre);
+  width:160px;
   text-align:left;
   white-space:nowrap;
   overflow:hidden;
@@ -305,22 +299,19 @@ td.col-nombre{
   color:#0f172a;
 }
 td.col-ac{
-  width:var(--wA);
+  width:28px;
   font-size:12px;
   font-weight:1000;
 }
 
-/* ✅ cada selección ancho fijo */
-td.selCell{
-  width:var(--wSel);
-  padding:3px 0;
-}
+/* pastillas */
+td.selCell{ padding:3px 0; }
 .selPill{
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  width:18px;
-  height:20px;
+  width:20px;
+  height:22px;
   border-radius:12px;
   border:1px solid var(--pillBorder);
   font-weight:900;
@@ -338,25 +329,24 @@ td.selCell{
 td.col-ac.win1{ background:var(--azul1); color:#fff; }
 td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
 
-/* responsive: solo variables */
+/* responsive */
 @media (max-width:520px){
-  :root{
-    --wNombre: 170px;
-    --wSel: 18px;
-    --wA: 24px;
-  }
   .title{ font-size:16px; }
   .partidos{ font-size:9px; gap:2px; }
   .p{ padding:2px 6px; }
   .chip{ font-size:9px; padding:2px 5px; }
+
+  .tableHeadGrid{ grid-template-columns: 22px 150px repeat(9, 18px) 26px; }
+  td.col-nombre{ width:150px; }
+  td.col-ac{ width:26px; }
+  .selPill{ width:18px; height:20px; font-size:11px; }
 }
+
 @media (max-width:420px){
-  :root{
-    --wNombre: 150px;
-    --wSel: 17px;
-    --wA: 24px;
-  }
-  .selPill{ width:16px; height:18px; font-size:11px; }
+  .tableHeadGrid{ grid-template-columns: 22px 135px repeat(9, 17px) 26px; }
+  td.col-nombre{ width:135px; }
+  td.col-ac{ width:26px; }
+  .selPill{ width:17px; height:19px; font-size:11px; }
 }
 </style>
 </head>
@@ -367,7 +357,6 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
     <div class="headerCard">
       <div class="headerBar"></div>
       <div class="headerCardInner">
-
         <div class="brandRow">
           <div>
             <div class="title">
@@ -383,32 +372,21 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
           <input id="searchInput" placeholder="Busca aqui por telefono, nombre o folio" autocomplete="off">
         </div>
 
-        <!-- ✅ AVISO -->
-        <div class="loadingRow" id="loadingRow" hidden>
-          <span class="spinner" aria-hidden="true"></span>
-          <span id="loadingTxt">Cargando listado…</span>
-        </div>
-
-        <!-- ✅ FILA FIJA DEL ENCABEZADO DE LISTADO -->
         <div class="tableHeadRow" aria-hidden="true">
-          <table class="headTable">
-            <colgroup>
-              <col style="width:var(--wFolio)">
-              <col style="width:var(--wNombre)">
-              <col style="width:var(--wSel)"><col style="width:var(--wSel)"><col style="width:var(--wSel)">
-              <col style="width:var(--wSel)"><col style="width:var(--wSel)"><col style="width:var(--wSel)">
-              <col style="width:var(--wSel)"><col style="width:var(--wSel)"><col style="width:var(--wSel)">
-              <col style="width:var(--wA)">
-            </colgroup>
-            <thead>
-              <tr>
-                <th class="folio">#</th>
-                <th class="left nombre">Nombre</th>
-                <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th>
-                <th>A</th>
-              </tr>
-            </thead>
-          </table>
+          <div class="tableHeadGrid" id="fixedHead">
+            <div class="thCell folio">#</div>
+            <div class="thCell left nombre">Nombre</div>
+            <div class="thCell">1</div>
+            <div class="thCell">2</div>
+            <div class="thCell">3</div>
+            <div class="thCell">4</div>
+            <div class="thCell">5</div>
+            <div class="thCell">6</div>
+            <div class="thCell">7</div>
+            <div class="thCell">8</div>
+            <div class="thCell">9</div>
+            <div class="thCell">A</div>
+          </div>
         </div>
 
       </div>
@@ -416,9 +394,11 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
   </div>
 </div>
 
-<div class="wrap" id="wrap">
-  <div class="tableBox" id="tableBox">
-    <table id="tabla"></table>
+<div class="wrap">
+  <div class="wrapInner">
+    <div class="tableBox" id="tableBox">
+      <table id="tabla"></table>
+    </div>
   </div>
 </div>
 
@@ -427,47 +407,17 @@ const BASE = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCu
 const ENDPOINT = BASE + "?mode=clasif";
 const CONFIG   = BASE + "?mode=config";
 
-/* ✅ más estable */
-const REFRESH_MS = 15000;
+/* ✅ Refresh más relajado */
+const REFRESH_MS = 20000;
 
 let raw = [];
 let resultados = [];
 let marcadores = [];
 
-let lastCfgSig = "";
-let lastDataSig = "";
-
-let isUserScrolling = false;
-let scrollTimer = null;
-
-/* ✅ NUEVO: para no re-render durante scroll y no “cortar” el listado */
-let pendingRowsToRender = null;
-let pendingRenderTimer = null;
-
 const $ = (id) => document.getElementById(id);
 
-function showLoading(msg="Cargando listado…"){
-  $("loadingTxt").textContent = msg;
-  $("loadingRow").hidden = false;
-}
-function hideLoading(){ $("loadingRow").hidden = true; }
-
-function sigCfg(cfg){
-  // firma simple (si cambia algo, se re-renderiza header)
-  const s = {
-    subtitulo: cfg.subtitulo || "",
-    resultados: (cfg.resultados||[]).slice(0,9),
-    marcadores: (cfg.marcadores||[]).slice(0,9),
-    partidos: (cfg.partidos||[]).slice(0,9).map(p=>`${p.local}|${p.visita}`)
-  };
-  const j = JSON.stringify(s);
-  return j.length + ":" + j.slice(0,500);
-}
-function sigRows(rows){
-  const n = rows.length;
-  const first = n ? rows[0].slice(0,18).join("|") : "";
-  const last  = n ? rows[n-1].slice(0,18).join("|") : "";
-  return n + "::" + first + "::" + last;
+function buildBodyOnly(){
+  return `<tbody></tbody>`;
 }
 
 function norm(v){ return String(v ?? "").trim().toUpperCase(); }
@@ -475,89 +425,53 @@ function norm(v){ return String(v ?? "").trim().toUpperCase(); }
 function computePlaces(rows){
   const acs = rows.map(r => Number(r.aciertos)||0);
   const max = Math.max(...acs);
+
   const uniq = [...new Set(acs)].sort((a,b)=>b-a);
   let secondVal = null;
-  for (const a of uniq){ if (a < max){ secondVal = a; break; } }
+  for (const a of uniq){
+    if (a < max){ secondVal = a; break; }
+  }
+
   rows.forEach(r=>{
     const a = Number(r.aciertos)||0;
     r._lugar = (a===max) ? 1 : (secondVal!=null && a===secondVal ? 2 : 0);
   });
 }
 
-function buildBodyOnly(){
-  const colsSel = Array.from({length:9}, () => `<col style="width:var(--wSel)">`).join("");
-  return `
-    <colgroup>
-      <col style="width:var(--wFolio)">
-      <col style="width:var(--wNombre)">
-      ${colsSel}
-      <col style="width:var(--wA)">
-    </colgroup>
-    <tbody></tbody>
-  `;
-}
-
-/* ✅ render en chunks: pinta rápido + evita “Oh no” */
-async function renderChunked(rows){
+function render(rows){
   const tbody = document.querySelector("#tabla tbody");
-  if (!tbody) return;
-
-  // si está scrolleando, no tocamos DOM
-  if (isUserScrolling) return;
-
   tbody.innerHTML = "";
-  const frag = document.createDocumentFragment();
 
-  const CHUNK = 180;
-  let i = 0;
+  rows.forEach(r=>{
+    const tr = document.createElement("tr");
 
-  while (i < rows.length){
-    if (isUserScrolling) return;
+    const selsHtml = r.sels.map((s,i)=>{
+      const ok = resultados[i] && norm(s) === norm(resultados[i]);
+      return `<td class="selCell"><span class="selPill ${ok?'hit':''}">${s || '-'}</span></td>`;
+    }).join("");
 
-    const end = Math.min(i + CHUNK, rows.length);
-    for (; i < end; i++){
-      const r = rows[i];
-      const tr = document.createElement("tr");
+    const acClass = (r._lugar===1) ? "win1" : (r._lugar===2) ? "win2" : "";
 
-      const selsHtml = r.sels.map((s,idx)=>{
-        const ok = resultados[idx] && norm(s) === norm(resultados[idx]);
-        return `<td class="selCell"><span class="selPill ${ok?'hit':''}">${s || '-'}</span></td>`;
-      }).join("");
-
-      const acClass = (r._lugar===1) ? "win1" : (r._lugar===2) ? "win2" : "";
-
-      tr.innerHTML = `
-        <td class="col-folio">${r.folio ?? ''}</td>
-        <td class="col-nombre">${r.nombre_show ?? ''}</td>
-        ${selsHtml}
-        <td class="col-ac ${acClass}">${r.aciertos ?? ''}</td>
-      `;
-      frag.appendChild(tr);
-    }
-
-    // flush chunk
-    tbody.appendChild(frag);
-
-    // deja respirar al navegador
-    await new Promise(requestAnimationFrame);
-  }
+    tr.innerHTML = `
+      <td class="col-folio">${r.folio ?? ''}</td>
+      <td class="col-nombre">${r.nombre_show ?? ''}</td>
+      ${selsHtml}
+      <td class="col-ac ${acClass}">${r.aciertos ?? ''}</td>
+    `;
+    tbody.appendChild(tr);
+  });
 }
 
-/* ✅ filtro sin reventar scroll */
 function applyFilter(){
   const q = $("searchInput").value.trim().toLowerCase();
-  const rowsToShow = !q ? raw : raw.filter(r=>{
+  if (!q){ render(raw); return; }
+
+  const out = raw.filter(r=>{
     return String(r.folio ?? "").toLowerCase().includes(q) ||
            String(r.telefono ?? "").toLowerCase().includes(q) ||
            String(r.nombre ?? "").toLowerCase().includes(q);
   });
-
-  if (isUserScrolling){
-    pendingRowsToRender = rowsToShow;
-    return;
-  }
-  pendingRowsToRender = null;
-  renderChunked(rowsToShow);
+  render(out);
 }
 
 function renderPartidos(cfg){
@@ -582,46 +496,36 @@ function renderPartidos(cfg){
   });
 }
 
-/* ✅ scroll real (del listado) — FIX: ya NO re-renderiza y NO “corta” */
-function markScrolling(){
-  isUserScrolling = true;
+/* ✅ Pausa refresh mientras haces scroll (AHORA: scroll del listado, no del window) */
+let isScrolling = false;
+let scrollTO = null;
 
-  if (scrollTimer) clearTimeout(scrollTimer);
-  scrollTimer = setTimeout(()=>{
-    isUserScrolling = false;
-
-    // render pendiente (una sola vez) al soltar scroll
-    if (pendingRenderTimer) clearTimeout(pendingRenderTimer);
-    pendingRenderTimer = setTimeout(async ()=>{
-      if (!pendingRowsToRender) return;
-      const rows = pendingRowsToRender;
-      pendingRowsToRender = null;
-      await renderChunked(rows);
-    }, 50);
-
-  }, 220);
+function onListScroll(){
+  isScrolling = true;
+  clearTimeout(scrollTO);
+  scrollTO = setTimeout(() => { isScrolling = false; }, 180);
 }
 
-async function load(initial=false){
-  try{
-    if (initial) showLoading("Cargando listado…");
+function isTyping(){
+  const a = document.activeElement;
+  return a && a.id === "searchInput";
+}
 
-    // CONFIG
+let isLoading = false;
+async function load(){
+  if (isLoading) return;
+  isLoading = true;
+  try{
+    // config
     const cfgRes = await fetch(CONFIG, {cache:"no-store"}).then(r=>r.json());
     const cfg = cfgRes.cfg || {};
-    const cfgSig = sigCfg(cfg);
+    $("weekTxt").textContent = cfg.subtitulo || "";
 
-    if (cfgSig !== lastCfgSig){
-      lastCfgSig = cfgSig;
-      $("weekTxt").textContent = cfg.subtitulo || "";
-      resultados = (cfg.resultados || []).slice(0,9);
-      marcadores = (cfg.marcadores || []).slice(0,9);
-      renderPartidos(cfg);
-    }
+    resultados = (cfg.resultados || []).slice(0,9);
+    marcadores = (cfg.marcadores || []).slice(0,9);
+    renderPartidos(cfg);
 
-    // CLASIF
-    if (!initial) showLoading("Actualizando…");
-
+    // clasif
     const res = await fetch(ENDPOINT, {cache:"no-store"}).then(r=>r.json());
     const data = res.data || {headers:[], rows:[]};
     const headers = (data.headers || []).map(x => String(x).toLowerCase());
@@ -633,24 +537,13 @@ async function load(initial=false){
 
     if (iF<0 || iN<0 || iA<0){
       console.warn("Headers inválidos:", headers);
-      hideLoading();
       return;
     }
-
-    const rows = data.rows || [];
-    const dataSig = sigRows(rows);
-
-    // ✅ si no hay cambios, no tocamos DOM (evita tirones / blancos)
-    if (dataSig === lastDataSig){
-      hideLoading();
-      return;
-    }
-    lastDataSig = dataSig;
 
     const startSel = iN + 1;
     const endSel   = iA;
 
-    raw = rows.map(r=>{
+    raw = (data.rows || []).map(r=>{
       const nombreShow = String(r[iN] ?? "").trim();
       return {
         folio: r[iF],
@@ -666,39 +559,26 @@ async function load(initial=false){
     computePlaces(raw);
 
     const tabla = $("tabla");
-    if (!tabla.querySelector("tbody")){
-      tabla.innerHTML = buildBodyOnly();
-    }
+    tabla.innerHTML = buildBodyOnly();
 
-    // ✅ decidir qué renderizar (sin reventar scroll)
-    const q = $("searchInput").value.trim().toLowerCase();
-    const rowsToShow = !q ? raw : raw.filter(r=>{
-      return String(r.folio ?? "").toLowerCase().includes(q) ||
-             String(r.telefono ?? "").toLowerCase().includes(q) ||
-             String(r.nombre ?? "").toLowerCase().includes(q);
-    });
+    if ($("searchInput").value.trim()) applyFilter();
+    else render(raw);
 
-    if (isUserScrolling){
-      pendingRowsToRender = rowsToShow;
-    } else {
-      pendingRowsToRender = null;
-      await renderChunked(rowsToShow);
-    }
-
-    hideLoading();
   } catch(err){
     console.error(err);
-    hideLoading();
+  } finally {
+    isLoading = false;
   }
 }
 
 $("searchInput").addEventListener("input", applyFilter);
-$("tableBox").addEventListener("scroll", markScrolling, {passive:true});
+$("tableBox").addEventListener("scroll", onListScroll, { passive:true });
 
-// ✅ primera carga
-load(true);
-// ✅ refresh estable
-setInterval(()=>load(false), REFRESH_MS);
+load();
+setInterval(() => {
+  if (isScrolling || isTyping()) return;
+  load();
+}, REFRESH_MS);
 </script>
 </body>
 </html>
