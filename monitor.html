@@ -41,9 +41,9 @@
 
   /* ✅ ANCHOS SINCRONIZADOS (Header fijo + Tabla) */
   --wFolio: 22px;
-  --wNombre: 160px;
+  --wNombre: 200px;
   --wSel: 20px;
-  --wA: 28px;
+  --wA: 24px;
 }
 
 *{box-sizing:border-box}
@@ -54,7 +54,6 @@ body{
   font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
   color:var(--fg);
   background: radial-gradient(1200px 520px at 50% -140px, #ffffff 0%, var(--bg) 55%, var(--bg2) 100%);
-  overflow-x:hidden;
 }
 
 /* ===== HEADER FIJO (bloque único) ===== */
@@ -62,16 +61,15 @@ body{
   position:sticky;
   top:0;
   z-index:50;
-  background:#fff;
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(8px);
   border-bottom:1px solid rgba(215,230,220,.85);
-  box-shadow: 0 6px 14px rgba(2,6,23,.06);
-  transform: translateZ(0);
+  box-shadow: 0 10px 24px rgba(2,6,23,.05);
 }
 .header-inner{
   max-width:1100px;
   margin:auto;
   padding:8px 10px;
-  overflow:visible !important;
 }
 
 .headerCard{
@@ -222,6 +220,7 @@ body{
 .thCell:last-child{ border-right:none; }
 .thCell.left{ text-align:left; }
 
+/* tamaños específicos */
 .thCell.folio{
   font-size:7px;
   font-weight:700;
@@ -238,17 +237,15 @@ body{
   max-width:1100px;
   margin:auto;
   padding:10px 12px 30px;
-  overflow:visible !important;
 }
 
-/* ===== TABLA ===== */
+/* ===== TABLA (solo tbody) ===== */
 .tableBox{
   border:1px solid var(--line);
   border-radius:14px;
   overflow:hidden;
   background:#fff;
   box-shadow: var(--shadow);
-  transform: translateZ(0);
 }
 
 table{
@@ -269,7 +266,7 @@ tbody td{
 tbody tr:nth-child(even){ background:#fbfdff; }
 tbody tr:last-child td{ border-bottom:none; }
 
-/* ✅ columnas sincronizadas */
+/* ✅ columnas sincronizadas con el header fijo */
 td.col-folio{
   width:var(--wFolio);
   font-size:7px;
@@ -294,19 +291,18 @@ td.col-ac{
   font-weight:1000;
 }
 
-/* ✅ cada selección también con ancho fijo (CLAVE DEL ALINEADO) */
+/* ✅ cada selección también con ancho fijo */
 td.selCell{
   width:var(--wSel);
   padding:3px 0;
 }
 
-/* pastillas */
 .selPill{
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  width:20px;
-  height:22px;
+  width:18px;
+  height:20px;
   border-radius:12px;
   border:1px solid var(--pillBorder);
   font-weight:900;
@@ -324,27 +320,26 @@ td.selCell{
 td.col-ac.win1{ background:var(--azul1); color:#fff; }
 td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
 
-/* responsive (solo cambia variables) */
+/* responsive: solo cambiamos variables (se mantiene alineado) */
 @media (max-width:520px){
   :root{
-    --wNombre: 150px;
+    --wNombre: 170px;
     --wSel: 18px;
-    --wA: 26px;
+    --wA: 24px;
   }
   .title{ font-size:16px; }
   .partidos{ font-size:9px; gap:2px; }
   .p{ padding:2px 6px; }
   .chip{ font-size:9px; padding:2px 5px; }
-  .selPill{ width:18px; height:20px; font-size:11px; }
 }
 
 @media (max-width:420px){
   :root{
-    --wNombre: 135px;
+    --wNombre: 150px;
     --wSel: 17px;
-    --wA: 26px;
+    --wA: 24px;
   }
-  .selPill{ width:17px; height:19px; font-size:11px; }
+  .selPill{ width:16px; height:18px; font-size:11px; }
 }
 </style>
 </head>
@@ -370,6 +365,7 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
           <input id="searchInput" placeholder="Busca aqui por telefono, nombre o folio" autocomplete="off">
         </div>
 
+        <!-- ✅ FILA FIJA DEL ENCABEZADO DE LISTADO -->
         <div class="tableHeadRow" aria-hidden="true">
           <div class="tableHeadGrid" id="fixedHead">
             <div class="thCell folio">#</div>
@@ -403,8 +399,7 @@ const BASE = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCu
 const ENDPOINT = BASE + "?mode=clasif";
 const CONFIG   = BASE + "?mode=config";
 
-/* ✅ Refresh más relajado para fluidez (tú dijiste que no importa tanto) */
-const REFRESH_MS = 20000; // 20s
+const REFRESH_MS = 5000;
 
 let raw = [];
 let resultados = [];
@@ -454,6 +449,7 @@ function render(rows){
       ${selsHtml}
       <td class="col-ac ${acClass}">${r.aciertos ?? ''}</td>
     `;
+
     tbody.appendChild(tr);
   });
 }
@@ -492,25 +488,9 @@ function renderPartidos(cfg){
   });
 }
 
-/* ✅ Pausa refresh mientras haces scroll (evita parpadeos/blancos) */
-let isScrolling = false;
-let scrollTO = null;
-window.addEventListener('scroll', () => {
-  isScrolling = true;
-  clearTimeout(scrollTO);
-  scrollTO = setTimeout(() => { isScrolling = false; }, 180);
-}, { passive:true });
-
-function isTyping(){
-  const a = document.activeElement;
-  return a && a.id === "searchInput";
-}
-
-let isLoading = false;
 async function load(){
-  if (isLoading) return;
-  isLoading = true;
   try{
+    // config
     const cfgRes = await fetch(CONFIG, {cache:"no-store"}).then(r=>r.json());
     const cfg = cfgRes.cfg || {};
     $("weekTxt").textContent = cfg.subtitulo || "";
@@ -519,6 +499,7 @@ async function load(){
     marcadores = (cfg.marcadores || []).slice(0,9);
     renderPartidos(cfg);
 
+    // clasif
     const res = await fetch(ENDPOINT, {cache:"no-store"}).then(r=>r.json());
     const data = res.data || {headers:[], rows:[]};
     const headers = (data.headers || []).map(x => String(x).toLowerCase());
@@ -553,24 +534,19 @@ async function load(){
 
     const tabla = $("tabla");
     tabla.innerHTML = buildBodyOnly();
+    render(raw);
 
     if ($("searchInput").value.trim()) applyFilter();
-    else render(raw);
 
   } catch(err){
     console.error(err);
-  } finally {
-    isLoading = false;
   }
 }
 
 $("searchInput").addEventListener("input", applyFilter);
 
 load();
-setInterval(() => {
-  if (isScrolling || isTyping()) return;
-  load();
-}, REFRESH_MS);
+setInterval(load, REFRESH_MS);
 </script>
 </body>
 </html>
