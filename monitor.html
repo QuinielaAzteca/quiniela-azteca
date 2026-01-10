@@ -44,11 +44,15 @@
   --wNombre: 200px;
   --wSel: 20px;
   --wA: 24px;
+
+  /* ✅ altura reservada para header fijo */
+  --headerH: 0px;
 }
 
 *{box-sizing:border-box}
-html, body { overflow-x:hidden; }
 
+/* ✅ SOLO EL LISTADO SCROLLEA (body ya no) */
+html, body { height:100%; overflow:hidden; }
 body{
   margin:0;
   font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
@@ -61,10 +65,14 @@ body{
   position:sticky;
   top:0;
   z-index:50;
-  background: rgba(255,255,255,.92);
-  backdrop-filter: blur(8px);
+
+  /* ✅ anti-blanco: fondo sólido + sin blur */
+  background:#fff;
   border-bottom:1px solid rgba(215,230,220,.85);
   box-shadow: 0 10px 24px rgba(2,6,23,.05);
+
+  /* ✅ ayuda en móviles */
+  transform: translateZ(0);
 }
 .header-inner{
   max-width:1100px;
@@ -220,7 +228,6 @@ body{
 .thCell:last-child{ border-right:none; }
 .thCell.left{ text-align:left; }
 
-/* tamaños específicos */
 .thCell.folio{
   font-size:7px;
   font-weight:700;
@@ -236,16 +243,31 @@ body{
 .wrap{
   max-width:1100px;
   margin:auto;
-  padding:10px 12px 30px;
+  padding:10px 12px 14px;
+
+  /* ✅ ocupa lo que queda debajo del header fijo */
+  height: calc(100vh - var(--headerH));
+  overflow:hidden;
 }
 
-/* ===== TABLA (solo tbody) ===== */
+/* ===== TABLA (solo el listado scrollea) ===== */
 .tableBox{
   border:1px solid var(--line);
   border-radius:14px;
-  overflow:hidden;
+
+  /* ✅ scroll aquí */
+  overflow:auto;
+  -webkit-overflow-scrolling: touch;
+
   background:#fff;
   box-shadow: var(--shadow);
+
+  height: 100%;
+  max-height: 100%;
+
+  /* ✅ anti-blanco */
+  transform: translateZ(0);
+  will-change: scroll-position;
 }
 
 table{
@@ -320,7 +342,7 @@ td.selCell{
 td.col-ac.win1{ background:var(--azul1); color:#fff; }
 td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
 
-/* responsive: solo cambiamos variables (se mantiene alineado) */
+/* responsive: solo variables */
 @media (max-width:520px){
   :root{
     --wNombre: 170px;
@@ -365,7 +387,6 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
           <input id="searchInput" placeholder="Busca aqui por telefono, nombre o folio" autocomplete="off">
         </div>
 
-        <!-- ✅ FILA FIJA DEL ENCABEZADO DE LISTADO -->
         <div class="tableHeadRow" aria-hidden="true">
           <div class="tableHeadGrid" id="fixedHead">
             <div class="thCell folio">#</div>
@@ -389,12 +410,20 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
 </div>
 
 <div class="wrap">
-  <div class="tableBox">
+  <div class="tableBox" id="tableBox">
     <table id="tabla"></table>
   </div>
 </div>
 
 <script>
+/* ✅ medimos el header y ajustamos el alto del listado (sin tocar tu lógica) */
+function syncHeaderH(){
+  const h = document.getElementById("header")?.offsetHeight || 0;
+  document.documentElement.style.setProperty("--headerH", h + "px");
+}
+window.addEventListener("resize", syncHeaderH);
+window.addEventListener("load", syncHeaderH);
+
 const BASE = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec";
 const ENDPOINT = BASE + "?mode=clasif";
 const CONFIG   = BASE + "?mode=config";
@@ -490,7 +519,6 @@ function renderPartidos(cfg){
 
 async function load(){
   try{
-    // config
     const cfgRes = await fetch(CONFIG, {cache:"no-store"}).then(r=>r.json());
     const cfg = cfgRes.cfg || {};
     $("weekTxt").textContent = cfg.subtitulo || "";
@@ -499,7 +527,6 @@ async function load(){
     marcadores = (cfg.marcadores || []).slice(0,9);
     renderPartidos(cfg);
 
-    // clasif
     const res = await fetch(ENDPOINT, {cache:"no-store"}).then(r=>r.json());
     const data = res.data || {headers:[], rows:[]};
     const headers = (data.headers || []).map(x => String(x).toLowerCase());
@@ -537,6 +564,9 @@ async function load(){
     render(raw);
 
     if ($("searchInput").value.trim()) applyFilter();
+
+    /* ✅ por si el header cambió de alto tras cargar partidos */
+    syncHeaderH();
 
   } catch(err){
     console.error(err);
