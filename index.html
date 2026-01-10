@@ -1,1237 +1,321 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Quiniela Azteca - WhatsApp</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiniela Azteca – Monitor</title>
 
-  <!-- Miniatura / favicon -->
-  <link rel="icon" href="favicon.png" type="image/png" />
-  <meta property="og:title" content="Quiniela Azteca" />
-  <meta property="og:description" content="Llena y envía tus quinielas desde el celular." />
-  <meta property="og:image" content="https://quinielaazteca.github.io/quiniela-azteca/miniatura.png" />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://quinielaazteca.github.io/quiniela-azteca/" />
+<style>
+:root{
+  --fg:#0f172a;
+  --muted:#475569;
 
-  <style>
-    html, body { overflow-x: hidden; }
+  --bg:#eaf3ee;
+  --bg2:#dfeee7;
+  --card:#ffffff;
+  --line:#d7e6dc;
 
-    :root{
-      /* ======= TEMA VERDE (discreto/elegante) ======= */
-      --fg:#0f172a;
-      --bg:#eaf3ee;
-      --bg2:#dfeee7;
-      --card:#ffffff;
-      --line:#d7e6dc;
+  --l:#0a6b3a;
+  --v:#c62828;
 
-      --ok:#0a6b3a;
-      --ok2:#0f8a4b;
+  --rowA:#f6fbf8;
+  --rowB:#eff7f2;
 
-      --l:#0a6b3a;     /* QUINIELA (verde) */
-      --v:#c62828;     /* AZTECA (rojo) */
-      --e:#6b7280;
+  --shadow: 0 10px 24px rgba(2, 44, 20, .10);
 
-      --pick:54px;
-      --list-blue:#0b6cff;
+  --okBg:#ecfdf5;
+  --okBd:#bbf7d0;
+  --okFg:#065f46;
 
-      --rowA:#f6fbf8;
-      --rowB:#eff7f2;
+  --chipBg:#f8fafc;
+  --chipBd:#e5e7eb;
+  --chipFg:#0f172a;
 
-      --shadow: 0 8px 20px rgba(2, 44, 20, .10);
-    }
+  --azul1:#1d4ed8;
+  --azul2:#93c5fd;
 
-    *{ box-sizing:border-box; }
-    body{
-      margin:0;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
-      background: radial-gradient(1200px 520px at 50% -140px, #ffffff 0%, var(--bg) 55%, var(--bg2) 100%);
-      color:var(--fg);
-    }
-    .wrap{
-      max-width:760px;
-      margin:0 auto;
-      padding:12px;
-      position:relative;
-    }
+  --pillBorder:#cbd5e1;
+  --pillHitBg:#dcfce7;
+  --pillHitBd:#86efac;
+  --pillHitTx:#064e3b;
 
-    .title{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:4px;
-      padding:14px 12px 12px;
-      background: var(--rowB);
-      border:1px solid var(--line);
-      border-radius:14px;
-      margin-bottom:10px;
-      text-align:center;
-      box-shadow: var(--shadow);
-    }
-    .title h1{
-      font-size:24px;
-      margin:0;
-      letter-spacing:.04em;
-    }
-    .title h1 .title-q{color:var(--l);}
-    .title h1 .title-a{color:var(--v);}
-    .title small{
-      font-size:15px;
-      color:#334155;
-      font-weight:800;
-    }
-    .hint{
-      font-size:13px;
-      color:#334155;
-      font-weight:700;
-    }
-    .hint .dias{
-      display:block;
-      margin-top:2px;
-    }
+  /* ✅ ANCHOS SINCRONIZADOS */
+  --wFolio: 22px;
+  --wNombre: 160px;
+  --wSel: 20px;
+  --wA: 28px;
+}
 
-    .namebox{
-      width:100%;
-      display:grid;
-      grid-template-columns:1fr 170px;
-      gap:8px;
-      margin-top:8px;
-    }
-    .namebox input{
-      width:100%;
-      padding:11px 10px;
-      border:1px solid var(--line);
-      border-radius:10px;
-      font-size:15px;
-      background:#fff;
-      outline:none;
-      box-shadow: 0 1px 0 rgba(0,0,0,.02);
-    }
-    .namebox input:focus{
-      border-color:#b8d9c5;
-      box-shadow: 0 0 0 3px rgba(10,107,58,.10);
-    }
-    #nombre{text-transform:uppercase}
+*{box-sizing:border-box}
+html, body { height:100%; overflow:hidden; }
 
-    .card{
-      background: linear-gradient(180deg, #ffffff 0%, #fbfdfc 100%);
-      border:1px solid var(--line);
-      border-radius:16px;
-      margin-top:10px;
-      overflow:hidden;
-      box-shadow: var(--shadow);
-    }
-    .bar{
-      height:8px;
-      background:linear-gradient(
-        90deg,
-        var(--l) 0%,
-        var(--l) 33%,
-        #ffffff 33%,
-        #ffffff 66%,
-        var(--v) 66%,
-        var(--v) 100%
-      );
-    }
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+  color:var(--fg);
+  background: radial-gradient(1200px 520px at 50% -140px, #ffffff 0%, var(--bg) 55%, var(--bg2) 100%);
+}
 
-    /* ✅ FIX: que el contenido del cupón SÍ ocupe todo el ancho */
-    .card .inner{
-      padding:4px 2px 4px 0;
-      width:100%;
-      display:block;          /* antes: flex */
-    }
-    #rows{ width:100%; }      /* asegura 100% */
+/* ===== HEADER FIJO ===== */
+.header{
+  position:sticky;
+  top:0;
+  z-index:50;
+  background:#fff;
+  border-bottom:1px solid rgba(215,230,220,.85);
+  box-shadow:0 6px 14px rgba(2,6,23,.06);
+}
+.header-inner{
+  max-width:1100px;
+  margin:auto;
+  padding:8px 10px;
+}
 
-    .row{
-      width:100%;
-      display:grid;
+.headerCard{
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdfc 100%);
+  border:1px solid var(--line);
+  border-radius:14px;
+  overflow:hidden;
+  box-shadow: var(--shadow);
+}
+.headerBar{
+  height:6px;
+  background:linear-gradient(
+    90deg,
+    var(--l) 0%, var(--l) 33%,
+    #ffffff 33%, #ffffff 66%,
+    var(--v) 66%, var(--v) 100%
+  );
+}
+.headerCardInner{ padding:6px 8px; }
 
-      /* ✅ FIX: evita que los nombres “rompan” el grid, y rellena el ancho */
-      grid-template-columns:24px var(--pick) minmax(0, 1fr) var(--pick) minmax(0, 1fr) var(--pick);
+.brandRow{
+  display:flex;
+  align-items:flex-end;
+  gap:10px;
+  margin-bottom:6px;
+}
+.title{
+  font-weight:1000;
+  font-size:18px;
+  letter-spacing:.04em;
+}
+.title .mxg{color:var(--l)}
+.title .mxr{color:var(--v)}
 
-      gap:4px;
-      padding:10px 4px;
-      border-bottom:1px solid var(--line);
-      align-items:center;
-    }
-    .row:nth-child(odd){ background:var(--rowA); }
-    .row:nth-child(even){ background:var(--rowB); }
-    .row:last-child{border-bottom:none}
-    .n{font-weight:800;text-align:center;font-size:13px;color:#334155;}
+.week{
+  font-size:12px;
+  font-weight:900;
+  color:var(--muted);
+}
 
-    .team{
-      text-align:center;
-      font-weight:800;
-      padding:2px 2px;
-      font-size:12px;
-      line-height:1.15;
-      white-space:normal;
-      word-break:keep-all;
-      color:#0f172a;
-      min-width:0;           /* ✅ importante con minmax(0,1fr) */
-    }
-    .team span{display:block;}
+/* ===== PARTIDOS ===== */
+.partidos{
+  font-size:10px;
+  font-weight:900;
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+  margin-top:4px;
+}
+.p{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  padding:3px 6px;
+  border-radius:10px;
+  background:var(--rowA);
+  border:1px solid rgba(215,230,220,.55);
+}
+.p:nth-child(even){ background:var(--rowB); }
+.p .left{
+  flex:1;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.p .right{
+  display:flex;
+  gap:5px;
+}
 
-    /* ======= ESCUDOS MÁS GRANDES / CON PROTAGONISMO ======= */
-    .team-logo{
-      display:block;
-      margin:0 auto 4px;
-      height:32px;
-      width:32px;
-      object-fit:contain;
-      filter: drop-shadow(0 2px 2px rgba(0,0,0,.12));
-    }
+.chip{
+  padding:2px 6px;
+  border-radius:999px;
+  border:1px solid var(--chipBd);
+  background:var(--chipBg);
+  font-size:10px;
+  font-weight:1000;
+}
+.chip.pick{
+  background:var(--okBg);
+  border-color:var(--okBd);
+  color:var(--okFg);
+}
 
-    .pick{
-      display:grid;
-      place-items:center;
-      width:var(--pick);
-      height:var(--pick);
-      border:2px solid rgba(15,23,42,.18);
-      border-radius:14px;
-      font-weight:900;
-      font-size:18px;
-      user-select:none;
-      cursor:pointer;
-      background: rgba(255,255,255,.92);
-      color:var(--e);
-      transition:transform .06s ease,border-color .06s ease,background .06s ease,color .06s ease, box-shadow .06s ease;
-      -webkit-tap-highlight-color:transparent;
-      box-shadow: 0 1px 0 rgba(0,0,0,.04);
+/* ===== BUSCADOR ===== */
+.search{ margin-top:6px; position:relative; }
+.search::before{
+  content:"🔍";
+  position:absolute;
+  left:10px;
+  top:50%;
+  transform:translateY(-50%);
+}
+.search input{
+  width:100%;
+  padding:8px 10px 8px 36px;
+  font-size:14px;
+  font-weight:900;
+  border:2px solid #cbd5e1;
+  border-radius:14px;
+  outline:none;
+}
 
-      /* Feedback pro (desktop + móvil) */
-      transform: translateZ(0);
-      will-change: transform, box-shadow;
-    }
+/* ===== ENCABEZADO FIJO DE LISTADO ===== */
+.tableHeadRow{
+  margin-top:6px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  overflow:hidden;
+  background:#f8fafc;
+}
+.tableHeadGrid{
+  display:grid;
+  grid-template-columns:
+    var(--wFolio)
+    var(--wNombre)
+    repeat(9, var(--wSel))
+    var(--wA);
+}
+.thCell{
+  padding:6px 4px;
+  border-right:1px solid rgba(215,230,220,.7);
+  font-size:11px;
+  font-weight:1000;
+  text-align:center;
+}
+.thCell:last-child{border-right:none}
+.thCell.left{text-align:left}
+.thCell.folio{
+  font-size:7px;
+  text-align:right;
+}
+.thCell.nombre{
+  font-size:10px;
+  font-weight:700;
+}
 
-    /* Hover solo en dispositivos con mouse */
-    @media (hover:hover) and (pointer:fine){
-      .pick:hover{
-        border-color: rgba(15,23,42,.28);
-        box-shadow: 0 4px 10px rgba(2,6,23,.10);
-      }
-    }
+/* ===== CONTENEDOR ===== */
+.wrap{
+  max-width:1100px;
+  margin:auto;
+  padding:10px 12px 14px;
+  height:100%;
+  overflow:hidden;
+}
 
-    /* Press/tap */
-    .pick:active{ transform: scale(.96); }
+/* ===== LISTADO ===== */
+.tableBox{
+  border:1px solid var(--line);
+  border-radius:14px;
+  overflow:auto;
+  background:#fff;
+  box-shadow:var(--shadow);
+  height:100%;
+}
 
-    .pick.on{
-      background: linear-gradient(180deg, var(--ok2) 0%, var(--ok) 100%);
-      color:#fff;
-      border-color:var(--ok);
-      box-shadow: 0 6px 14px rgba(10,107,58,.22);
-    }
-    .pick.on:active{
-      box-shadow: 0 2px 8px rgba(0,0,0,.22) inset, 0 6px 14px rgba(10,107,58,.22);
-    }
+table{
+  width:100%;
+  table-layout:fixed;
+  border-collapse:separate;
+  border-spacing:0;
+}
 
-    .panel{display:flex;flex-direction:column;gap:8px;margin-top:10px}
-    .totals{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      align-items:center;
-      justify-content:space-between;
-      background: linear-gradient(180deg, #ffffff 0%, #f6fbf8 100%);
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:10px 12px;
-      box-shadow: var(--shadow);
-    }
+/* columnas sincronizadas */
+td.col-folio{ width:var(--wFolio); font-size:7px; text-align:right; }
+td.col-nombre{ width:var(--wNombre); font-size:10px; text-align:left; }
+td.col-ac{ width:var(--wA); }
 
-    .controls{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      margin-top:2px;
-    }
-    .btn{
-      flex:1;
-      appearance:none;
-      border:2px solid #0f172a;
-      background:#0f172a;
-      color:#fff;
-      padding:12px 10px;
-      border-radius:12px;
-      font-weight:900;
-      font-size:13px;
-      cursor:pointer;
-      box-shadow: 0 6px 14px rgba(2,6,23,.14);
-    }
-    .btn.alt{
-      background:#fff;
-      color:#0f172a;
-      border-color: rgba(15,23,42,.25);
-      box-shadow: 0 6px 14px rgba(2,6,23,.06);
-    }
-    #btnEnviar{
-      background: linear-gradient(180deg, var(--ok2) 0%, var(--ok) 100%);
-      border-color: var(--ok);
-      box-shadow: 0 10px 18px rgba(10,107,58,.18);
-    }
-    .btn:disabled{opacity:.6;cursor:not-allowed;}
+td.selCell{ width:var(--wSel); padding:3px 0; }
 
-    .section{
-      margin-top:10px;
-      background: linear-gradient(180deg, #ffffff 0%, #f6fbf8 100%);
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:10px;
-      box-shadow: var(--shadow);
-    }
+tbody td{
+  border-bottom:1px solid var(--line);
+  padding:4px;
+  text-align:center;
+  font-weight:1000;
+}
+tbody tr:nth-child(even){background:#fbfdff}
 
-    .groupCard{
-      background:#fff;
-      border:1px solid #eef2f2;
-      border-radius:14px;
-      padding:10px 10px 6px;
-      margin:10px 0;
-      box-shadow:0 6px 14px rgba(2, 44, 20, .06);
-    }
-    .groupHeader{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:6px;
-      margin-bottom:4px;
-    }
-    .groupTitle{
-      font-size:15px;
-      font-weight:900;
-    }
-    .groupBadges{
-      display:flex;
-      gap:4px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-    .badge{
-      padding:3px 7px;
-      border-radius:999px;
-      border:1px solid #dde7df;
-      font-size:11px;
-      font-weight:800;
-      background:#f6fbf8;
-      color:#0f172a;
-    }
-    .badge.money{
-      border-color:#c62828;
-      color:#c62828;
-      background:#fff5f5;
-    }
+/* pastillas */
+.selPill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:18px;
+  height:20px;
+  border-radius:12px;
+  border:1px solid var(--pillBorder);
+  font-size:12px;
+}
+.selPill.hit{
+  background:var(--pillHitBg);
+  border-color:var(--pillHitBd);
+  color:var(--pillHitTx);
+}
 
-    .groupItem{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:8px;
-      padding-top:6px;
-      border-top:1px dashed #e8efe9;
-      margin-top:4px;
-    }
-    .groupItemMain{flex:1;}
-    .groupItemMeta{
-      font-size:11px;
-      color:#475569;
-      margin-top:2px;
-      font-weight:700;
-    }
+/* aciertos */
+td.col-ac.win1{background:var(--azul1);color:#fff}
+td.col-ac.win2{background:var(--azul2)}
 
-    .listHeader{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      font-size:13px;
-      font-weight:900;
-      color:#0f172a;
-    }
-
-    .sel-inline{
-      font-size:13px;
-      margin:3px 0;
-    }
-    .sel-inline span{
-      margin-right:4px;
-      font-weight:900;
-      color:#0f172a;
-    }
-    .sel-inline span.multi{
-      color:var(--list-blue);
-    }
-    .sel-inline sup{
-      font-size:10px;
-      vertical-align:super;
-    }
-
-    .mini{
-      appearance:none;
-      border:1px solid #cbd5e1;
-      background:#fff;
-      padding:4px 7px;
-      border-radius:10px;
-      font-weight:900;
-      font-size:11px;
-      cursor:pointer;
-      white-space:nowrap;
-      box-shadow: 0 4px 10px rgba(2,6,23,.06);
-    }
-    .mini.danger{border-color:#c62828;color:#c62828;background:#fff}
-
-    .footerTotal{
-      margin-top:8px;
-      font-weight:900;
-      text-align:right;
-      background:#fff;
-      border:1px solid #e8efe9;
-      border-radius:12px;
-      padding:10px 12px;
-    }
-
-    .err{
-      position:fixed;
-      top:50%;
-      left:50%;
-      transform:translate(-50%,-50%);
-      z-index:999;
-      min-width:220px;
-      max-width:90%;
-      padding:10px 12px;
-      background:#ffecec;
-      border:1px solid #f5b5b5;
-      color:#c62828;
-      font-size:13px;
-      border-radius:12px;
-      box-shadow:0 10px 24px rgba(0,0,0,.25);
-      text-align:center;
-      font-weight:800;
-    }
-
-    .snack{
-      position:fixed;
-      left:50%;
-      bottom:12px;
-      transform:translateX(-50%);
-      background:#0f172a;
-      color:#fff;
-      padding:6px 10px;
-      border-radius:999px;
-      font-size:13px;
-      opacity:0;
-      pointer-events:none;
-      transition:opacity .15s ease,transform .15s ease;
-      box-shadow: 0 10px 24px rgba(2,6,23,.22);
-      font-weight:800;
-    }
-    .snack.show{opacity:1;transform:translate(-50%,-4px)}
-
-    @keyframes bump {
-      0%{transform:scale(1);}
-      30%{transform:scale(1.12);}
-      100%{transform:scale(1);}
-    }
-    .bump-anim{ animation:bump .18s ease-out; }
-
-    /* Overlay de registro cerrado */
-    #registroCerrado{
-      display:none;
-      position:absolute;
-      top:50%;
-      left:50%;
-      transform:translate(-50%,-50%);
-      width:90%;
-      max-width:400px;
-      background:rgba(255,255,255,0.96);
-      color:#c70000;
-      text-align:center;
-      font-size:20px;
-      font-weight:bold;
-      padding:25px 16px;
-      border-radius:12px;
-      box-shadow:0 0 12px rgba(0,0,0,0.25);
-      z-index:9999;
-    }
-    .disabled-cupon{
-      pointer-events:none;
-      opacity:0.25;
-    }
-
-    @media (max-width:520px){
-      .namebox{grid-template-columns:1fr}
-    }
-
-    /* AJUSTE PARA TELÉFONOS CHICOS (evita scroll horizontal) */
-    @media (max-width:420px){
-      :root{ --pick: 44px; }
-      .row{
-        grid-template-columns:22px var(--pick) minmax(0, 1fr) var(--pick) minmax(0, 1fr) var(--pick);
-        gap:3px;
-      }
-      .team{ font-size:11px; }
-      .team-logo{ height:28px; width:28px; }
-      .pick{ border-radius:12px; font-size:16px; }
-    }
-  </style>
+</style>
 </head>
 
 <body>
-  <div class="wrap">
-    <div class="title">
-      <h1 id="titleTxt">
-        <span class="title-q">QUINIELA</span> <span class="title-a">AZTECA</span>
-      </h1>
-      <small id="subtitleTxt">Jornada</small>
-      <div class="hint">
-        <span> Costo por quiniela: <b id="precioTxt">$25</b> · Cierre: <b id="cierreTxt">–</b></span><br>
-        <span id="diasTxt" class="dias">-</span>
-      </div>
 
-      <div class="namebox">
-        <input id="telefono" placeholder="Teléfono" inputmode="numeric" pattern="[0-9]*" autocomplete="tel" />
-        <input id="nombre" placeholder="nombre" inputmode="text" autocomplete="off" autocapitalize="characters" enterkeyhint="done">
-      </div>
-    </div>
+<div class="header">
+  <div class="header-inner">
+    <div class="headerCard">
+      <div class="headerBar"></div>
+      <div class="headerCardInner">
 
-    <!-- Overlay de registro cerrado -->
-    <div id="registroCerrado">
-      Registro cerrado<br>para esta quiniela.
-    </div>
-
-    <!-- Todo el cupón (se desactiva con disabled-cupon) -->
-    <div id="cupon">
-      <div class="card">
-        <div class="bar"></div>
-        <div class="inner">
-          <div id="rows"></div>
-        </div>
-      </div>
-
-      <div class="panel">
-        <div class="totals">
-          <div>
-            <div style="font-size:12px;color:#475569;font-weight:800;">Combinaciones actuales</div>
-            <div style="font-size:20px;font-weight:900" id="combosTxt">1</div>
-          </div>
-          <div>
-            <div style="font-size:12px;color:#475569;font-weight:800;">Total a pagar</div>
-            <div style="font-size:20px;font-weight:900" id="totalTxt">$25</div>
+        <div class="brandRow">
+          <div class="title">
+            <span class="mxg">QUINIELA</span> <span class="mxr">AZTECA</span>
           </div>
         </div>
 
-        <div class="controls">
-          <button class="btn alt" id="btnAgregar">Agregar</button>
-          <button class="btn alt" id="btnLimpiar">Limpiar</button>
-          <button class="btn" id="btnEnviar">Enviar por WhatsApp</button>
+        <div class="partidos" id="partidosTxt"></div>
+
+        <div class="search">
+          <input id="searchInput" placeholder="Busca aquí">
         </div>
 
-        <div class="section">
-          <div class="listHeader">
-            <span>LISTA DE QUINIELAS</span>
-            <button class="mini danger" id="btnVaciar">Borrar lista</button>
+        <div class="tableHeadRow">
+          <div class="tableHeadGrid">
+            <div class="thCell folio">#</div>
+            <div class="thCell left nombre">Nombre</div>
+            <div class="thCell">1</div><div class="thCell">2</div><div class="thCell">3</div>
+            <div class="thCell">4</div><div class="thCell">5</div><div class="thCell">6</div>
+            <div class="thCell">7</div><div class="thCell">8</div><div class="thCell">9</div>
+            <div class="thCell">A</div>
           </div>
-          <div id="listaWrap"></div>
-          <div id="listaFooter" class="footerTotal">TOTAL LISTA: 0 comb. · $0</div>
         </div>
 
-        <div class="err" id="errMsg" style="display:none;"></div>
       </div>
     </div>
   </div>
+</div>
 
-  <div class="snack" id="snack"></div>
+<div class="wrap">
+  <div class="tableBox">
+    <table id="tabla"></table>
+  </div>
+</div>
 
 <script>
-const SHEET_ENDPOINT_PUBLIC = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec";
-const PHONE_NUMBER = "5213333911690";
-const CANAL = "WHATSAPP";
-
-let BASE_PRICE = 25;
-let PARTIDOS   = [];
-let carrito    = JSON.parse(localStorage.getItem('quiniela_carrito_v4') || '[]');
-let telCache   = localStorage.getItem('quiniela_tel') || '';
-let CFG_ACEPTA = true;
-
-// vendedor desde parámetro ?v=
-const urlParams = new URLSearchParams(location.search);
-const VENDEDOR_PARAM = (urlParams.get('v') || '').trim().toUpperCase();
-
-// Mapa de escudos
-const TEAM_LOGOS = {
-  // Liga MX
-  'AMÉRICA': 'escudos/america.png',
-  'ATLAS': 'escudos/atlas.png',
-  'SAN LUIS': 'escudos/sanluis.png',
-  'ATLETICO LA PAZ': 'escudos/atleticolapaz.png',
-  'ATLÉTICO MORELIA': 'escudos/atleticomorelia.png',
-  'CANCÚN': 'escudos/cancun.png',
-  'CRUZ AZUL': 'escudos/cruzazul.png',
-  'CHIVAS': 'escudos/chivas.png',
-  'JUÁREZ': 'escudos/juarez.png',
-  'LEÓN': 'escudos/leon.png',
-  'MAZATLÁN': 'escudos/mazatlan.png',
-  'MONTERREY': 'escudos/monterrey.png',
-  'NECAXA': 'escudos/necaxa.png',
-  'PACHUCA': 'escudos/pachuca.png',
-  'PUEBLA': 'escudos/puebla.png',
-  'PUMAS': 'escudos/pumas.png',
-  'QUERÉTARO': 'escudos/queretaro.png',
-  'SANTOS': 'escudos/santos.png',
-  'TIGRES': 'escudos/tigres.png',
-  'TIJUANA': 'escudos/tijuana.png',
-  'TOLUCA': 'escudos/toluca.png',
-  'VENADOS': 'escudos/venados.png',
-
-  // España
-  'ALAVÉS': 'escudos/alaves.png',
-  'ATHLETIC CLUB': 'escudos/athleticclub.png',
-  'ATLÉTICO MADRID': 'escudos/atleticomadrid.png',
-  'BARCELONA': 'escudos/barcelona.png',
-  'BETIS': 'escudos/betis.png',
-  'CELTA': 'escudos/celta.png',
-  'ELCHE': 'escudos/elche.png',
-  'ESPANYOL': 'escudos/espanyol.png',
-  'GETAFE': 'escudos/getafe.png',
-  'GIRONA': 'escudos/girona.png',
-  'MALLORCA': 'escudos/mallorca.png',
-  'OSASUNA': 'escudos/osasuna.png',
-  'RAYO VALLECANO': 'escudos/rayovallecano.png',
-  'REAL MADRID': 'escudos/realmadrid.png',
-  'REAL SOCIEDAD': 'escudos/realsociedad.png',
-  'SEVILLA': 'escudos/sevilla.png',
-  'VALENCIA': 'escudos/valencia.png',
-  'VILLARREAL': 'escudos/villarreal.png',
-
-  // Premier League / Championship
-  'ARSENAL': 'escudos/arsenal.png',
-  'ASTON VILLA': 'escudos/astonvilla.png',
-  'BOURNEMOUTH': 'escudos/bournemouth.png',
-  'BRENTFORD': 'escudos/brentford.png',
-  'BRIGHTON': 'escudos/brighton.png',
-  'BURNLEY': 'escudos/burnley.png',
-  'CHELSEA': 'escudos/chelsea.png',
-  'CRYSTAL PALACE': 'escudos/crystalpalace.png',
-  'EVERTON': 'escudos/everton.png',
-  'FULHAM': 'escudos/fulham.png',
-  'LEEDS UNITED': 'escudos/leedsunited.png',
-  'LIVERPOOL': 'escudos/liverpool.png',
-  'MANCHESTER CITY': 'escudos/manchestercity.png',
-  'MANCHESTER UNITED': 'escudos/manchesterunited.png',
-  'NEWCASTLE': 'escudos/newcastle.png',
-  'NOTTINGHAM FOREST': 'escudos/nottinghamforest.png',
-  'SUNDERLAND': 'escudos/sunderland.png',
-  'TOTTENHAM': 'escudos/tottenham.png',
-  'WEST HAM': 'escudos/westham.png',
-  'WOLVERHAMPTON': 'escudos/wolverhampton.png',
-
-  // MLS
-  'ATLANTA UNITED': 'escudos/atlantaunited.png',
-  'AUSTIN': 'escudos/austin.png',
-  'CHARLOTTE': 'escudos/charlotte.png',
-  'CHICAGO FIRE': 'escudos/chicagofire.png',
-  'CINCINNATI': 'escudos/cincinnati.png',
-  'COLORADO RAPIDS': 'escudos/coloradorapids.png',
-  'COLUMBUS CREW': 'escudos/columbuscrew.png',
-  'D.C. UNITED': 'escudos/dcunited.png',
-  'FC DALLAS': 'escudos/fcdallas.png',
-  'HOUSTON DYNAMO': 'escudos/houstondynamo.png',
-  'INTER MIAMI': 'escudos/intermiami.png',
-  'LA GALAXY': 'escudos/losangelesgalaxy.png',
-  'LAFC': 'escudos/losangelesfc.png',
-  'MINNESOTA UNITED': 'escudos/minnesotaunited.png',
-  'MONTRÉAL': 'escudos/cfmontreal.png',
-  'NASHVILLE': 'escudos/nashville.png',
-  'NEW ENGLAND REVOLUTION': 'escudos/newenglandrevolution.png',
-  'NEW YORK CITY': 'escudos/newyorkcity.png',
-  'NEW YORK RED BULLS': 'escudos/newyorkredbulls.png',
-  'ORLANDO CITY': 'escudos/orlandocity.png',
-  'PHILADELPHIA UNION': 'escudos/philadelphiaunion.png',
-  'PORTLAND TIMBERS': 'escudos/portlandtimbers.png',
-  'REAL SALT LAKE': 'escudos/realsaltlake.png',
-  'SAN DIEGO FC': 'escudos/sandiegofc.png',
-  'SAN JOSE EARTHQUAKES': 'escudos/sanjoseearthquakes.png',
-  'SEATTLE SOUNDERS': 'escudos/seattlesounders.png',
-  'SPORTING KANSAS CITY': 'escudos/sportingkansascity.png',
-  'ST LOUIS CITY': 'escudos/stlouissc.png',
-  'TORONTO FC': 'escudos/torontofc.png',
-  'VANCOUVER WHITECAPS': 'escudos/vancouverwhitecaps.png',
-
-  // Selecciones
-  'ALEMANIA': 'escudos/alemania.png',
-  'ARABIA SAUDITA': 'escudos/arabiasaudita.png',
-  'ARGENTINA': 'escudos/argentina.png',
-  'AUSTRALIA': 'escudos/australia.png',
-  'AUSTRIA': 'escudos/austria.png',
-  'BÉLGICA': 'escudos/belgica.png',
-  'BOLIVIA': 'escudos/bolivia.png',
-  'BOSNIA Y HERZEGOVINA': 'escudos/bosniayherzegovina.png',
-  'BRASIL': 'escudos/brasil.png',
-  'CAMERÚN': 'escudos/camerun.png',
-  'CANADÁ': 'escudos/canada.png',
-  'CATAR': 'escudos/catar.png',
-  'CHEQUIA': 'escudos/chequia.png',
-  'COLOMBIA': 'escudos/colombia.png',
-  'COREA DEL SUR': 'escudos/coreadelsur.png',
-  'CROACIA': 'escudos/croacia.png',
-  'CURAZAO': 'escudos/curazao.png',
-  'DINAMARCA': 'escudos/dinamarca.png',
-  'ECUADOR': 'escudos/ecuador.png',
-  'ESCOCIA': 'escudos/escocia.png',
-  'ESLOVAQUIA': 'escudos/eslovaquia.png',
-  'ESPAÑA': 'escudos/espana.png',
-  'ESTADOS UNIDOS': 'escudos/estadosunidos.png',
-  'FRANCIA': 'escudos/francia.png',
-  'GALES': 'escudos/gales.png',
-  'GHANA': 'escudos/ghana.png',
-  'HAITÍ': 'escudos/haiti.png',
-  'INGLATERRA': 'escudos/inglaterra.png',
-  'IRAQ': 'escudos/iraq.png',
-  'IRLANDA DEL NORTE': 'escudos/irlandadelnorte.png',
-  'ITALIA': 'escudos/italia.png',
-  'JAMAICA': 'escudos/jamaica.png',
-  'MARRUECOS': 'escudos/marruecos.png',
-  'MÉXICO': 'escudos/mexico.png',
-  'NORUEGA': 'escudos/noruega.png',
-  'NUEVA ZELANDA': 'escudos/nuevazelanda.png',
-  'PAÍSES BAJOS': 'escudos/paisesbajos.png',
-  'PANAMÁ': 'escudos/panama.png',
-  'PARAGUAY': 'escudos/paraguay.png',
-  'POLONIA': 'escudos/polonia.png',
-  'PORTUGAL': 'escudos/portugal.png',
-  'REPÚBLICA DE IRLANDA': 'escudos/republicadeirlanda.png',
-  'REPÚBLICA DEL CONGO': 'escudos/republicadelirlanda.png',
-  'RUMANIA': 'escudos/rumania.png',
-  'SENEGAL': 'escudos/senegal.png',
-  'SUECIA': 'escudos/suecia.png',
-  'SUIZA': 'escudos/suiza.png',
-  'SURINAM': 'escudos/surinam.png',
-  'TURQUÍA': 'escudos/turquia.png',
-  'UCRANIA': 'escudos/ucrania.png',
-  'URUGUAY': 'escudos/uruguay.png',
-  'UZBEKISTÁN': 'escudos/uzbekistan.png'
-};
-
-const $  = s => document.querySelector(s);
-const $$ = s => Array.from(document.querySelectorAll(s));
-const fmtMoney = n => '$' + (n || 0).toLocaleString('es-MX');
-
-function showSnack(msg) {
-  const el = $('#snack');
-  el.textContent = msg;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 2000);
-}
-
-const telInput    = $('#telefono');
-const nombreInput = $('#nombre');
-
-if (telCache) telInput.value = telCache;
-
-function cleanTel() {
-  const c = telInput.value.replace(/\D/g, '').slice(0, 15);
-  if (telInput.value !== c) telInput.value = c;
-}
-telInput.addEventListener('keydown', e => {
-  const ok = ['Backspace','Delete','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Tab','Home','End','Enter'];
-  if (ok.includes(e.key)) return;
-  if (e.ctrlKey || e.metaKey) return;
-  if (!/^\d$/.test(e.key)) e.preventDefault();
-});
-telInput.addEventListener('input', cleanTel);
-telInput.addEventListener('paste', e => {
-  e.preventDefault();
-  const t = (e.clipboardData || window.clipboardData).getData('text');
-  telInput.value = (t || '').replace(/\D/g, '').slice(0, 15);
-});
-
-nombreInput.addEventListener('input', e => {
-  const pos = e.target.selectionStart;
-  e.target.value = e.target.value.toUpperCase();
-  e.target.setSelectionRange(pos, pos);
-});
-
-function renderRows() {
-  const rows = $('#rows');
-  rows.innerHTML = '';
-  const partidos = PARTIDOS.slice(0, 9);
-
-  partidos.forEach((p, idx) => {
-    const num = idx + 1;
-    const localLogo  = TEAM_LOGOS[p.local]  || '';
-    const visitaLogo = TEAM_LOGOS[p.visita] || '';
-
-    const row = document.createElement('div');
-    row.className = 'row';
-    row.innerHTML = `
-      <div class="n">${num}</div>
-      <div class="pick L" data-i="${idx}" data-k="L">L</div>
-      <div class="team">
-        ${localLogo ? `<img class="team-logo" src="${localLogo}" alt="${p.local}">` : ''}
-        <span>${p.local}</span>
-      </div>
-      <div class="pick E" data-i="${idx}" data-k="E">E</div>
-      <div class="team">
-        ${visitaLogo ? `<img class="team-logo" src="${visitaLogo}" alt="${p.visita}">` : ''}
-        <span>${p.visita}</span>
-      </div>
-      <div class="pick V" data-i="${idx}" data-k="V">V</div>
-    `;
-    rows.appendChild(row);
-  });
-}
-
-function getSelections() {
-  const map = {};
-  $$('#rows .pick').forEach(p => {
-    const i = parseInt(p.dataset.i, 10);
-    const k = p.dataset.k;
-    map[i] = map[i] || {L:false,E:false,V:false};
-    if (p.classList.contains('on')) map[i][k] = true;
-  });
-  const sels = [];
-  for (let i = 0; i < 9; i++) {
-    const m = map[i] || {L:false,E:false,V:false};
-    const chars = [];
-    if (m.L) chars.push('L');
-    if (m.E) chars.push('E');
-    if (m.V) chars.push('V');
-    sels.push(chars.join(''));
-  }
-  return sels;
-}
-
-function setSelectionsFromArray(sels) {
-  $$('#rows .pick').forEach(p => p.classList.remove('on'));
-  sels.forEach((s, idx) => {
-    if (!s) return;
-    if (s.includes('L')) $(`#rows .pick[data-i="${idx}"][data-k="L"]`)?.classList.add('on');
-    if (s.includes('E')) $(`#rows .pick[data-i="${idx}"][data-k="E"]`)?.classList.add('on');
-    if (s.includes('V')) $(`#rows .pick[data-i="${idx}"][data-k="V"]`)?.classList.add('on');
-  });
-}
-
-function combosFromSelections(sels) {
-  return sels.reduce((acc, s) => {
-    const len = (s || '').length;
-    return acc * Math.max(len, 1);
-  }, 1);
-}
-
-function updateCurrentTotals() {
-  const sels   = getSelections();
-  const combos = combosFromSelections(sels);
-  const total  = combos * BASE_PRICE;
-  $('#combosTxt').textContent = combos;
-
-  const totalEl = $('#totalTxt');
-  totalEl.textContent = fmtMoney(total);
-
-  totalEl.classList.remove('bump-anim');
-  void totalEl.offsetWidth;
-  totalEl.classList.add('bump-anim');
-}
-
-// clicks en picks
-document.addEventListener('click', e => {
-  const el = e.target.closest('.pick');
-  if (!el) return;
-  if (!CFG_ACEPTA) return;
-  el.classList.toggle('on');
-  updateCurrentTotals();
-});
-
-function decorateSels(selsArr) {
-  const spans = selsArr.map((s) => {
-    if (!s) return '';
-    let sup = '';
-    let cls = '';
-    if (s.length === 2) { sup = '<sup>2</sup>'; cls = 'multi'; }
-    else if (s.length === 3) { sup = '<sup>3</sup>'; cls = 'multi'; }
-    return `<span class="${cls}">${s}${sup}</span>`;
-  }).filter(Boolean);
-  if (!spans.length) return '—';
-  return spans.join(' ');
-}
-
-function renderCarrito() {
-  const wrap = $('#listaWrap');
-  wrap.innerHTML = '';
-  let totalComb = 0;
-  let totalCost = 0;
-
-  const groupsMap = {};
-  const groups = [];
-
-  carrito.forEach((q, idxGlobal) => {
-    let g = groupsMap[q.nombre];
-    if (!g) {
-      g = { nombre: q.nombre, items: [], totalComb: 0, totalCost: 0 };
-      groupsMap[q.nombre] = g;
-      groups.push(g);
-    }
-    g.items.push({ q, idxGlobal });
-    g.totalComb += q.combos;
-    g.totalCost += q.combos * BASE_PRICE;
-
-    totalComb += q.combos;
-    totalCost += q.combos * BASE_PRICE;
-  });
-
-  groups.forEach(group => {
-    const card = document.createElement('div');
-    card.className = 'groupCard';
-
-    const header = document.createElement('div');
-    header.className = 'groupHeader';
-    header.innerHTML = `
-      <div class="groupTitle">${group.nombre}</div>
-      <div class="groupBadges">
-        <span class="badge">${group.items.length} q.</span>
-        <span class="badge">${group.totalComb} comb.</span>
-        <span class="badge money">${fmtMoney(group.totalCost)}</span>
-      </div>
-    `;
-    card.appendChild(header);
-
-    group.items.forEach(entry => {
-      const q = entry.q;
-      const idxGlobal = entry.idxGlobal;
-      const selsHtml = decorateSels(q.sels);
-
-      const item = document.createElement('div');
-      item.className = 'groupItem';
-      item.innerHTML = `
-        <div class="groupItemMain">
-          <div class="sel-inline">${selsHtml}</div>
-          <div class="groupItemMeta">${q.combos} comb. · ${fmtMoney(q.combos * BASE_PRICE)}</div>
-        </div>
-        <div>
-          <button class="mini danger" data-del="${idxGlobal}">Eliminar</button>
-        </div>
-      `;
-      card.appendChild(item);
-    });
-
-    wrap.appendChild(card);
-  });
-
-  $('#listaFooter').textContent =
-    `TOTAL LISTA: ${totalComb} comb. · ${fmtMoney(totalCost)}`;
-}
-
-// eliminar de lista
-document.addEventListener('click', e => {
-  const btn = e.target.closest('button.mini.danger[data-del]');
-  if (!btn) return;
-  if (!CFG_ACEPTA) return;
-  const idx = parseInt(btn.dataset.del, 10);
-  carrito.splice(idx, 1);
-  localStorage.setItem('quiniela_carrito_v4', JSON.stringify(carrito));
-  renderCarrito();
-});
-
-function validarBase(tel, nombre, sels, combos, err) {
-  err.style.display = 'none';
-  err.textContent   = '';
-
-  if (!tel) {
-    setTimeout(() => {
-      err.textContent = 'Captura el teléfono del cliente.';
-      err.style.display = 'block';
-    }, 0);
-    telInput.focus();
-    return false;
-  }
-  if (!/^\d{10,15}$/.test(tel)) {
-    setTimeout(() => {
-      err.textContent = 'El teléfono debe tener entre 10 y 15 dígitos.';
-      err.style.display = 'block';
-    }, 0);
-    telInput.focus();
-    return false;
-  }
-  if (!nombre) {
-    setTimeout(() => {
-      err.textContent = 'Captura el nombre o alias de la quiniela.';
-      err.style.display = 'block';
-    }, 0);
-    nombreInput.focus();
-    return false;
-  }
-  const faltantes = sels.filter(s => !s).length;
-  if (faltantes > 0) {
-    setTimeout(() => {
-      err.textContent = 'Debes seleccionar un resultado en los 9 partidos.';
-      err.style.display = 'block';
-    }, 0);
-    return false;
-  }
-  if (!combos) {
-    setTimeout(() => {
-      err.textContent = 'Debes tener al menos una combinación.';
-      err.style.display = 'block';
-    }, 0);
-    return false;
-  }
-  return true;
-}
-
-// cerrar recuadro de error al tocar fuera
-document.addEventListener('click', e => {
-  const err = $('#errMsg');
-  if (err.style.display === 'block' && !e.target.closest('#errMsg')) {
-    err.style.display = 'none';
-    err.textContent = '';
-  }
-});
-
-$('#btnLimpiar').addEventListener('click', () => {
-  if (!CFG_ACEPTA) return;
-  setSelectionsFromArray(Array(9).fill(''));
-  updateCurrentTotals();
-  const err = $('#errMsg');
-  err.style.display = 'none';
-  err.textContent   = '';
-});
-
-$('#btnVaciar').addEventListener('click', () => {
-  if (!CFG_ACEPTA) return;
-  carrito = [];
-  localStorage.setItem('quiniela_carrito_v4', JSON.stringify(carrito));
-  renderCarrito();
-});
-
-$('#btnAgregar').addEventListener('click', () => {
-  if (!CFG_ACEPTA) return;
-  const tel     = telInput.value.trim();
-  const nombre  = nombreInput.value.trim().toUpperCase();
-  const sels    = getSelections();
-  const combos  = combosFromSelections(sels);
-  const err     = $('#errMsg');
-
-  if (!validarBase(tel, nombre, sels, combos, err)) return;
-
-  localStorage.setItem('quiniela_tel', tel);
-
-  carrito.push({ nombre, sels, combos });
-  localStorage.setItem('quiniela_carrito_v4', JSON.stringify(carrito));
-  renderCarrito();
-  showSnack('Quiniela agregada a la lista');
-
-  setSelectionsFromArray(Array(9).fill(''));
-  updateCurrentTotals();
-});
-
-function formatWhatsSelections(sels) {
-  const parts = [];
-  sels.forEach((val, idx) => {
-    if (!val) return;
-    let txt = val;
-    if (val.length === 2) txt = val + '²';
-    else if (val.length === 3) txt = val + '³';
-    parts.push((idx + 1) + ':' + txt);
-  });
-  return parts.join(' ');
-}
-
-// enviar por WhatsApp
-$('#btnEnviar').addEventListener('click', () => {
-  if (!CFG_ACEPTA) {
-    showSnack('La quiniela ya no acepta registros.');
-    return;
-  }
-
-  const tel     = telInput.value.trim();
-  const nombre  = nombreInput.value.trim().toUpperCase();
-  const sels    = getSelections();
-  const combos  = combosFromSelections(sels);
-  const err     = $('#errMsg');
-
-  err.style.display = 'none';
-  err.textContent   = '';
-
-  let itemsToSend = carrito.slice();
-
-  if (!itemsToSend.length && nombre && combos > 0) {
-    const selsCopy = sels.slice();
-    if (!validarBase(tel, nombre, selsCopy, combos, err)) return;
-    itemsToSend.push({ nombre, sels: selsCopy, combos });
-  }
-
-  if (!tel) {
-    setTimeout(() => {
-      err.textContent = 'Captura el teléfono del cliente.';
-      err.style.display = 'block';
-    }, 0);
-    telInput.focus();
-    return;
-  }
-  if (!/^\d{10,15}$/.test(tel)) {
-    setTimeout(() => {
-      err.textContent = 'El teléfono debe tener entre 10 y 15 dígitos.';
-      err.style.display = 'block';
-    }, 0);
-    telInput.focus();
-    return;
-  }
-  if (!itemsToSend.length) {
-    setTimeout(() => {
-      err.textContent = 'No hay quinielas para enviar.';
-      err.style.display = 'block';
-    }, 0);
-    return;
-  }
-
-  localStorage.setItem('quiniela_tel', tel);
-
-  const lines = [];
-  const titulo   = $('#titleTxt').innerText.trim() || 'QUINIELA AZTECA';
-  const subtitulo= $('#subtitleTxt').textContent;
-
-  lines.push(`🏆 *${titulo}*`);
-  if (subtitulo) lines.push(`📆 ${subtitulo}`);
-  lines.push('');
-
-  const groups = [];
-  const indexByName = {};
-  itemsToSend.forEach(q => {
-    const name = q.nombre;
-    let idx = indexByName[name];
-    if (idx === undefined) {
-      idx = groups.length;
-      indexByName[name] = idx;
-      groups.push({ nombre: name, items: [] });
-    }
-    groups[idx].items.push(q);
-  });
-
-  groups.forEach(group => {
-    const count = group.items.length;
-    const label = count === 1 ? 'quiniela' : 'quinielas';
-    lines.push(`👤 *${group.nombre}* (${count} ${label})`);
-    group.items.forEach(q => {
-      const selLine = formatWhatsSelections(q.sels);
-      const comb    = q.combos;
-      const total   = comb * BASE_PRICE;
-      lines.push(`   • ${selLine}`);
-      lines.push(`     Comb: ${comb} · ${fmtMoney(total)}`);
-    });
-    lines.push('');
-  });
-
-  const totalGlobalCombos = itemsToSend.reduce((a,q)=>a+q.combos,0);
-  const totalGlobalMoney  = totalGlobalCombos * BASE_PRICE;
-  const totalQuinielas    = itemsToSend.length;
-  const labelLista        = totalQuinielas === 1 ? 'Quiniela' : 'Quinielas';
-
-  lines.push(`*TOTAL LISTA: ${totalQuinielas} ${labelLista} ${totalGlobalCombos} combinaciones.*`);
-  lines.push(`*TOTAL A PAGAR: ${fmtMoney(totalGlobalMoney)}.*`);
-
-  const text = lines.join('\n');
-  const waUrl = `https://wa.me/${PHONE_NUMBER}?text=${encodeURIComponent(text)}`;
-
-  window.open(waUrl,'_blank');
-  showSnack('Abriendo WhatsApp...');
-
-  const payload = {
-    tel,
-    vendedor: VENDEDOR_PARAM,
-    canal: CANAL,
-    items: itemsToSend.map(q => ({ nombre: q.nombre, sels: q.sels }))
-  };
-
-  fetch(SHEET_ENDPOINT_PUBLIC, {
-    method:'POST',
-    headers:{'Content-Type':'text/plain;charset=utf-8'},
-    body: JSON.stringify(payload)
-  }).catch(()=>{}).finally(()=> {
-    carrito = [];
-    localStorage.setItem('quiniela_carrito_v4', JSON.stringify(carrito));
-    renderCarrito();
-  });
-});
-
-// aplicar cierre visual
-function aplicarCierreVisual(cerrar){
-  const overlay = $('#registroCerrado');
-  const cup = $('#cupon');
-  CFG_ACEPTA = !cerrar;
-  if (!overlay || !cup) return;
-  if (cerrar){
-    overlay.style.display = 'block';
-    cup.classList.add('disabled-cupon');
-  } else {
-    overlay.style.display = 'none';
-    cup.classList.remove('disabled-cupon');
-  }
-}
-
-function applyConfig(cfg) {
-  BASE_PRICE = cfg.precio || 25;
-  PARTIDOS   = cfg.partidos || [];
-
-  const titleEl = $('#titleTxt');
-  const titulo  = ((cfg.titulo || 'QUINIELA AZTECA') + '').toUpperCase();
-
-  if (titulo === 'QUINIELA AZTECA') {
-    titleEl.innerHTML = '<span class="title-q">QUINIELA</span> <span class="title-a">AZTECA</span>';
-  } else {
-    titleEl.textContent = titulo;
-  }
-
-  $('#subtitleTxt').textContent = cfg.subtitulo || '';
-  $('#precioTxt').textContent   = fmtMoney(BASE_PRICE);
-  $('#cierreTxt').textContent   = cfg.cierre    || '';
-
-  const diasEl = $('#diasTxt');
-  if (cfg.dias_partido || cfg.diasPartido) {
-    diasEl.textContent = cfg.dias_partido || cfg.diasPartido;
-    diasEl.style.display = 'block';
-  } else {
-    diasEl.textContent = '';
-    diasEl.style.display = 'none';
-  }
-
-  const flag = String(cfg.aceptando_respuestas || '').trim().toUpperCase();
-  const cerrar = (flag === 'NO' || flag === 'FALSE' || flag === '0');
-  aplicarCierreVisual(cerrar);
-
-  renderRows();
-  updateCurrentTotals();
-  renderCarrito();
-}
-
-// carga de config
-function loadConfig() {
-  const stored = localStorage.getItem('quiniela_cfg_cache_v1');
-  if (stored) {
-    try {
-      const cfg = JSON.parse(stored);
-      applyConfig(cfg);
-    } catch(e){}
-  }
-
-  fetch(SHEET_ENDPOINT_PUBLIC + '?mode=config')
-    .then(r => r.json())
-    .then(data => {
-      if (!data.ok || !data.cfg) throw new Error('Config inválida');
-      applyConfig(data.cfg);
-      try{
-        localStorage.setItem('quiniela_cfg_cache_v1', JSON.stringify(data.cfg));
-      }catch(e){}
-    })
-    .catch(() => {
-      if (!stored) {
-        applyConfig({
-          titulo:'QUINIELA AZTECA',
-          subtitulo:'Jornada',
-          cierre:'',
-          precio:25,
-          dias_partido:'',
-          partidos:[]
-        });
-      }
-    });
-}
-
-document.addEventListener('DOMContentLoaded', loadConfig);
+/* 🔴 NO TOCADO: solo ejemplo */
 </script>
+
 </body>
 </html>
