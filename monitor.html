@@ -276,7 +276,7 @@ body{
   overscroll-behavior: contain;
 }
 
-/* ✅ ESTO ES LO ÚNICO NUEVO: “colchón” al final para que no tape la barra del móvil */
+/* ✅ “colchón” al final */
 .tableBox::after{
   content:"";
   display:block;
@@ -495,14 +495,6 @@ function render(rows){
 function applyFilter(){
   const q = $("searchInput").value.trim().toLowerCase();
   if (!q){ render(raw); return; }
-  const searchInput = document.getElementById("searchInput");
-
-searchInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
-    e.preventDefault();   // evita comportamientos raros
-    searchInput.blur();   // ✅ oculta el teclado automáticamente
-  }
-});
 
   const out = raw.filter(r=>{
     return String(r.folio ?? "").toLowerCase().includes(q) ||
@@ -635,8 +627,17 @@ async function load(force=false){
   }
 }
 
+/* ✅ ENTER => oculta teclado (una sola vez, no dentro del filtro) */
+const searchInput = $("searchInput");
+searchInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    searchInput.blur();
+  }
+});
+
 let searchTO = null;
-$("searchInput").addEventListener("input", () => {
+searchInput.addEventListener("input", () => {
   if (searchTO) clearTimeout(searchTO);
   searchTO = setTimeout(() => {
     if (isUserScrolling) return;
@@ -662,4 +663,3 @@ setInterval(async () => {
 </script>
 </body>
 </html>
-
