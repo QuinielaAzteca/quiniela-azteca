@@ -162,7 +162,7 @@ body{
   color: var(--okFg);
 }
 
-/* ===== BUSCADOR (sin botón) ===== */
+/* ===== BUSCADOR ===== */
 .searchRow{
   margin-top:6px;
   display:flex;
@@ -217,6 +217,32 @@ body{
   animation: spin .8s linear infinite;
 }
 @keyframes spin{ to{ transform:rotate(360deg);} }
+
+/* ✅ NUEVO: AVISO “SIN COINCIDENCIAS” */
+.noResults{
+  margin-top:6px;
+  padding:10px 12px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background: rgba(248,250,252,.95);
+  color: var(--muted);
+  font-size:13px;
+  font-weight:900;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.noResults[hidden]{ display:none; }
+.noBadge{
+  width:26px; height:26px;
+  border-radius:10px;
+  border:1px solid rgba(203,213,225,.9);
+  background:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:14px;
+}
 
 /* ===== ENCABEZADO FIJO DEL LISTADO ===== */
 .tableHeadRow{
@@ -394,6 +420,15 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
           <span id="loadingTxt">Cargando listado…</span>
         </div>
 
+        <!-- ✅ NUEVO -->
+        <div class="noResults" id="noResults" hidden>
+          <div class="noBadge">🕵️</div>
+          <div>
+            <div style="color:#0f172a; font-weight:1000;">Sin coincidencias</div>
+            <div style="font-weight:800;">No encontré folio, teléfono o nombre con ese texto.</div>
+          </div>
+        </div>
+
         <div class="tableHeadRow" aria-hidden="true">
           <div class="tableHeadGrid" id="fixedHead">
             <div class="thCell folio">#</div>
@@ -439,6 +474,10 @@ function showLoading(msg="Cargando listado…"){
 }
 function hideLoading(){ $("loadingRow").hidden = true; }
 
+function showNoResults(show){
+  $("noResults").hidden = !show;
+}
+
 function buildBodyOnly(){
   return `<tbody></tbody>`;
 }
@@ -467,41 +506,31 @@ function computePlaces(rows){
   });
 }
 
+/* render rápido (string) */
 function render(rows){
   const tbody = document.querySelector("#tabla tbody");
   if (!tbody) return;
-  tbody.innerHTML = "";
 
-  rows.forEach(r=>{
-    const tr = document.createElement("tr");
-
-    const selsHtml = r.sels.map((s,i)=>{
+  let html = "";
+  for (let k=0; k<rows.length; k++){
+    const r = rows[k];
+    let selsHtml = "";
+    for (let i=0; i<r.sels.length; i++){
+      const s = r.sels[i];
       const ok = resultados[i] && norm(s) === norm(resultados[i]);
-      return `<td class="selCell"><span class="selPill ${ok?'hit':''}">${s || '-'}</span></td>`;
-    }).join("");
-
+      selsHtml += `<td class="selCell"><span class="selPill ${ok?'hit':''}">${s || '-'}</span></td>`;
+    }
     const acClass = (r._lugar===1) ? "win1" : (r._lugar===2) ? "win2" : "";
-
-    tr.innerHTML = `
-      <td class="col-folio">${r.folio ?? ''}</td>
-      <td class="col-nombre">${r.nombre_show ?? ''}</td>
-      ${selsHtml}
-      <td class="col-ac ${acClass}">${r.aciertos ?? ''}</td>
+    html += `
+      <tr>
+        <td class="col-folio">${r.folio ?? ''}</td>
+        <td class="col-nombre">${r.nombre_show ?? ''}</td>
+        ${selsHtml}
+        <td class="col-ac ${acClass}">${r.aciertos ?? ''}</td>
+      </tr>
     `;
-    tbody.appendChild(tr);
-  });
-}
-
-function applyFilter(){
-  const q = $("searchInput").value.trim().toLowerCase();
-  if (!q){ render(raw); return; }
-
-  const out = raw.filter(r=>{
-    return String(r.folio ?? "").toLowerCase().includes(q) ||
-           String(r.telefono ?? "").toLowerCase().includes(q) ||
-           String(r.nombre ?? "").toLowerCase().includes(q);
-  });
-  render(out);
+  }
+  tbody.innerHTML = html;
 }
 
 function renderPartidos(cfg){
@@ -544,12 +573,93 @@ function markScrolling(){
       load(true);
       return;
     }
+
+    // al soltar scroll, si hay búsqueda, refresca render final
     if ($("searchInput").value.trim()){
-      withScrollPreserved(applyFilter);
+      scheduleFullSearch();
     }
   }, 180);
 }
 $("tableBox").addEventListener("scroll", markScrolling, {passive:true});
+
+/* ✅ BUSCADOR SUAVE: render ligero mientras tecleas, completo al parar */
+const searchInput = $("searchInput");
+let searchLiteTO = null;
+let searchFullTO = null;
+
+let lastQ = "";
+
+function filterRows(q){
+  if (!q) return raw;
+  return raw.filter(r=>{
+    return String(r.folio ?? "").toLowerCase().includes(q) ||
+           String(r.telefono ?? "").toLowerCase().includes(q) ||
+           String(r.nombre ?? "").toLowerCase().includes(q);
+  });
+}
+
+function applyFilterLite(){
+  const q = searchInput.value.trim().toLowerCase();
+  if (q === lastQ && q !== "") return; // evita repintar igual
+  lastQ = q;
+
+  if (!q){
+    showNoResults(false);
+    render(raw);
+    return;
+  }
+
+  const out = filterRows(q);
+  showNoResults(out.length === 0);
+
+  // ✅ “ligero” mientras tecleas: pinta rápido primero
+  // (si hay muchísimos, esto evita que se coma el teclado)
+  const MAX_LITE = 450;
+  render(out.slice(0, MAX_LITE));
+}
+
+function applyFilterFull(){
+  const q = searchInput.value.trim().toLowerCase();
+  if (!q){
+    showNoResults(false);
+    render(raw);
+    return;
+  }
+  const out = filterRows(q);
+  showNoResults(out.length === 0);
+  render(out); // completo
+}
+
+function scheduleLiteSearch(){
+  if (searchLiteTO) clearTimeout(searchLiteTO);
+  searchLiteTO = setTimeout(() => {
+    if (isUserScrolling) return;
+    withScrollPreserved(applyFilterLite);
+  }, 35); // responde rápido al tecleo
+}
+
+function scheduleFullSearch(){
+  if (searchFullTO) clearTimeout(searchFullTO);
+  searchFullTO = setTimeout(() => {
+    if (isUserScrolling) return;
+    withScrollPreserved(applyFilterFull);
+  }, 220); // cuando ya “paraste”, render completo
+}
+
+/* ENTER => oculta teclado + render completo */
+searchInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    searchInput.blur();
+    scheduleFullSearch();
+  }
+});
+
+/* input => ligero inmediato + completo al parar */
+searchInput.addEventListener("input", () => {
+  scheduleLiteSearch();
+  scheduleFullSearch();
+});
 
 async function load(force=false){
   if (isLoading) return;
@@ -614,8 +724,12 @@ async function load(force=false){
     tabla.innerHTML = buildBodyOnly();
 
     withScrollPreserved(() => {
-      if ($("searchInput").value.trim()) applyFilter();
-      else render(raw);
+      showNoResults(false);
+      if (searchInput.value.trim()) {
+        applyFilterFull();
+      } else {
+        render(raw);
+      }
     });
 
     hideLoading();
@@ -626,24 +740,6 @@ async function load(force=false){
     isLoading = false;
   }
 }
-
-/* ✅ ENTER => oculta teclado (una sola vez, no dentro del filtro) */
-const searchInput = $("searchInput");
-searchInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
-    e.preventDefault();
-    searchInput.blur();
-  }
-});
-
-let searchTO = null;
-searchInput.addEventListener("input", () => {
-  if (searchTO) clearTimeout(searchTO);
-  searchTO = setTimeout(() => {
-    if (isUserScrolling) return;
-    withScrollPreserved(applyFilter);
-  }, 60);
-});
 
 load(true);
 
