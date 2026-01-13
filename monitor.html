@@ -64,10 +64,9 @@ body{
   position:sticky;
   top:0;
   z-index:50;
-  background:#fff;               /* ✅ sólido (menos “blanco” al scroll rápido) */
+  background:#fff;
   border-bottom:1px solid rgba(215,230,220,.85);
   box-shadow: 0 10px 24px rgba(2,6,23,.05);
-  /* ❌ quitamos contain: paint; (puede causar “blancos” en móviles) */
 }
 .header-inner{
   max-width:1100px;
@@ -270,13 +269,18 @@ body{
   border:1px solid var(--line);
   border-radius:14px;
   overflow:auto;
-  /* ❌ quitamos -webkit-overflow-scrolling: touch; (muy típico del “blanco” en móviles) */
   background:#fff;
   box-shadow: var(--shadow);
   height:100%;
   min-height:0;
+  overscroll-behavior: contain;
+}
 
-  overscroll-behavior: contain; /* ✅ evita rebotes raros */
+/* ✅ ESTO ES LO ÚNICO NUEVO: “colchón” al final para que no tape la barra del móvil */
+.tableBox::after{
+  content:"";
+  display:block;
+  height: calc(84px + env(safe-area-inset-bottom));
 }
 
 table{
@@ -379,20 +383,17 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
 
         <div class="partidos" id="partidosTxt"></div>
 
-        <!-- ✅ buscador (sin botón) -->
         <div class="searchRow">
           <div class="search">
             <input id="searchInput" placeholder="Busca aqui por telefono, nombre o folio" autocomplete="off">
           </div>
         </div>
 
-        <!-- ✅ aviso -->
         <div class="loadingRow" id="loadingRow" hidden>
           <span class="spinner" aria-hidden="true"></span>
           <span id="loadingTxt">Cargando listado…</span>
         </div>
 
-        <!-- ✅ fila fija del encabezado -->
         <div class="tableHeadRow" aria-hidden="true">
           <div class="tableHeadGrid" id="fixedHead">
             <div class="thCell folio">#</div>
@@ -423,11 +424,9 @@ const CONFIG   = BASE + "?mode=config";
 let raw = [];
 let resultados = [];
 let marcadores = [];
-let lastCfgSig = "";   // ✅ para saber si cambió config
+let lastCfgSig = "";
 
 let isLoading = false;
-
-// ✅ NO render mientras haces scroll (evita blanco / brincos)
 let isUserScrolling = false;
 let scrollTimer = null;
 let pendingRefresh = false;
@@ -527,7 +526,6 @@ function renderPartidos(cfg){
   });
 }
 
-/* ✅ guarda/restaura posición del scroll para NO volver al inicio */
 function withScrollPreserved(fn){
   const box = $("tableBox");
   const prev = box.scrollTop;
@@ -535,55 +533,43 @@ function withScrollPreserved(fn){
   requestAnimationFrame(() => { box.scrollTop = prev; });
 }
 
-/* ✅ detecta scroll del listado y bloquea renders/loads mientras se mueve */
 function markScrolling(){
   isUserScrolling = true;
   if (scrollTimer) clearTimeout(scrollTimer);
   scrollTimer = setTimeout(()=>{
     isUserScrolling = false;
 
-    // ✅ si quedó un refresh pendiente, ejecútalo al soltar
     if (pendingRefresh){
       pendingRefresh = false;
       load(true);
       return;
     }
-
-    // ✅ al soltar, re-aplica búsqueda (sin brincar)
     if ($("searchInput").value.trim()){
       withScrollPreserved(applyFilter);
     }
   }, 180);
 }
-
 $("tableBox").addEventListener("scroll", markScrolling, {passive:true});
 
-/* ✅ Carga completa (solo cuando cambie CONFIG) */
 async function load(force=false){
   if (isLoading) return;
-
-  // ✅ si estás scrolleando, no cargamos ni renderizamos ahorita
   if (isUserScrolling){
     pendingRefresh = pendingRefresh || force;
     return;
   }
 
   isLoading = true;
-
   try{
     showLoading(force ? "Cargando listado…" : "Actualizando…");
 
-    // CONFIG
     const cfgRes = await fetch(CONFIG, {cache:"no-store"}).then(r=>r.json());
     const cfg = cfgRes.cfg || {};
     const cfgSig = sigCfg(cfg);
 
-    // Si NO cambió config y NO forzaste, no hacemos nada
     if (!force && cfgSig === lastCfgSig){
       hideLoading();
       return;
     }
-
     lastCfgSig = cfgSig;
 
     $("weekTxt").textContent = cfg.subtitulo || "";
@@ -591,7 +577,6 @@ async function load(force=false){
     marcadores = (cfg.marcadores || []).slice(0,9);
     renderPartidos(cfg);
 
-    // CLASIF (solo cuando cambió config o force)
     const res = await fetch(ENDPOINT, {cache:"no-store"}).then(r=>r.json());
     const data = res.data || {headers:[], rows:[]};
     const headers = (data.headers || []).map(x => String(x).toLowerCase());
@@ -628,7 +613,6 @@ async function load(force=false){
     const tabla = $("tabla");
     tabla.innerHTML = buildBodyOnly();
 
-    // ✅ render preservando scroll y respetando búsqueda
     withScrollPreserved(() => {
       if ($("searchInput").value.trim()) applyFilter();
       else render(raw);
@@ -643,7 +627,6 @@ async function load(force=false){
   }
 }
 
-/* ✅ búsqueda rápida: no renderiza mientras scrolleas */
 let searchTO = null;
 $("searchInput").addEventListener("input", () => {
   if (searchTO) clearTimeout(searchTO);
@@ -653,14 +636,8 @@ $("searchInput").addEventListener("input", () => {
   }, 60);
 });
 
-/* ✅ primera carga */
 load(true);
 
-/*
-  ✅ Solo “se actualiza” cuando cambias CONFIG:
-  - Esto SOLO revisa CONFIG (ligerísimo)
-  - Si detecta cambios, entonces sí recarga clasif + re-render
-*/
 const POLL_CONFIG_MS = 2000;
 setInterval(async () => {
   if (isLoading) return;
