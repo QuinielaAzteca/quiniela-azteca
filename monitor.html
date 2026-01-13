@@ -495,6 +495,14 @@ function render(rows){
 function applyFilter(){
   const q = $("searchInput").value.trim().toLowerCase();
   if (!q){ render(raw); return; }
+  const searchInput = document.getElementById("searchInput");
+
+searchInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();   // evita comportamientos raros
+    searchInput.blur();   // ✅ oculta el teclado automáticamente
+  }
+});
 
   const out = raw.filter(r=>{
     return String(r.folio ?? "").toLowerCase().includes(q) ||
@@ -654,3 +662,4 @@ setInterval(async () => {
 </script>
 </body>
 </html>
+
