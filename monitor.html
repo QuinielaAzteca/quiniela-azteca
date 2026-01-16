@@ -218,6 +218,20 @@ body{
 }
 @keyframes spin{ to{ transform:rotate(360deg);} }
 
+/* ✅ NUEVO: aviso "Sin coincidencias" (solo texto) */
+.noMatch{
+  margin-top:6px;
+  padding:10px 12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background: rgba(248,250,252,.95);
+  color: var(--muted);
+  font-size:12px;
+  font-weight:900;
+  text-align:center;
+}
+.noMatch[hidden]{ display:none; }
+
 /* ===== ENCABEZADO FIJO DEL LISTADO ===== */
 .tableHeadRow{
   margin-top:6px;
@@ -394,6 +408,9 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
           <span id="loadingTxt">Cargando listado…</span>
         </div>
 
+        <!-- ✅ NUEVO: aviso sin coincidencias -->
+        <div class="noMatch" id="noMatch" hidden>Sin coincidencias</div>
+
         <div class="tableHeadRow" aria-hidden="true">
           <div class="tableHeadGrid" id="fixedHead">
             <div class="thCell folio">#</div>
@@ -439,6 +456,10 @@ function showLoading(msg="Cargando listado…"){
 }
 function hideLoading(){ $("loadingRow").hidden = true; }
 
+function showNoMatch(show){
+  $("noMatch").hidden = !show;
+}
+
 function buildBodyOnly(){
   return `<tbody></tbody>`;
 }
@@ -467,40 +488,53 @@ function computePlaces(rows){
   });
 }
 
+/* ✅ MÁS RÁPIDO: render en 1 solo golpe (menos “lag” al cargar) */
 function render(rows){
   const tbody = document.querySelector("#tabla tbody");
   if (!tbody) return;
-  tbody.innerHTML = "";
 
-  rows.forEach(r=>{
-    const tr = document.createElement("tr");
+  const resNorm = resultados.map(norm); // 9 elementos (barato)
+  const parts = [];
 
-    const selsHtml = r.sels.map((s,i)=>{
-      const ok = resultados[i] && norm(s) === norm(resultados[i]);
-      return `<td class="selCell"><span class="selPill ${ok?'hit':''}">${s || '-'}</span></td>`;
-    }).join("");
-
+  for (let k=0; k<rows.length; k++){
+    const r = rows[k];
     const acClass = (r._lugar===1) ? "win1" : (r._lugar===2) ? "win2" : "";
 
-    tr.innerHTML = `
-      <td class="col-folio">${r.folio ?? ''}</td>
-      <td class="col-nombre">${r.nombre_show ?? ''}</td>
-      ${selsHtml}
-      <td class="col-ac ${acClass}">${r.aciertos ?? ''}</td>
-    `;
-    tbody.appendChild(tr);
-  });
+    let selsHtml = "";
+    for (let i=0; i<9; i++){
+      const s = r.sels[i] ?? "";
+      const ok = resNorm[i] && norm(s) === resNorm[i];
+      selsHtml += `<td class="selCell"><span class="selPill ${ok?'hit':''}">${s || '-'}</span></td>`;
+    }
+
+    parts.push(
+      `<tr>
+        <td class="col-folio">${r.folio ?? ''}</td>
+        <td class="col-nombre">${r.nombre_show ?? ''}</td>
+        ${selsHtml}
+        <td class="col-ac ${acClass}">${r.aciertos ?? ''}</td>
+      </tr>`
+    );
+  }
+
+  tbody.innerHTML = parts.join("");
 }
 
 function applyFilter(){
   const q = $("searchInput").value.trim().toLowerCase();
-  if (!q){ render(raw); return; }
+  if (!q){
+    showNoMatch(false);
+    render(raw);
+    return;
+  }
 
   const out = raw.filter(r=>{
     return String(r.folio ?? "").toLowerCase().includes(q) ||
            String(r.telefono ?? "").toLowerCase().includes(q) ||
            String(r.nombre ?? "").toLowerCase().includes(q);
   });
+
+  showNoMatch(out.length === 0);
   render(out);
 }
 
@@ -615,7 +649,10 @@ async function load(force=false){
 
     withScrollPreserved(() => {
       if ($("searchInput").value.trim()) applyFilter();
-      else render(raw);
+      else {
+        showNoMatch(false);
+        render(raw);
+      }
     });
 
     hideLoading();
@@ -627,7 +664,7 @@ async function load(force=false){
   }
 }
 
-/* ✅ ENTER => oculta teclado (una sola vez, no dentro del filtro) */
+/* ✅ ENTER => oculta teclado */
 const searchInput = $("searchInput");
 searchInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
