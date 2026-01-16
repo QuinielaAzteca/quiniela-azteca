@@ -9,12 +9,30 @@
 :root{
   --fg:#0f172a;
   --muted:#475569;
+
   --bg:#eaf3ee;
   --bg2:#dfeee7;
+  --card:#ffffff;
   --line:#d7e6dc;
+
   --l:#0a6b3a;
   --v:#c62828;
 
+  --rowA:#f6fbf8;
+  --rowB:#eff7f2;
+
+  --shadow:0 10px 24px rgba(2,44,20,.10);
+
+  --okBg:#ecfdf5;
+  --okBd:#bbf7d0;
+  --okFg:#065f46;
+
+  --pillBorder:#cbd5e1;
+  --pillHitBg:#dcfce7;
+  --pillHitBd:#86efac;
+  --pillHitTx:#064e3b;
+
+  /* anchos base */
   --wFolio:22px;
   --wNombre:200px;
   --wSel:20px;
@@ -32,29 +50,40 @@ body{
   flex-direction:column;
 }
 
-/* HEADER */
+/* ===== HEADER ===== */
 .header{
   position:sticky;
   top:0;
   z-index:50;
   background:#fff;
   border-bottom:1px solid var(--line);
+  box-shadow:0 6px 14px rgba(0,0,0,.06);
 }
-.header-inner{max-width:1100px;margin:auto;padding:8px 10px}
-.title{font-weight:1000;font-size:18px}
+.header-inner{
+  max-width:1100px;
+  margin:auto;
+  padding:8px 10px;
+}
+
+.title{
+  font-weight:1000;
+  font-size:18px;
+}
 .title .mxg{color:var(--l)}
 .title .mxr{color:var(--v)}
-.week{font-size:12px;font-weight:800;color:var(--muted)}
+.week{font-size:12px;font-weight:900;color:var(--muted)}
 
-/* PARTIDOS */
-.partidos{margin-top:6px;font-size:10px;font-weight:900}
-.p{display:flex;justify-content:space-between;padding:3px 6px;border-radius:8px;border:1px solid var(--line)}
-.p:nth-child(even){background:#f6fbf8}
-.chip{padding:2px 6px;border-radius:999px;border:1px solid #e5e7eb}
-
-/* SEARCH */
-.search{margin-top:6px;position:relative}
-.search::before{content:"🔍";position:absolute;left:10px;top:50%;transform:translateY(-50%)}
+.search{
+  margin-top:6px;
+  position:relative;
+}
+.search::before{
+  content:"🔍";
+  position:absolute;
+  left:10px;
+  top:50%;
+  transform:translateY(-50%);
+}
 .search input{
   width:100%;
   padding:8px 10px 8px 36px;
@@ -62,14 +91,16 @@ body{
   font-weight:900;
   border:2px solid #cbd5e1;
   border-radius:14px;
+  outline:none;
 }
 
-/* HEAD */
+/* ===== ENCABEZADO TABLA ===== */
 .tableHeadRow{
   margin-top:6px;
   border:1px solid var(--line);
   border-radius:12px;
   overflow:hidden;
+  background:#f8fafc;
 }
 .tableHeadGrid{
   display:grid;
@@ -77,45 +108,49 @@ body{
 }
 .thCell{
   padding:6px 4px;
-  font-size:11px;
-  font-weight:1000;
-  border-right:1px solid var(--line);
   text-align:center;
+  font-size:11px;
+  font-weight:900;
+  border-right:1px solid var(--line);
 }
-.thCell.left{text-align:left}
 .thCell:last-child{border-right:none}
+.thCell.left{text-align:left}
 
-/* WRAP */
+/* ===== CONTENEDOR ===== */
 .wrap{
-  flex:1;
-  min-height:0;
   max-width:1100px;
   margin:auto;
   padding:10px 12px;
+  flex:1;
   overflow:hidden;
 }
 
-/* TABLE */
 .tableBox{
   height:100%;
   overflow:auto;
-  border:1px solid var(--line);
-  border-radius:14px;
   background:#fff;
+  border-radius:14px;
+  border:1px solid var(--line);
   overscroll-behavior:contain;
 }
 .tableBox::after{
   content:"";
   display:block;
-  height:calc(80px + env(safe-area-inset-bottom));
+  height:calc(90px + env(safe-area-inset-bottom));
 }
 
-table{width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0}
+/* ===== TABLA ===== */
+table{
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0;
+  table-layout:fixed;
+}
 td{
-  padding:4px;
   border-bottom:1px solid var(--line);
-  font-weight:900;
+  padding:4px;
   text-align:center;
+  font-weight:900;
 }
 td.col-folio{width:var(--wFolio);font-size:7px;text-align:right}
 td.col-nombre{
@@ -125,70 +160,64 @@ td.col-nombre{
   overflow:hidden;
   text-overflow:ellipsis;
 }
+td.selCell{width:var(--wSel)}
 td.col-ac{width:var(--wA)}
 
-.selCell{width:var(--wSel)}
 .selPill{
   display:inline-flex;
+  width:18px;
+  height:20px;
   align-items:center;
   justify-content:center;
-
-  /* ✅ la pastilla siempre cabe dentro de la columna */
-  width: calc(var(--wSel) - 2px);
-  height: calc(var(--wSel) + 2px);
-
   border-radius:12px;
   border:1px solid var(--pillBorder);
-  font-weight:900;
   font-size:12px;
-  line-height:1;
-  background:#fff;
+}
+.selPill.hit{
+  background:var(--pillHitBg);
+  border-color:var(--pillHitBd);
+  color:var(--pillHitTx);
 }
 
-/* NO RESULTS */
+/* ===== SIN COINCIDENCIAS ===== */
 .noResults{
-  padding:20px;
+  padding:14px;
   text-align:center;
-  font-weight:1000;
-  color:#0f172a;
+  color:var(--muted);
+  font-weight:900;
 }
-</style>
-  /* ===== AJUSTE SOLO PARA MÓVILES ===== */
+
+/* ===== RESPONSIVE (ESTO ES LO QUE FALTABA) ===== */
 @media (max-width:520px){
   :root{
-    --wNombre: 150px;
-    --wSel: 16px;
-    --wA: 22px;
-  }
-  .selPill{
-    font-size:11px;
-    border-radius:11px;
+    --wNombre:150px;
+    --wSel:16px;
+    --wA:22px;
   }
 }
-
 @media (max-width:420px){
   :root{
-    --wNombre: 130px;
-    --wSel: 15px;
-    --wA: 22px;
-  }
-  .selPill{
-    font-size:11px;
-    border-radius:10px;
+    --wNombre:130px;
+    --wSel:15px;
+    --wA:22px;
   }
 }
+</style>
 </head>
 
 <body>
 
 <div class="header">
   <div class="header-inner">
-    <div class="title"><span class="mxg">QUINIELA</span> <span class="mxr">AZTECA</span></div>
+    <div class="title">
+      <span class="mxg">QUINIELA</span> <span class="mxr">AZTECA</span>
+    </div>
     <div class="week" id="weekTxt"></div>
-    <div class="partidos" id="partidosTxt"></div>
+
     <div class="search">
       <input id="searchInput" placeholder="Busca aquí…" autocomplete="off">
     </div>
+
     <div class="tableHeadRow">
       <div class="tableHeadGrid">
         <div class="thCell">#</div>
@@ -205,7 +234,6 @@ td.col-ac{width:var(--wA)}
 <div class="wrap">
   <div class="tableBox" id="tableBox">
     <table id="tabla"><tbody></tbody></table>
-    <div class="noResults" id="noResults" hidden>Sin coincidencias</div>
   </div>
 </div>
 
@@ -214,92 +242,58 @@ const BASE="https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-
 const ENDPOINT=BASE+"?mode=clasif";
 const CONFIG=BASE+"?mode=config";
 
-let raw=[],resultados=[],marcadores=[],lastCfgSig="";
+let raw=[], resultados=[];
 const $=id=>document.getElementById(id);
 
-function norm(v){return String(v??"").toUpperCase()}
-function sigCfg(cfg){
-  return JSON.stringify({
-    s:cfg.subtitulo,
-    r:(cfg.resultados||[]).slice(0,9),
-    m:(cfg.marcadores||[]).slice(0,9)
-  });
-}
-
 function render(rows){
-  const tb=$("tabla").querySelector("tbody");
-  tb.innerHTML="";
-  $("noResults").hidden=rows.length>0;
-
+  const tbody=$("tabla").querySelector("tbody");
+  tbody.innerHTML="";
+  if(!rows.length){
+    tbody.innerHTML=`<tr><td colspan="12" class="noResults">Sin coincidencias</td></tr>`;
+    return;
+  }
   rows.forEach(r=>{
     const tr=document.createElement("tr");
     tr.innerHTML=`
       <td class="col-folio">${r.folio}</td>
-      <td class="col-nombre">${r.nombre_show}</td>
-      ${r.sels.map((s,i)=>`
-        <td class="selCell"><span class="selPill">${s||"-"}</span></td>
-      `).join("")}
+      <td class="col-nombre">${r.nombre}</td>
+      ${r.sels.map((s,i)=>{
+        const ok=resultados[i]===s;
+        return `<td class="selCell"><span class="selPill ${ok?"hit":""}">${s}</span></td>`;
+      }).join("")}
       <td class="col-ac">${r.aciertos}</td>`;
-    tb.appendChild(tr);
+    tbody.appendChild(tr);
   });
 }
 
-function applyFilterLite(){
-  const q=$("searchInput").value.trim().toLowerCase();
-  if(!q){render(raw);return}
-  const out=[];
-  for(const r of raw){
-    if(
-      String(r.folio).includes(q)||
-      r.nombre.includes(q)||
-      String(r.telefono).includes(q)
-    ){
-      out.push(r);
-      if(out.length>=450)break;
-    }
-  }
-  render(out);
-}
-
-$("searchInput").addEventListener("input",applyFilterLite);
 $("searchInput").addEventListener("keydown",e=>{
-  if(e.key==="Enter"){e.preventDefault();$("searchInput").blur()}
+  if(e.key==="Enter"){e.preventDefault();e.target.blur();}
+});
+
+$("searchInput").addEventListener("input",()=>{
+  const q=$("searchInput").value.toLowerCase();
+  render(!q?raw:raw.filter(r=>
+    r.nombre.toLowerCase().includes(q)||
+    String(r.folio).includes(q)
+  ));
 });
 
 async function load(){
-  const cfgRes=await fetch(CONFIG,{cache:"no-store"}).then(r=>r.json());
-  const cfg=cfgRes.cfg||{};
-  const sig=sigCfg(cfg);
-  if(sig===lastCfgSig)return;
-  lastCfgSig=sig;
+  const cfg=await fetch(CONFIG).then(r=>r.json());
+  $("weekTxt").textContent=cfg.cfg?.subtitulo||"";
+  resultados=(cfg.cfg?.resultados||[]).slice(0,9);
 
-  $("weekTxt").textContent=cfg.subtitulo||"";
-  resultados=(cfg.resultados||[]).slice(0,9);
-
-  const res=await fetch(ENDPOINT,{cache:"no-store"}).then(r=>r.json());
-  const d=res.data;
-  const h=d.headers.map(x=>x.toLowerCase());
-  const iF=h.indexOf("folio"),iN=h.indexOf("nombre"),iT=h.indexOf("telefono_envio"),iA=h.indexOf("aciertos");
-
-  raw=d.rows.map(r=>{
-    const n=String(r[iN]||"");
-    return{
-      folio:r[iF],
-      telefono:r[iT]||"",
-      nombre:n.toLowerCase(),
-      nombre_show:n,
-      sels:r.slice(iN+1,iA).slice(0,9),
-      aciertos:r[iA]
-    };
-  });
-
+  const res=await fetch(ENDPOINT).then(r=>r.json());
+  raw=res.data.rows.map(r=>({
+    folio:r[0],
+    nombre:r[1],
+    sels:r.slice(2,11),
+    aciertos:r[11]
+  }));
   render(raw);
 }
 
 load();
-setInterval(load,2000);
 </script>
 </body>
 </html>
-
-
