@@ -130,12 +130,19 @@ td.col-ac{width:var(--wA)}
 .selCell{width:var(--wSel)}
 .selPill{
   display:inline-flex;
-  width:18px;
-  height:20px;
   align-items:center;
   justify-content:center;
-  border:1px solid #cbd5e1;
+
+  /* ✅ la pastilla siempre cabe dentro de la columna */
+  width: calc(var(--wSel) - 2px);
+  height: calc(var(--wSel) + 2px);
+
   border-radius:12px;
+  border:1px solid var(--pillBorder);
+  font-weight:900;
+  font-size:12px;
+  line-height:1;
+  background:#fff;
 }
 
 /* NO RESULTS */
@@ -270,3 +277,4 @@ setInterval(load,2000);
 </script>
 </body>
 </html>
+
