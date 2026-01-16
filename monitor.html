@@ -153,6 +153,30 @@ td.col-ac{width:var(--wA)}
   color:#0f172a;
 }
 </style>
+  /* ===== AJUSTE SOLO PARA MÓVILES ===== */
+@media (max-width:520px){
+  :root{
+    --wNombre: 150px;
+    --wSel: 16px;
+    --wA: 22px;
+  }
+  .selPill{
+    font-size:11px;
+    border-radius:11px;
+  }
+}
+
+@media (max-width:420px){
+  :root{
+    --wNombre: 130px;
+    --wSel: 15px;
+    --wA: 22px;
+  }
+  .selPill{
+    font-size:11px;
+    border-radius:10px;
+  }
+}
 </head>
 
 <body>
@@ -277,4 +301,5 @@ setInterval(load,2000);
 </script>
 </body>
 </html>
+
 
