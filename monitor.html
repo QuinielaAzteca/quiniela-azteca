@@ -596,22 +596,10 @@ async function load(force=false){
   try{
     showLoading(force ? "Cargando listado…" : "Actualizando…");
 
-    const cfgRes = await fetch(CONFIG, {cache:"no-store"}).then(r=>r.json());
-    const cfg = cfgRes.cfg || {};
-    const cfgSig = sigCfg(cfg);
+    const cfgP  = fetch(CONFIG,   {cache:"no-store"}).then(r=>r.json());
+const dataP = fetch(ENDPOINT, {cache:"no-store"}).then(r=>r.json());
 
-    if (!force && cfgSig === lastCfgSig){
-      hideLoading();
-      return;
-    }
-    lastCfgSig = cfgSig;
-
-    $("weekTxt").textContent = cfg.subtitulo || "";
-    resultados = (cfg.resultados || []).slice(0,9);
-    marcadores = (cfg.marcadores || []).slice(0,9);
-    renderPartidos(cfg);
-
-    const res = await fetch(ENDPOINT, {cache:"no-store"}).then(r=>r.json());
+const [cfgRes, res] = await Promise.all([cfgP, dataP]);
     const data = res.data || {headers:[], rows:[]};
     const headers = (data.headers || []).map(x => String(x).toLowerCase());
 
@@ -700,3 +688,4 @@ setInterval(async () => {
 </script>
 </body>
 </html>
+
