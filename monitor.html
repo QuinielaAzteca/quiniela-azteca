@@ -218,7 +218,7 @@ body{
 }
 @keyframes spin{ to{ transform:rotate(360deg);} }
 
-/* ✅ NUEVO: aviso "Sin coincidencias" (solo texto) */
+/* ✅ aviso "Sin coincidencias" */
 .noMatch{
   margin-top:6px;
   padding:10px 12px;
@@ -231,6 +231,46 @@ body{
   text-align:center;
 }
 .noMatch[hidden]{ display:none; }
+
+/* ✅ PAGINACIÓN */
+.pagerRow{
+  margin-top:6px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:6px 10px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background: rgba(248,250,252,.95);
+}
+.pagerInfo{
+  font-size:12px;
+  font-weight:900;
+  color: var(--muted);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.pagerBtns{
+  display:flex;
+  gap:8px;
+  flex-shrink:0;
+}
+.pbtn{
+  border:2px solid #cbd5e1;
+  background:#fff;
+  border-radius:12px;
+  padding:6px 10px;
+  font-weight:900;
+  font-size:12px;
+  cursor:pointer;
+}
+.pbtn:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
+.pbtn:active{ transform: translateY(1px); }
 
 /* ===== ENCABEZADO FIJO DEL LISTADO ===== */
 .tableHeadRow{
@@ -408,8 +448,16 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
           <span id="loadingTxt">Cargando listado…</span>
         </div>
 
-        <!-- ✅ NUEVO: aviso sin coincidencias -->
         <div class="noMatch" id="noMatch" hidden>Sin coincidencias</div>
+
+        <!-- ✅ PAGINACIÓN -->
+        <div class="pagerRow" id="pagerRow">
+          <div class="pagerInfo" id="pagerInfo">—</div>
+          <div class="pagerBtns">
+            <button class="pbtn" id="btnPrev" type="button">‹</button>
+            <button class="pbtn" id="btnNext" type="button">›</button>
+          </div>
+        </div>
 
         <div class="tableHeadRow" aria-hidden="true">
           <div class="tableHeadGrid" id="fixedHead">
@@ -438,7 +486,12 @@ const BASE = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCu
 const ENDPOINT = BASE + "?mode=clasif";
 const CONFIG   = BASE + "?mode=config";
 
+/* ✅ PAGINACIÓN */
+const PAGE_SIZE = 300;     // puedes subir a 500 si tu cel aguanta, o bajar a 200 para más fluido
+let page = 1;              // 1-based
+
 let raw = [];
+let filtered = null;       // null => sin filtro, usa raw
 let resultados = [];
 let marcadores = [];
 let lastCfgSig = "";
@@ -488,12 +541,12 @@ function computePlaces(rows){
   });
 }
 
-/* ✅ MÁS RÁPIDO: render en 1 solo golpe (menos “lag” al cargar) */
-function render(rows){
+/* ✅ render rápido (innerHTML de una sola pasada) */
+function renderRows(rows){
   const tbody = document.querySelector("#tabla tbody");
   if (!tbody) return;
 
-  const resNorm = resultados.map(norm); // 9 elementos (barato)
+  const resNorm = resultados.map(norm); // 9
   const parts = [];
 
   for (let k=0; k<rows.length; k++){
@@ -520,11 +573,51 @@ function render(rows){
   tbody.innerHTML = parts.join("");
 }
 
+function getActiveList(){
+  return filtered ? filtered : raw;
+}
+
+/* ✅ paginación: calcula slice y renderiza */
+function renderPage(){
+  const list = getActiveList();
+  const total = list.length;
+
+  // si no hay nada
+  if (total === 0){
+    $("pagerInfo").textContent = "Mostrando 0–0 de 0";
+    $("btnPrev").disabled = true;
+    $("btnNext").disabled = true;
+    renderRows([]);
+    return;
+  }
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  if (page > totalPages) page = totalPages;
+  if (page < 1) page = 1;
+
+  const start = (page - 1) * PAGE_SIZE;
+  const end = Math.min(start + PAGE_SIZE, total);
+
+  $("pagerInfo").textContent = `Mostrando ${start+1}–${end} de ${total}`;
+  $("btnPrev").disabled = (page <= 1);
+  $("btnNext").disabled = (page >= totalPages);
+
+  // ✅ importante: al cambiar página, subimos al inicio del listado (no al inicio de la página)
+  const box = $("tableBox");
+  box.scrollTop = 0;
+
+  renderRows(list.slice(start, end));
+}
+
+/* ✅ filtro + paginado */
 function applyFilter(){
   const q = $("searchInput").value.trim().toLowerCase();
+
   if (!q){
+    filtered = null;
     showNoMatch(false);
-    render(raw);
+    page = 1;
+    renderPage();
     return;
   }
 
@@ -534,8 +627,10 @@ function applyFilter(){
            String(r.nombre ?? "").toLowerCase().includes(q);
   });
 
+  filtered = out;
   showNoMatch(out.length === 0);
-  render(out);
+  page = 1;          // ✅ al buscar, arrancamos en página 1 de resultados
+  renderPage();
 }
 
 function renderPartidos(cfg){
@@ -560,13 +655,6 @@ function renderPartidos(cfg){
   });
 }
 
-function withScrollPreserved(fn){
-  const box = $("tableBox");
-  const prev = box.scrollTop;
-  fn();
-  requestAnimationFrame(() => { box.scrollTop = prev; });
-}
-
 function markScrolling(){
   isUserScrolling = true;
   if (scrollTimer) clearTimeout(scrollTimer);
@@ -578,9 +666,7 @@ function markScrolling(){
       load(true);
       return;
     }
-    if ($("searchInput").value.trim()){
-      withScrollPreserved(applyFilter);
-    }
+    // no hacemos nada aquí: el listado ya está paginado
   }, 180);
 }
 $("tableBox").addEventListener("scroll", markScrolling, {passive:true});
@@ -647,13 +733,15 @@ async function load(force=false){
     const tabla = $("tabla");
     tabla.innerHTML = buildBodyOnly();
 
-    withScrollPreserved(() => {
-      if ($("searchInput").value.trim()) applyFilter();
-      else {
-        showNoMatch(false);
-        render(raw);
-      }
-    });
+    // ✅ re-aplica filtro si había búsqueda (y repagina)
+    if ($("searchInput").value.trim()){
+      applyFilter();
+    } else {
+      filtered = null;
+      showNoMatch(false);
+      // mantenemos la página si se puede, pero ajustamos si se salió de rango
+      renderPage();
+    }
 
     hideLoading();
   } catch(err){
@@ -664,28 +752,47 @@ async function load(force=false){
   }
 }
 
-/* ✅ ENTER => oculta teclado */
+/* ✅ Enter => oculta teclado (una sola vez) */
 const searchInput = $("searchInput");
-searchInput.addEventListener("keydown", (e) => {
+searchInput.addEventListener("keydown", (e)=>{
   if (e.key === "Enter") {
     e.preventDefault();
     searchInput.blur();
   }
 });
 
+/* ✅ input con debounce */
 let searchTO = null;
-searchInput.addEventListener("input", () => {
+searchInput.addEventListener("input", ()=>{
   if (searchTO) clearTimeout(searchTO);
-  searchTO = setTimeout(() => {
+  searchTO = setTimeout(()=>{
     if (isUserScrolling) return;
-    withScrollPreserved(applyFilter);
-  }, 60);
+    applyFilter();
+  }, 80);
 });
 
+/* ✅ botones paginación */
+$("btnPrev").addEventListener("click", ()=>{
+  if (page > 1){
+    page--;
+    renderPage();
+  }
+});
+$("btnNext").addEventListener("click", ()=>{
+  const total = getActiveList().length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  if (page < totalPages){
+    page++;
+    renderPage();
+  }
+});
+
+/* ✅ primera carga */
 load(true);
 
+/* ✅ refresco solo por cambio de CONFIG */
 const POLL_CONFIG_MS = 2000;
-setInterval(async () => {
+setInterval(async ()=>{
   if (isLoading) return;
   if (isUserScrolling) return;
   try{
