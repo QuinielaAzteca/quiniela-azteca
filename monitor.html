@@ -9,157 +9,412 @@
 :root{
   --fg:#0f172a;
   --muted:#475569;
+
   --bg:#eaf3ee;
   --bg2:#dfeee7;
   --card:#ffffff;
   --line:#d7e6dc;
+
   --l:#0a6b3a;
   --v:#c62828;
+
   --rowA:#f6fbf8;
   --rowB:#eff7f2;
+
   --shadow: 0 10px 24px rgba(2, 44, 20, .10);
+
   --okBg:#ecfdf5;
   --okBd:#bbf7d0;
   --okFg:#065f46;
+
   --chipBg:#f8fafc;
   --chipBd:#e5e7eb;
   --chipFg:#0f172a;
+
   --azul1:#1d4ed8;
   --azul2:#93c5fd;
+
   --pillBorder:#cbd5e1;
   --pillHitBg:#dcfce7;
   --pillHitBd:#86efac;
   --pillHitTx:#064e3b;
 
-  --wFolio:22px;
-  --wNombre:200px;
-  --wSel:20px;
-  --wA:24px;
+  /* ✅ ANCHOS SINCRONIZADOS */
+  --wFolio: 22px;
+  --wNombre: 200px;
+  --wSel: 20px;
+  --wA: 24px;
 }
 
 *{box-sizing:border-box}
-html,body{height:100%;overflow:hidden}
+html, body { height:100%; overflow:hidden; }
+
 body{
   margin:0;
   font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
-  background:radial-gradient(1200px 520px at 50% -140px,#fff 0%,var(--bg) 55%,var(--bg2) 100%);
+  color:var(--fg);
+  background: radial-gradient(1200px 520px at 50% -140px, #ffffff 0%, var(--bg) 55%, var(--bg2) 100%);
   display:flex;
   flex-direction:column;
+  min-height:100vh;
 }
 
+/* ===== HEADER FIJO ===== */
 .header{
-  position:sticky;top:0;z-index:50;
+  position:sticky;
+  top:0;
+  z-index:50;
   background:#fff;
-  border-bottom:1px solid var(--line);
-  box-shadow:var(--shadow);
+  border-bottom:1px solid rgba(215,230,220,.85);
+  box-shadow: 0 10px 24px rgba(2,6,23,.05);
 }
-.header-inner{max-width:1100px;margin:auto;padding:8px 10px}
-.headerCard{border:1px solid var(--line);border-radius:14px;overflow:hidden}
-.headerBar{height:6px;background:linear-gradient(90deg,var(--l) 0 33%,#fff 33% 66%,var(--v) 66%)}
-.headerCardInner{padding:6px 8px}
-
-.brandRow{display:flex;justify-content:space-between;margin-bottom:6px}
-.title{font-weight:1000;font-size:18px}
-.title .mxg{color:var(--l)} .title .mxr{color:var(--v)}
-.week{font-size:12px;font-weight:900;color:var(--muted)}
-
-.partidos{font-size:10px;font-weight:900;display:flex;flex-direction:column;gap:3px}
-.p{display:flex;justify-content:space-between;padding:3px 6px;border-radius:10px;background:var(--rowA)}
-.p:nth-child(even){background:var(--rowB)}
-.p .left{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.p .right{display:flex;gap:5px}
-.chip{padding:2px 6px;border-radius:999px;border:1px solid var(--chipBd);background:var(--chipBg);font-size:10px}
-.chip.pick{background:var(--okBg);border-color:var(--okBd);color:var(--okFg)}
-
-.searchRow{margin-top:6px}
-.search{position:relative}
-.search::before{content:"🔍";position:absolute;left:10px;top:50%;transform:translateY(-50%)}
-.search input{
-  width:100%;padding:8px 10px 8px 36px;
-  font-size:14px;font-weight:900;
-  border:2px solid #cbd5e1;border-radius:14px
+.header-inner{
+  max-width:1100px;
+  margin:auto;
+  padding:8px 10px;
 }
 
-.loadingRow{
-  margin-top:6px;padding:6px 10px;
-  border:1px solid var(--line);
-  border-radius:12px;
-  background:#f8fafc;
-  font-size:12px;font-weight:800;color:var(--muted)
-}
-.loadingRow[hidden]{display:none}
-
-.noResults{
-  margin:10px;
-  padding:10px;
-  border:1px dashed var(--line);
-  border-radius:12px;
-  text-align:center;
-  font-weight:800;
-  color:var(--muted);
-}
-
-.tableHeadRow{margin-top:6px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
-.tableHeadGrid{
-  display:grid;
-  grid-template-columns:var(--wFolio) var(--wNombre) repeat(9,var(--wSel)) var(--wA)
-}
-.thCell{padding:6px 4px;font-size:11px;font-weight:1000;text-align:center}
-.thCell.left{text-align:left}
-
-.wrap{flex:1;overflow:hidden;padding:10px 12px}
-.tableBox{
-  height:100%;
-  overflow:auto;
+.headerCard{
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdfc 100%);
   border:1px solid var(--line);
   border-radius:14px;
-  background:#fff
+  overflow:hidden;
+  box-shadow: var(--shadow);
 }
-.tableBox::after{content:"";display:block;height:80px}
+.headerBar{
+  height:6px;
+  background:linear-gradient(90deg, var(--l) 0%, var(--l) 33%, #ffffff 33%, #ffffff 66%, var(--v) 66%, var(--v) 100%);
+}
+.headerCardInner{ padding:6px 8px; }
 
-table{width:100%;table-layout:fixed;border-collapse:separate}
-td{padding:4px;text-align:center;font-weight:1000}
-td.col-folio{width:var(--wFolio);font-size:7px;text-align:right}
-td.col-nombre{width:var(--wNombre);text-align:left;font-size:10px}
-td.col-ac{width:var(--wA)}
-td.selCell{width:var(--wSel)}
+.brandRow{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:6px;
+}
+.title{
+  margin:0;
+  font-weight:1000;
+  font-size:18px;
+  letter-spacing:.04em;
+  line-height:1.05;
+}
+.title .mxg{color:var(--l)}
+.title .mxr{color:var(--v)}
+
+.week{
+  font-size:12px;
+  font-weight:900;
+  color:var(--muted);
+  margin-top:2px;
+}
+
+/* ===== PARTIDOS ===== */
+.partidos{
+  font-size:10px;
+  font-weight:900;
+  line-height:1.05;
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+  margin-top:4px;
+}
+.p{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  padding:3px 6px;
+  border-radius:10px;
+  background: var(--rowA);
+  border:1px solid rgba(215,230,220,.55);
+}
+.p:nth-child(even){ background: var(--rowB); }
+.p .left{
+  flex:1;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.p .right{
+  flex-shrink:0;
+  display:flex;
+  gap:5px;
+  align-items:center;
+  white-space:nowrap;
+}
+.chip{
+  padding:2px 6px;
+  border-radius:999px;
+  border:1px solid var(--chipBd);
+  background: var(--chipBg);
+  font-size:10px;
+  font-weight:1000;
+  line-height:1;
+  color:var(--chipFg);
+}
+.chip.pick{
+  background: var(--okBg);
+  border-color: var(--okBd);
+  color: var(--okFg);
+}
+
+/* ===== BUSCADOR (sin botón) ===== */
+.searchRow{
+  margin-top:6px;
+  display:flex;
+  gap:8px;
+  align-items:stretch;
+}
+.search{
+  position:relative;
+  flex:1;
+}
+.search::before{
+  content:"🔍";
+  position:absolute;
+  left:10px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:14px;
+  opacity:.75;
+}
+.search input{
+  width:100%;
+  padding:8px 10px 8px 36px;
+  font-size:14px;
+  font-weight:900;
+  border:2px solid #cbd5e1;
+  border-radius:14px;
+  outline:none;
+  background:#fff;
+}
+.search input:focus{ border-color:#94a3b8; }
+
+/* ===== AVISO CARGANDO ===== */
+.loadingRow{
+  margin-top:6px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 10px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background: rgba(248,250,252,.95);
+  color: var(--muted);
+  font-size:12px;
+  font-weight:800;
+}
+.loadingRow[hidden]{ display:none; }
+.spinner{
+  width:14px; height:14px;
+  border-radius:50%;
+  border:2px solid rgba(71,85,105,.25);
+  border-top-color: rgba(71,85,105,.9);
+  animation: spin .8s linear infinite;
+}
+@keyframes spin{ to{ transform:rotate(360deg);} }
+
+/* ✅ NUEVO: aviso "Sin coincidencias" (solo texto) */
+.noMatch{
+  margin-top:6px;
+  padding:10px 12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background: rgba(248,250,252,.95);
+  color: var(--muted);
+  font-size:12px;
+  font-weight:900;
+  text-align:center;
+}
+.noMatch[hidden]{ display:none; }
+
+/* ===== ENCABEZADO FIJO DEL LISTADO ===== */
+.tableHeadRow{
+  margin-top:6px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  overflow:hidden;
+  background:#f8fafc;
+}
+.tableHeadGrid{
+  display:grid;
+  grid-template-columns: var(--wFolio) var(--wNombre) repeat(9, var(--wSel)) var(--wA);
+  gap:0;
+}
+.thCell{
+  padding:6px 4px;
+  border-right:1px solid rgba(215,230,220,.7);
+  font-size:11px;
+  font-weight:1000;
+  letter-spacing:.04em;
+  text-align:center;
+  color:#0f172a;
+}
+.thCell:last-child{ border-right:none; }
+.thCell.left{ text-align:left; }
+.thCell.folio{
+  font-size:7px;
+  font-weight:700;
+  text-align:right;
+  padding-right:3px;
+}
+.thCell.nombre{
+  font-size:10px;
+  font-weight:700;
+}
+
+/* ✅ wrap ocupa resto */
+.wrap{
+  max-width:1100px;
+  width:100%;
+  margin:auto;
+  padding:10px 12px 14px;
+  flex:1 1 auto;
+  min-height:0;
+  overflow:hidden;
+}
+
+/* ✅ solo aquí scrollea */
+.tableBox{
+  border:1px solid var(--line);
+  border-radius:14px;
+  overflow:auto;
+  background:#fff;
+  box-shadow: var(--shadow);
+  height:100%;
+  min-height:0;
+  overscroll-behavior: contain;
+}
+
+/* ✅ “colchón” al final */
+.tableBox::after{
+  content:"";
+  display:block;
+  height: calc(84px + env(safe-area-inset-bottom));
+}
+
+table{
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0;
+  table-layout:fixed;
+}
+tbody td{
+  border-bottom:1px solid var(--line);
+  padding:4px 4px;
+  text-align:center;
+  vertical-align:middle;
+  font-weight:1000;
+}
+tbody tr:nth-child(even){ background:#fbfdff; }
+tbody tr:last-child td{ border-bottom:none; }
+
+/* ✅ columnas sincronizadas */
+td.col-folio{
+  width:var(--wFolio);
+  font-size:7px;
+  font-weight:700;
+  color:#334155;
+  text-align:right;
+  padding-right:3px;
+}
+td.col-nombre{
+  width:var(--wNombre);
+  text-align:left;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  font-size:10px;
+  font-weight:700;
+  color:#0f172a;
+}
+td.col-ac{
+  width:var(--wA);
+  font-size:12px;
+  font-weight:1000;
+}
+td.selCell{
+  width:var(--wSel);
+  padding:3px 0;
+}
 
 .selPill{
-  display:inline-flex;align-items:center;justify-content:center;
-  width:18px;height:20px;border-radius:12px;
-  border:1px solid var(--pillBorder)
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:18px;
+  height:20px;
+  border-radius:12px;
+  border:1px solid var(--pillBorder);
+  font-weight:900;
+  font-size:12px;
+  line-height:1;
+  background:#fff;
 }
-.selPill.hit{background:var(--pillHitBg);border-color:var(--pillHitBd)}
-td.col-ac.win1{background:var(--azul1);color:#fff}
-td.col-ac.win2{background:var(--azul2)}
+.selPill.hit{
+  background:var(--pillHitBg);
+  border-color:var(--pillHitBd);
+  color:var(--pillHitTx);
+}
+
+td.col-ac.win1{ background:var(--azul1); color:#fff; }
+td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
+
+/* responsive: solo variables */
+@media (max-width:520px){
+  :root{ --wNombre: 170px; --wSel: 18px; --wA: 24px; }
+  .title{ font-size:16px; }
+  .partidos{ font-size:9px; gap:2px; }
+  .p{ padding:2px 6px; }
+  .chip{ font-size:9px; padding:2px 5px; }
+}
+@media (max-width:420px){
+  :root{ --wNombre: 150px; --wSel: 17px; --wA: 24px; }
+  .selPill{ width:16px; height:18px; font-size:11px; }
+}
 </style>
 </head>
 
 <body>
-<div class="header">
+<div class="header" id="header">
   <div class="header-inner">
     <div class="headerCard">
       <div class="headerBar"></div>
       <div class="headerCardInner">
 
         <div class="brandRow">
-          <div class="title"><span class="mxg">QUINIELA</span> <span class="mxr">AZTECA</span></div>
-          <div class="week" id="weekTxt"></div>
+          <div>
+            <div class="title">
+              <span class="mxg">QUINIELA</span> <span class="mxr">AZTECA</span>
+            </div>
+            <div class="week" id="weekTxt"></div>
+          </div>
         </div>
 
         <div class="partidos" id="partidosTxt"></div>
 
         <div class="searchRow">
           <div class="search">
-            <input id="searchInput" placeholder="Busca aquí por teléfono, nombre o folio">
+            <input id="searchInput" placeholder="Busca aqui por telefono, nombre o folio" autocomplete="off">
           </div>
         </div>
 
-        <div class="loadingRow" id="loadingRow" hidden>Cargando listado…</div>
+        <div class="loadingRow" id="loadingRow" hidden>
+          <span class="spinner" aria-hidden="true"></span>
+          <span id="loadingTxt">Cargando listado…</span>
+        </div>
 
-        <div class="tableHeadRow">
-          <div class="tableHeadGrid">
-            <div class="thCell">#</div><div class="thCell left">Nombre</div>
+        <!-- ✅ NUEVO: aviso sin coincidencias -->
+        <div class="noMatch" id="noMatch" hidden>Sin coincidencias</div>
+
+        <div class="tableHeadRow" aria-hidden="true">
+          <div class="tableHeadGrid" id="fixedHead">
+            <div class="thCell folio">#</div>
+            <div class="thCell left nombre">Nombre</div>
             <div class="thCell">1</div><div class="thCell">2</div><div class="thCell">3</div>
             <div class="thCell">4</div><div class="thCell">5</div><div class="thCell">6</div>
             <div class="thCell">7</div><div class="thCell">8</div><div class="thCell">9</div>
@@ -175,92 +430,273 @@ td.col-ac.win2{background:var(--azul2)}
 <div class="wrap">
   <div class="tableBox" id="tableBox">
     <table id="tabla"></table>
-    <div id="noResults" class="noResults" hidden>Sin coincidencias</div>
   </div>
 </div>
 
 <script>
-const BASE="https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec";
-const ENDPOINT=BASE+"?mode=clasif";
-const CONFIG=BASE+"?mode=config";
+const BASE = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec";
+const ENDPOINT = BASE + "?mode=clasif";
+const CONFIG   = BASE + "?mode=config";
 
-let raw=[],resultados=[],marcadores=[],lastCfgSig="",isLoading=false;
-const $=id=>document.getElementById(id);
+let raw = [];
+let resultados = [];
+let marcadores = [];
+let lastCfgSig = "";
 
-function showLoading(){$("loadingRow").hidden=false}
-function hideLoading(){$("loadingRow").hidden=true}
-function sigCfg(c){return JSON.stringify(c||{})}
-function norm(v){return String(v??"").toUpperCase()}
-function buildBody(){return "<tbody></tbody>"}
+let isLoading = false;
+let isUserScrolling = false;
+let scrollTimer = null;
+let pendingRefresh = false;
 
-function render(rows){
-  const tbody=document.querySelector("#tabla tbody");
-  tbody.innerHTML="";
-  $("noResults").hidden=rows.length>0;
+const $ = (id) => document.getElementById(id);
+
+function showLoading(msg="Cargando listado…"){
+  $("loadingTxt").textContent = msg;
+  $("loadingRow").hidden = false;
+}
+function hideLoading(){ $("loadingRow").hidden = true; }
+
+function showNoMatch(show){
+  $("noMatch").hidden = !show;
+}
+
+function buildBodyOnly(){
+  return `<tbody></tbody>`;
+}
+
+function norm(v){ return String(v ?? "").trim().toUpperCase(); }
+
+function sigCfg(cfg){
+  const s = {
+    subtitulo: cfg.subtitulo || "",
+    resultados: (cfg.resultados||[]).slice(0,9),
+    marcadores: (cfg.marcadores||[]).slice(0,9),
+    partidos: (cfg.partidos||[]).slice(0,9).map(p=>`${p.local}|${p.visita}`)
+  };
+  return JSON.stringify(s);
+}
+
+function computePlaces(rows){
+  const acs = rows.map(r => Number(r.aciertos)||0);
+  const max = Math.max(...acs);
+  const uniq = [...new Set(acs)].sort((a,b)=>b-a);
+  let secondVal = null;
+  for (const a of uniq){ if (a < max){ secondVal = a; break; } }
   rows.forEach(r=>{
-    const tr=document.createElement("tr");
-    tr.innerHTML=`
-      <td class="col-folio">${r.folio}</td>
-      <td class="col-nombre">${r.nombre_show}</td>
-      ${r.sels.map((s,i)=>`<td class="selCell"><span class="selPill ${norm(s)==norm(resultados[i])?"hit":""}">${s||"-"}</span></td>`).join("")}
-      <td class="col-ac ${r._lugar==1?"win1":r._lugar==2?"win2":""}">${r.aciertos}</td>
-    `;
-    tbody.appendChild(tr);
+    const a = Number(r.aciertos)||0;
+    r._lugar = (a===max) ? 1 : (secondVal!=null && a===secondVal ? 2 : 0);
   });
 }
 
-function applyFilter(){
-  const q=$("searchInput").value.toLowerCase().trim();
-  if(!q){render(raw);return}
-  render(raw.filter(r=>
-    String(r.folio).includes(q)||
-    r.nombre.includes(q)||
-    String(r.telefono).includes(q)
-  ));
-}
+/* ✅ MÁS RÁPIDO: render en 1 solo golpe (menos “lag” al cargar) */
+function render(rows){
+  const tbody = document.querySelector("#tabla tbody");
+  if (!tbody) return;
 
-async function load(){
-  if(isLoading)return;
-  isLoading=true;
-  showLoading();
-  try{
-    const [cfgRes,res]=await Promise.all([
-      fetch(CONFIG,{cache:"no-store"}).then(r=>r.json()),
-      fetch(ENDPOINT,{cache:"no-store"}).then(r=>r.json())
-    ]);
+  const resNorm = resultados.map(norm); // 9 elementos (barato)
+  const parts = [];
 
-    const cfg=cfgRes.cfg||{};
-    const sig=sigCfg(cfg);
-    if(sig!==lastCfgSig){
-      lastCfgSig=sig;
-      $("weekTxt").textContent=cfg.subtitulo||"";
-      resultados=(cfg.resultados||[]).slice(0,9);
-      marcadores=(cfg.marcadores||[]).slice(0,9);
+  for (let k=0; k<rows.length; k++){
+    const r = rows[k];
+    const acClass = (r._lugar===1) ? "win1" : (r._lugar===2) ? "win2" : "";
+
+    let selsHtml = "";
+    for (let i=0; i<9; i++){
+      const s = r.sels[i] ?? "";
+      const ok = resNorm[i] && norm(s) === resNorm[i];
+      selsHtml += `<td class="selCell"><span class="selPill ${ok?'hit':''}">${s || '-'}</span></td>`;
     }
 
-    const h=(res.data.headers||[]).map(x=>x.toLowerCase());
-    const iF=h.indexOf("folio"),iN=h.indexOf("nombre"),iT=h.indexOf("telefono_envio"),iA=h.indexOf("aciertos");
-    raw=(res.data.rows||[]).map(r=>{
-      const n=String(r[iN]||"").trim();
-      return{
-        folio:r[iF],
-        telefono:iT>=0?r[iT]:"",
-        nombre:n.toLowerCase(),
-        nombre_show:n,
-        sels:r.slice(iN+1,iA).slice(0,9),
-        aciertos:r[iA],
-        _lugar:0
-      };
-    });
-    render(raw);
-  }catch(e){console.error(e)}
-  finally{hideLoading();isLoading=false}
+    parts.push(
+      `<tr>
+        <td class="col-folio">${r.folio ?? ''}</td>
+        <td class="col-nombre">${r.nombre_show ?? ''}</td>
+        ${selsHtml}
+        <td class="col-ac ${acClass}">${r.aciertos ?? ''}</td>
+      </tr>`
+    );
+  }
+
+  tbody.innerHTML = parts.join("");
 }
 
-$("searchInput").addEventListener("input",applyFilter);
-$("searchInput").addEventListener("keydown",e=>{if(e.key==="Enter")e.target.blur()});
+function applyFilter(){
+  const q = $("searchInput").value.trim().toLowerCase();
+  if (!q){
+    showNoMatch(false);
+    render(raw);
+    return;
+  }
 
-load();
+  const out = raw.filter(r=>{
+    return String(r.folio ?? "").toLowerCase().includes(q) ||
+           String(r.telefono ?? "").toLowerCase().includes(q) ||
+           String(r.nombre ?? "").toLowerCase().includes(q);
+  });
+
+  showNoMatch(out.length === 0);
+  render(out);
+}
+
+function renderPartidos(cfg){
+  const partidos = (cfg.partidos || []).slice(0,9);
+  const box = $("partidosTxt");
+  box.innerHTML = "";
+
+  partidos.forEach((p,i)=>{
+    const m = (marcadores[i] && String(marcadores[i]).trim()) ? String(marcadores[i]).trim() : "-";
+    const r = (resultados[i] && String(resultados[i]).trim()) ? String(resultados[i]).trim().toUpperCase() : "-";
+
+    const div = document.createElement("div");
+    div.className = "p";
+    div.innerHTML = `
+      <span class="left">${i+1} ${p.local} vs ${p.visita}</span>
+      <span class="right">
+        <span class="chip">${m}</span>
+        <span class="chip pick">${r}</span>
+      </span>
+    `;
+    box.appendChild(div);
+  });
+}
+
+function withScrollPreserved(fn){
+  const box = $("tableBox");
+  const prev = box.scrollTop;
+  fn();
+  requestAnimationFrame(() => { box.scrollTop = prev; });
+}
+
+function markScrolling(){
+  isUserScrolling = true;
+  if (scrollTimer) clearTimeout(scrollTimer);
+  scrollTimer = setTimeout(()=>{
+    isUserScrolling = false;
+
+    if (pendingRefresh){
+      pendingRefresh = false;
+      load(true);
+      return;
+    }
+    if ($("searchInput").value.trim()){
+      withScrollPreserved(applyFilter);
+    }
+  }, 180);
+}
+$("tableBox").addEventListener("scroll", markScrolling, {passive:true});
+
+async function load(force=false){
+  if (isLoading) return;
+  if (isUserScrolling){
+    pendingRefresh = pendingRefresh || force;
+    return;
+  }
+
+  isLoading = true;
+  try{
+    showLoading(force ? "Cargando listado…" : "Actualizando…");
+
+    const cfgRes = await fetch(CONFIG, {cache:"no-store"}).then(r=>r.json());
+    const cfg = cfgRes.cfg || {};
+    const cfgSig = sigCfg(cfg);
+
+    if (!force && cfgSig === lastCfgSig){
+      hideLoading();
+      return;
+    }
+    lastCfgSig = cfgSig;
+
+    $("weekTxt").textContent = cfg.subtitulo || "";
+    resultados = (cfg.resultados || []).slice(0,9);
+    marcadores = (cfg.marcadores || []).slice(0,9);
+    renderPartidos(cfg);
+
+    const res = await fetch(ENDPOINT, {cache:"no-store"}).then(r=>r.json());
+    const data = res.data || {headers:[], rows:[]};
+    const headers = (data.headers || []).map(x => String(x).toLowerCase());
+
+    const iF = headers.indexOf("folio");
+    const iN = headers.indexOf("nombre");
+    const iT = headers.indexOf("telefono_envio");
+    const iA = headers.indexOf("aciertos");
+
+    if (iF<0 || iN<0 || iA<0){
+      console.warn("Headers inválidos:", headers);
+      hideLoading();
+      return;
+    }
+
+    const startSel = iN + 1;
+    const endSel   = iA;
+
+    raw = (data.rows || []).map(r=>{
+      const nombreShow = String(r[iN] ?? "").trim();
+      return {
+        folio: r[iF],
+        telefono: (iT>=0 ? r[iT] : ""),
+        nombre: nombreShow.toLowerCase(),
+        nombre_show: nombreShow,
+        sels: r.slice(startSel, endSel).slice(0,9),
+        aciertos: r[iA],
+        _lugar: 0
+      };
+    });
+
+    computePlaces(raw);
+
+    const tabla = $("tabla");
+    tabla.innerHTML = buildBodyOnly();
+
+    withScrollPreserved(() => {
+      if ($("searchInput").value.trim()) applyFilter();
+      else {
+        showNoMatch(false);
+        render(raw);
+      }
+    });
+
+    hideLoading();
+  } catch(err){
+    console.error(err);
+    hideLoading();
+  } finally {
+    isLoading = false;
+  }
+}
+
+/* ✅ ENTER => oculta teclado */
+const searchInput = $("searchInput");
+searchInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    searchInput.blur();
+  }
+});
+
+let searchTO = null;
+searchInput.addEventListener("input", () => {
+  if (searchTO) clearTimeout(searchTO);
+  searchTO = setTimeout(() => {
+    if (isUserScrolling) return;
+    withScrollPreserved(applyFilter);
+  }, 60);
+});
+
+load(true);
+
+const POLL_CONFIG_MS = 2000;
+setInterval(async () => {
+  if (isLoading) return;
+  if (isUserScrolling) return;
+  try{
+    const cfgRes = await fetch(CONFIG, {cache:"no-store"}).then(r=>r.json());
+    const cfg = cfgRes.cfg || {};
+    const cfgSig = sigCfg(cfg);
+    if (cfgSig !== lastCfgSig){
+      load(true);
+    }
+  } catch(e){}
+}, POLL_CONFIG_MS);
 </script>
 </body>
 </html>
