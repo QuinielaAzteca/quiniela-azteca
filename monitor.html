@@ -45,18 +45,18 @@
   --wSel: 20px;
   --wA: 24px;
 
-  /* ✅ scrollbar width (se calcula en JS) */
+  /* ✅ scrollbar width (JS la actualiza) */
   --sbw: 0px;
-}
-
-/* ✅ evita auto-zoom de texto en Android (descuadra columnas) */
-html{
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
 }
 
 *{box-sizing:border-box}
 html, body { height:100%; overflow:hidden; }
+
+/* ✅ evita “auto-zoom” de texto que descuadra columnas en algunos Android */
+html{
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
 
 body{
   margin:0;
@@ -227,7 +227,7 @@ body{
 }
 @keyframes spin{ to{ transform:rotate(360deg);} }
 
-/* ✅ aviso "Sin coincidencias" */
+/* ✅ aviso "Sin coincidencias" (solo texto) */
 .noMatch{
   margin-top:6px;
   padding:10px 12px;
@@ -241,6 +241,37 @@ body{
 }
 .noMatch[hidden]{ display:none; }
 
+/* ✅ PAGINACIÓN */
+.pager{
+  margin-top:6px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  padding:6px 10px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background: rgba(248,250,252,.95);
+}
+.pager[hidden]{ display:none; }
+.pgBtn{
+  border:1px solid var(--line);
+  background:#fff;
+  border-radius:10px;
+  padding:6px 10px;
+  font-weight:1000;
+  cursor:pointer;
+}
+.pgBtn:active{ transform:scale(.98); }
+.pgBtn[disabled]{ opacity:.4; cursor:default; }
+.pgInfo{
+  font-size:12px;
+  font-weight:900;
+  color:var(--muted);
+  min-width:72px;
+  text-align:center;
+}
+
 /* ===== ENCABEZADO FIJO DEL LISTADO ===== */
 .tableHeadRow{
   margin-top:6px;
@@ -253,9 +284,7 @@ body{
   display:grid;
   grid-template-columns: var(--wFolio) var(--wNombre) repeat(9, var(--wSel)) var(--wA);
   gap:0;
-
-  /* ✅ compensa el ancho del scrollbar del listado */
-  padding-right: var(--sbw, 0px);
+  padding-right: var(--sbw, 0px); /* ✅ compensa scrollbar */
 }
 .thCell{
   padding:6px 4px;
@@ -375,19 +404,6 @@ td.selCell{
 
 td.col-ac.win1{ background:var(--azul1); color:#fff; }
 td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
-
-/* responsive: solo variables */
-@media (max-width:520px){
-  :root{ --wNombre: 170px; --wSel: 18px; --wA: 24px; }
-  .title{ font-size:16px; }
-  .partidos{ font-size:9px; gap:2px; }
-  .p{ padding:2px 6px; }
-  .chip{ font-size:9px; padding:2px 5px; }
-}
-@media (max-width:420px){
-  :root{ --wNombre: 150px; --wSel: 17px; --wA: 24px; }
-  .selPill{ width:16px; height:18px; font-size:11px; }
-}
 </style>
 </head>
 
@@ -421,6 +437,13 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
         </div>
 
         <div class="noMatch" id="noMatch" hidden>Sin coincidencias</div>
+
+        <!-- ✅ PAGINACIÓN -->
+        <div class="pager" id="pager" hidden>
+          <button class="pgBtn" id="prevBtn" type="button">◀</button>
+          <div class="pgInfo" id="pgInfo">1 / 1</div>
+          <button class="pgBtn" id="nextBtn" type="button">▶</button>
+        </div>
 
         <div class="tableHeadRow" aria-hidden="true">
           <div class="tableHeadGrid" id="fixedHead">
@@ -471,6 +494,16 @@ function showNoMatch(show){
   $("noMatch").hidden = !show;
 }
 
+/* ✅ compensa scrollbar para alinear header/tabla en teléfonos raros */
+function syncScrollbarWidth(){
+  const box = $("tableBox");
+  if (!box) return;
+  const sbw = box.offsetWidth - box.clientWidth;
+  document.documentElement.style.setProperty("--sbw", sbw + "px");
+}
+window.addEventListener("resize", syncScrollbarWidth, {passive:true});
+setTimeout(syncScrollbarWidth, 0);
+
 function buildBodyOnly(){
   return `<tbody></tbody>`;
 }
@@ -499,16 +532,7 @@ function computePlaces(rows){
   });
 }
 
-/* ✅ scrollbar width => variable CSS --sbw (para alinear header con tabla) */
-function syncScrollbarWidth(){
-  const box = $("tableBox");
-  if (!box) return;
-  const sbw = box.offsetWidth - box.clientWidth; // ancho real del scrollbar
-  document.documentElement.style.setProperty("--sbw", (sbw > 0 ? sbw : 0) + "px");
-}
-window.addEventListener("resize", () => { syncScrollbarWidth(); }, {passive:true});
-
-/* ✅ render rápido (1 golpe) */
+/* ✅ render rápido (1 solo innerHTML) */
 function render(rows){
   const tbody = document.querySelector("#tabla tbody");
   if (!tbody) return;
@@ -538,16 +562,56 @@ function render(rows){
   }
 
   tbody.innerHTML = parts.join("");
-
-  // ✅ importante: recalcular sbw ya con contenido (algunos móviles lo cambian)
-  requestAnimationFrame(syncScrollbarWidth);
 }
+
+/* ===== PAGINACIÓN ===== */
+const PAGE_SIZE = 500;
+let page = 1;
+let filtered = null;
+
+function totalPages(arr){
+  return Math.max(1, Math.ceil((arr.length || 0) / PAGE_SIZE));
+}
+function pageSlice(arr){
+  const start = (page - 1) * PAGE_SIZE;
+  return arr.slice(start, start + PAGE_SIZE);
+}
+function updatePager(arr){
+  const tp = totalPages(arr);
+  if ((arr.length || 0) <= PAGE_SIZE){
+    $("pager").hidden = true;
+  } else {
+    $("pager").hidden = false;
+  }
+  $("pgInfo").textContent = `${page} / ${tp}`;
+  $("prevBtn").disabled = page <= 1;
+  $("nextBtn").disabled = page >= tp;
+}
+function renderPaged(arr){
+  const tp = totalPages(arr);
+  if (page > tp) page = tp;
+  render(pageSlice(arr));
+  updatePager(arr);
+  // por si cambió el scrollbar por el tamaño de contenido
+  setTimeout(syncScrollbarWidth, 0);
+}
+
+$("prevBtn").addEventListener("click", () => {
+  const arr = filtered ?? raw;
+  if (page > 1){ page--; renderPaged(arr); }
+});
+$("nextBtn").addEventListener("click", () => {
+  const arr = filtered ?? raw;
+  if (page < totalPages(arr)){ page++; renderPaged(arr); }
+});
 
 function applyFilter(){
   const q = $("searchInput").value.trim().toLowerCase();
   if (!q){
     showNoMatch(false);
-    render(raw);
+    filtered = null;
+    page = 1;
+    renderPaged(raw);
     return;
   }
 
@@ -558,7 +622,9 @@ function applyFilter(){
   });
 
   showNoMatch(out.length === 0);
-  render(out);
+  filtered = out;
+  page = 1;
+  renderPaged(out);
 }
 
 function renderPartidos(cfg){
@@ -671,18 +737,16 @@ async function load(force=false){
     tabla.innerHTML = buildBodyOnly();
 
     withScrollPreserved(() => {
+      page = 1;
+      filtered = null;
       if ($("searchInput").value.trim()) applyFilter();
       else {
         showNoMatch(false);
-        render(raw);
+        renderPaged(raw);
       }
     });
 
     hideLoading();
-
-    // ✅ al final (ya con tabla dibujada)
-    setTimeout(syncScrollbarWidth, 0);
-
   } catch(err){
     console.error(err);
     hideLoading();
@@ -709,10 +773,10 @@ searchInput.addEventListener("input", () => {
   }, 60);
 });
 
-/* ✅ primera carga */
+/* primera carga */
 load(true);
 
-/* ✅ refresco solo por cambio de CONFIG */
+/* refresco solo por cambio de CONFIG */
 const POLL_CONFIG_MS = 2000;
 setInterval(async () => {
   if (isLoading) return;
@@ -726,9 +790,6 @@ setInterval(async () => {
     }
   } catch(e){}
 }, POLL_CONFIG_MS);
-
-/* ✅ asegurar medición inicial (por si tarda el render) */
-setTimeout(syncScrollbarWidth, 0);
 </script>
 </body>
 </html>
