@@ -12,7 +12,6 @@
 
   --bg:#eaf3ee;
   --bg2:#dfeee7;
-  --card:#ffffff;
   --line:#d7e6dc;
 
   --l:#0a6b3a;
@@ -44,6 +43,9 @@
   --wNombre: 200px;
   --wSel: 20px;
   --wA: 24px;
+
+  /* ✅ scrollbar width (lo calcula JS) */
+  --sbw: 0px;
 }
 
 *{box-sizing:border-box}
@@ -222,10 +224,7 @@ body{
   font-weight:1000;
   cursor:pointer;
 }
-.pbtn:disabled{
-  opacity:.45;
-  cursor:default;
-}
+.pbtn:disabled{ opacity:.45; cursor:default; }
 .pstat{
   font-weight:1000;
   color:var(--muted);
@@ -278,7 +277,6 @@ body{
   border-radius:12px;
   background:#f8fafc;
 
-  /* ✅ el header también scrollea horizontal */
   overflow:auto;
   -webkit-overflow-scrolling: touch;
 }
@@ -289,9 +287,11 @@ body{
   grid-template-columns: var(--wFolio) var(--wNombre) repeat(9, var(--wSel)) var(--wA);
   gap:0;
 
-  /* ✅ permite que existan TODAS las columnas */
   width:max-content;
   min-width:100%;
+
+  /* ✅ compensa scrollbar para que calce con la tabla */
+  padding-right: var(--sbw);
 }
 
 .thCell{
@@ -305,16 +305,8 @@ body{
 }
 .thCell:last-child{ border-right:none; }
 .thCell.left{ text-align:left; }
-.thCell.folio{
-  font-size:7px;
-  font-weight:700;
-  text-align:right;
-  padding-right:3px;
-}
-.thCell.nombre{
-  font-size:10px;
-  font-weight:700;
-}
+.thCell.folio{ font-size:7px; font-weight:700; text-align:right; padding-right:3px; }
+.thCell.nombre{ font-size:10px; font-weight:700; }
 
 /* ✅ wrap ocupa resto */
 .wrap{
@@ -327,7 +319,7 @@ body{
   overflow:hidden;
 }
 
-/* ✅ solo aquí scrollea (vertical + horizontal) */
+/* ✅ solo aquí scrollea */
 .tableBox{
   border:1px solid var(--line);
   border-radius:14px;
@@ -347,7 +339,7 @@ body{
 }
 
 table{
-  width:max-content;   /* ✅ tabla puede ser más ancha */
+  width:max-content;
   min-width:100%;
   border-collapse:separate;
   border-spacing:0;
@@ -387,10 +379,7 @@ td.col-ac{
   font-size:12px;
   font-weight:1000;
 }
-td.selCell{
-  width:var(--wSel);
-  padding:3px 0;
-}
+td.selCell{ width:var(--wSel); padding:3px 0; }
 
 .selPill{
   display:inline-flex;
@@ -453,7 +442,6 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
           </div>
         </div>
 
-        <!-- ✅ paginación (500 por página) -->
         <div class="pager" id="pager" aria-label="Paginación">
           <button class="pbtn" id="btnPrev" type="button" aria-label="Anterior">◀</button>
           <div class="pstat" id="pageTxt">1 / 1</div>
@@ -467,8 +455,7 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
 
         <div class="noMatch" id="noMatch" hidden>Sin coincidencias</div>
 
-        <!-- ✅ header fijo, ahora con scroll horizontal + sync -->
-        <div class="tableHeadRow" aria-label="Encabezado">
+        <div class="tableHeadRow" aria-label="Encabezado" id="headRow">
           <div class="tableHeadGrid" id="fixedHead">
             <div class="thCell folio">#</div>
             <div class="thCell left nombre">Nombre</div>
@@ -498,15 +485,12 @@ const CONFIG   = BASE + "?mode=config";
 const PAGE_SIZE = 500;
 
 let raw = [];
-let view = []; // lo que se muestra (filtrado o no)
+let view = [];
 let resultados = [];
 let marcadores = [];
 let lastCfgSig = "";
 
 let isLoading = false;
-let isUserScrolling = false;
-let scrollTimer = null;
-let pendingRefresh = false;
 
 let page = 1;
 let totalPages = 1;
@@ -519,14 +503,8 @@ function showLoading(msg="Cargando listado…"){
 }
 function hideLoading(){ $("loadingRow").hidden = true; }
 
-function showNoMatch(show){
-  $("noMatch").hidden = !show;
-}
-
-function buildBodyOnly(){
-  return `<tbody></tbody>`;
-}
-
+function showNoMatch(show){ $("noMatch").hidden = !show; }
+function buildBodyOnly(){ return `<tbody></tbody>`; }
 function norm(v){ return String(v ?? "").trim().toUpperCase(); }
 
 function sigCfg(cfg){
@@ -551,7 +529,6 @@ function computePlaces(rows){
   });
 }
 
-/* ✅ render rápido: un solo innerHTML */
 function render(rows){
   const tbody = document.querySelector("#tabla tbody");
   if (!tbody) return;
@@ -583,42 +560,62 @@ function render(rows){
   tbody.innerHTML = parts.join("");
 }
 
-/* ===== PAGINACIÓN ===== */
+/* ===== Scrollbar width => alinear header ===== */
+function syncScrollbarWidth(){
+  const box = $("tableBox");
+  if (!box) return;
+  const sbw = box.offsetWidth - box.clientWidth;
+  document.documentElement.style.setProperty("--sbw", sbw + "px");
+}
+
+/* ===== Sync scroll horizontal header <-> tabla ===== */
+function syncHeaderScroll(){
+  const box  = $("tableBox");
+  const head = $("headRow");
+  if (!box || !head) return;
+
+  let lock = false;
+
+  box.addEventListener("scroll", () => {
+    if (lock) return;
+    lock = true;
+    head.scrollLeft = box.scrollLeft;
+    requestAnimationFrame(() => (lock = false));
+  }, { passive:true });
+
+  head.addEventListener("scroll", () => {
+    if (lock) return;
+    lock = true;
+    box.scrollLeft = head.scrollLeft;
+    requestAnimationFrame(() => (lock = false));
+  }, { passive:true });
+}
+
+/* ===== paginación ===== */
 function clampPage(){
   totalPages = Math.max(1, Math.ceil(view.length / PAGE_SIZE));
   if (page < 1) page = 1;
   if (page > totalPages) page = totalPages;
 }
-
 function updatePager(){
   clampPage();
   $("pageTxt").textContent = `${page} / ${totalPages}`;
   $("btnPrev").disabled = (page <= 1);
   $("btnNext").disabled = (page >= totalPages);
 }
-
-function scrollTopReset(){
-  const box = $("tableBox");
-  if (box) box.scrollTop = 0;
-}
-
 function renderPage(){
   clampPage();
   updatePager();
-
   const start = (page - 1) * PAGE_SIZE;
   const end = start + PAGE_SIZE;
   const slice = view.slice(start, end);
-
   showNoMatch(view.length === 0 && $("searchInput").value.trim().length > 0);
   render(slice);
-  scrollTopReset();
+  $("tableBox").scrollTop = 0;
 }
 
-/* ===== FILTRO ===== */
 function applyFilter(){
   const q = $("searchInput").value.trim().toLowerCase();
-
   if (!q){
     showNoMatch(false);
     view = raw;
@@ -626,14 +623,11 @@ function applyFilter(){
     renderPage();
     return;
   }
-
-  const out = raw.filter(r=>{
+  view = raw.filter(r=>{
     return String(r.folio ?? "").toLowerCase().includes(q) ||
            String(r.telefono ?? "").toLowerCase().includes(q) ||
            String(r.nombre ?? "").toLowerCase().includes(q);
   });
-
-  view = out;
   page = 1;
   renderPage();
 }
@@ -660,56 +654,12 @@ function renderPartidos(cfg){
   });
 }
 
-/* ===== Scroll vertical “en uso” ===== */
-function markScrolling(){
-  isUserScrolling = true;
-  if (scrollTimer) clearTimeout(scrollTimer);
-  scrollTimer = setTimeout(()=>{
-    isUserScrolling = false;
-
-    if (pendingRefresh){
-      pendingRefresh = false;
-      load(true);
-      return;
-    }
-  }, 180);
-}
-$("tableBox").addEventListener("scroll", markScrolling, {passive:true});
-
-/* ✅ Sync scroll horizontal header <-> tabla */
-function syncHeaderScroll(){
-  const box  = $("tableBox");
-  const head = document.querySelector(".tableHeadRow");
-  if (!box || !head) return;
-
-  let lock = false;
-
-  box.addEventListener("scroll", () => {
-    if (lock) return;
-    lock = true;
-    head.scrollLeft = box.scrollLeft;
-    requestAnimationFrame(() => (lock = false));
-  }, { passive:true });
-
-  head.addEventListener("scroll", () => {
-    if (lock) return;
-    lock = true;
-    box.scrollLeft = head.scrollLeft;
-    requestAnimationFrame(() => (lock = false));
-  }, { passive:true });
-}
-
-/* ===== CARGA ===== */
 async function load(force=false){
   if (isLoading) return;
-  if (isUserScrolling){
-    pendingRefresh = pendingRefresh || force;
-    return;
-  }
-
   isLoading = true;
+
   try{
-    showLoading(force ? "Cargando listado…" : "Actualizando…");
+    showLoading("Cargando listado…");
 
     const cfgRes = await fetch(CONFIG, {cache:"no-store"}).then(r=>r.json());
     const cfg = cfgRes.cfg || {};
@@ -737,7 +687,6 @@ async function load(force=false){
     const iA = headers.indexOf("aciertos");
 
     if (iF<0 || iN<0 || iA<0){
-      console.warn("Headers inválidos:", headers);
       hideLoading();
       isLoading = false;
       return;
@@ -760,73 +709,53 @@ async function load(force=false){
     });
 
     computePlaces(raw);
+    $("tabla").innerHTML = buildBodyOnly();
 
-    const tabla = $("tabla");
-    tabla.innerHTML = buildBodyOnly();
-
-    // vista inicial (sin filtro) + paginación
     view = raw;
     page = 1;
 
-    // render según filtro actual (si ya había texto)
-    if ($("searchInput").value.trim()){
-      applyFilter();
-    } else {
-      showNoMatch(false);
-      renderPage();
-    }
+    if ($("searchInput").value.trim()) applyFilter();
+    else { showNoMatch(false); renderPage(); }
+
+    // ✅ recalcular sbw después de render
+    requestAnimationFrame(syncScrollbarWidth);
 
     hideLoading();
-  } catch(err){
-    console.error(err);
+  } catch(e){
+    console.error(e);
     hideLoading();
   } finally {
     isLoading = false;
   }
 }
 
-/* ===== Eventos ===== */
-$("btnPrev").addEventListener("click", () => { page--; renderPage(); });
-$("btnNext").addEventListener("click", () => { page++; renderPage(); });
+/* eventos */
+$("btnPrev").addEventListener("click", () => { page--; renderPage(); requestAnimationFrame(syncScrollbarWidth); });
+$("btnNext").addEventListener("click", () => { page++; renderPage(); requestAnimationFrame(syncScrollbarWidth); });
 
-/* ✅ ENTER => oculta teclado */
 const searchInput = $("searchInput");
 searchInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
     e.preventDefault();
     searchInput.blur();
-    // aplica al instante (sin esperar debounce)
-    if (!isUserScrolling) applyFilter();
+    applyFilter();
   }
 });
 
 let searchTO = null;
 searchInput.addEventListener("input", () => {
   if (searchTO) clearTimeout(searchTO);
-  searchTO = setTimeout(() => {
-    if (isUserScrolling) return;
-    applyFilter();
-  }, 80);
+  searchTO = setTimeout(applyFilter, 80);
 });
 
-/* ===== init ===== */
-setTimeout(syncHeaderScroll, 0);
-load(true);
+/* init */
+syncHeaderScroll();
+syncScrollbarWidth();
+window.addEventListener("resize", () => {
+  syncScrollbarWidth();
+}, {passive:true});
 
-/* ✅ refresco solo por cambio de CONFIG (ligero) */
-const POLL_CONFIG_MS = 2000;
-setInterval(async () => {
-  if (isLoading) return;
-  if (isUserScrolling) return;
-  try{
-    const cfgRes = await fetch(CONFIG, {cache:"no-store"}).then(r=>r.json());
-    const cfg = cfgRes.cfg || {};
-    const cfgSig = sigCfg(cfg);
-    if (cfgSig !== lastCfgSig){
-      load(true);
-    }
-  } catch(e){}
-}, POLL_CONFIG_MS);
+load(true);
 </script>
 </body>
 </html>
