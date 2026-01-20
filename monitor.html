@@ -44,6 +44,15 @@
   --wNombre: 200px;
   --wSel: 20px;
   --wA: 24px;
+
+  /* ✅ scrollbar width (se calcula en JS) */
+  --sbw: 0px;
+}
+
+/* ✅ evita auto-zoom de texto en Android (descuadra columnas) */
+html{
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 *{box-sizing:border-box}
@@ -232,46 +241,6 @@ body{
 }
 .noMatch[hidden]{ display:none; }
 
-/* ✅ PAGINACIÓN */
-.pagerRow{
-  margin-top:6px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  padding:6px 10px;
-  border:1px solid var(--line);
-  border-radius:12px;
-  background: rgba(248,250,252,.95);
-}
-.pagerInfo{
-  font-size:12px;
-  font-weight:900;
-  color: var(--muted);
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.pagerBtns{
-  display:flex;
-  gap:8px;
-  flex-shrink:0;
-}
-.pbtn{
-  border:2px solid #cbd5e1;
-  background:#fff;
-  border-radius:12px;
-  padding:6px 10px;
-  font-weight:900;
-  font-size:12px;
-  cursor:pointer;
-}
-.pbtn:disabled{
-  opacity:.45;
-  cursor:not-allowed;
-}
-.pbtn:active{ transform: translateY(1px); }
-
 /* ===== ENCABEZADO FIJO DEL LISTADO ===== */
 .tableHeadRow{
   margin-top:6px;
@@ -284,6 +253,9 @@ body{
   display:grid;
   grid-template-columns: var(--wFolio) var(--wNombre) repeat(9, var(--wSel)) var(--wA);
   gap:0;
+
+  /* ✅ compensa el ancho del scrollbar del listado */
+  padding-right: var(--sbw, 0px);
 }
 .thCell{
   padding:6px 4px;
@@ -450,15 +422,6 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
 
         <div class="noMatch" id="noMatch" hidden>Sin coincidencias</div>
 
-        <!-- ✅ PAGINACIÓN -->
-        <div class="pagerRow" id="pagerRow">
-          <div class="pagerInfo" id="pagerInfo">—</div>
-          <div class="pagerBtns">
-            <button class="pbtn" id="btnPrev" type="button">‹</button>
-            <button class="pbtn" id="btnNext" type="button">›</button>
-          </div>
-        </div>
-
         <div class="tableHeadRow" aria-hidden="true">
           <div class="tableHeadGrid" id="fixedHead">
             <div class="thCell folio">#</div>
@@ -486,12 +449,7 @@ const BASE = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCu
 const ENDPOINT = BASE + "?mode=clasif";
 const CONFIG   = BASE + "?mode=config";
 
-/* ✅ PAGINACIÓN */
-const PAGE_SIZE = 300;     // puedes subir a 500 si tu cel aguanta, o bajar a 200 para más fluido
-let page = 1;              // 1-based
-
 let raw = [];
-let filtered = null;       // null => sin filtro, usa raw
 let resultados = [];
 let marcadores = [];
 let lastCfgSig = "";
@@ -541,12 +499,21 @@ function computePlaces(rows){
   });
 }
 
-/* ✅ render rápido (innerHTML de una sola pasada) */
-function renderRows(rows){
+/* ✅ scrollbar width => variable CSS --sbw (para alinear header con tabla) */
+function syncScrollbarWidth(){
+  const box = $("tableBox");
+  if (!box) return;
+  const sbw = box.offsetWidth - box.clientWidth; // ancho real del scrollbar
+  document.documentElement.style.setProperty("--sbw", (sbw > 0 ? sbw : 0) + "px");
+}
+window.addEventListener("resize", () => { syncScrollbarWidth(); }, {passive:true});
+
+/* ✅ render rápido (1 golpe) */
+function render(rows){
   const tbody = document.querySelector("#tabla tbody");
   if (!tbody) return;
 
-  const resNorm = resultados.map(norm); // 9
+  const resNorm = resultados.map(norm);
   const parts = [];
 
   for (let k=0; k<rows.length; k++){
@@ -571,53 +538,16 @@ function renderRows(rows){
   }
 
   tbody.innerHTML = parts.join("");
+
+  // ✅ importante: recalcular sbw ya con contenido (algunos móviles lo cambian)
+  requestAnimationFrame(syncScrollbarWidth);
 }
 
-function getActiveList(){
-  return filtered ? filtered : raw;
-}
-
-/* ✅ paginación: calcula slice y renderiza */
-function renderPage(){
-  const list = getActiveList();
-  const total = list.length;
-
-  // si no hay nada
-  if (total === 0){
-    $("pagerInfo").textContent = "Mostrando 0–0 de 0";
-    $("btnPrev").disabled = true;
-    $("btnNext").disabled = true;
-    renderRows([]);
-    return;
-  }
-
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-  if (page > totalPages) page = totalPages;
-  if (page < 1) page = 1;
-
-  const start = (page - 1) * PAGE_SIZE;
-  const end = Math.min(start + PAGE_SIZE, total);
-
-  $("pagerInfo").textContent = `Mostrando ${start+1}–${end} de ${total}`;
-  $("btnPrev").disabled = (page <= 1);
-  $("btnNext").disabled = (page >= totalPages);
-
-  // ✅ importante: al cambiar página, subimos al inicio del listado (no al inicio de la página)
-  const box = $("tableBox");
-  box.scrollTop = 0;
-
-  renderRows(list.slice(start, end));
-}
-
-/* ✅ filtro + paginado */
 function applyFilter(){
   const q = $("searchInput").value.trim().toLowerCase();
-
   if (!q){
-    filtered = null;
     showNoMatch(false);
-    page = 1;
-    renderPage();
+    render(raw);
     return;
   }
 
@@ -627,10 +557,8 @@ function applyFilter(){
            String(r.nombre ?? "").toLowerCase().includes(q);
   });
 
-  filtered = out;
   showNoMatch(out.length === 0);
-  page = 1;          // ✅ al buscar, arrancamos en página 1 de resultados
-  renderPage();
+  render(out);
 }
 
 function renderPartidos(cfg){
@@ -655,6 +583,13 @@ function renderPartidos(cfg){
   });
 }
 
+function withScrollPreserved(fn){
+  const box = $("tableBox");
+  const prev = box.scrollTop;
+  fn();
+  requestAnimationFrame(() => { box.scrollTop = prev; });
+}
+
 function markScrolling(){
   isUserScrolling = true;
   if (scrollTimer) clearTimeout(scrollTimer);
@@ -666,7 +601,9 @@ function markScrolling(){
       load(true);
       return;
     }
-    // no hacemos nada aquí: el listado ya está paginado
+    if ($("searchInput").value.trim()){
+      withScrollPreserved(applyFilter);
+    }
   }, 180);
 }
 $("tableBox").addEventListener("scroll", markScrolling, {passive:true});
@@ -733,17 +670,19 @@ async function load(force=false){
     const tabla = $("tabla");
     tabla.innerHTML = buildBodyOnly();
 
-    // ✅ re-aplica filtro si había búsqueda (y repagina)
-    if ($("searchInput").value.trim()){
-      applyFilter();
-    } else {
-      filtered = null;
-      showNoMatch(false);
-      // mantenemos la página si se puede, pero ajustamos si se salió de rango
-      renderPage();
-    }
+    withScrollPreserved(() => {
+      if ($("searchInput").value.trim()) applyFilter();
+      else {
+        showNoMatch(false);
+        render(raw);
+      }
+    });
 
     hideLoading();
+
+    // ✅ al final (ya con tabla dibujada)
+    setTimeout(syncScrollbarWidth, 0);
+
   } catch(err){
     console.error(err);
     hideLoading();
@@ -752,39 +691,22 @@ async function load(force=false){
   }
 }
 
-/* ✅ Enter => oculta teclado (una sola vez) */
+/* ✅ ENTER => oculta teclado */
 const searchInput = $("searchInput");
-searchInput.addEventListener("keydown", (e)=>{
+searchInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
     e.preventDefault();
     searchInput.blur();
   }
 });
 
-/* ✅ input con debounce */
 let searchTO = null;
-searchInput.addEventListener("input", ()=>{
+searchInput.addEventListener("input", () => {
   if (searchTO) clearTimeout(searchTO);
-  searchTO = setTimeout(()=>{
+  searchTO = setTimeout(() => {
     if (isUserScrolling) return;
-    applyFilter();
-  }, 80);
-});
-
-/* ✅ botones paginación */
-$("btnPrev").addEventListener("click", ()=>{
-  if (page > 1){
-    page--;
-    renderPage();
-  }
-});
-$("btnNext").addEventListener("click", ()=>{
-  const total = getActiveList().length;
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-  if (page < totalPages){
-    page++;
-    renderPage();
-  }
+    withScrollPreserved(applyFilter);
+  }, 60);
 });
 
 /* ✅ primera carga */
@@ -792,7 +714,7 @@ load(true);
 
 /* ✅ refresco solo por cambio de CONFIG */
 const POLL_CONFIG_MS = 2000;
-setInterval(async ()=>{
+setInterval(async () => {
   if (isLoading) return;
   if (isUserScrolling) return;
   try{
@@ -804,6 +726,9 @@ setInterval(async ()=>{
     }
   } catch(e){}
 }, POLL_CONFIG_MS);
+
+/* ✅ asegurar medición inicial (por si tarda el render) */
+setTimeout(syncScrollbarWidth, 0);
 </script>
 </body>
 </html>
