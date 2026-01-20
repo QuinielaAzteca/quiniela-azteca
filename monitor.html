@@ -44,19 +44,17 @@
   --wNombre: 200px;
   --wSel: 20px;
   --wA: 24px;
-
-  /* ✅ scrollbar width (JS la actualiza) */
-  --sbw: 0px;
 }
 
 *{box-sizing:border-box}
-html, body { height:100%; overflow:hidden; }
 
-/* ✅ evita “auto-zoom” de texto que descuadra columnas en algunos Android */
+/* ✅ evita “auto zoom” de texto (Android) */
 html{
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
+
+html, body { height:100%; overflow:hidden; }
 
 body{
   margin:0;
@@ -171,7 +169,7 @@ body{
   color: var(--okFg);
 }
 
-/* ===== BUSCADOR (sin botón) ===== */
+/* ===== BUSCADOR ===== */
 .searchRow{
   margin-top:6px;
   display:flex;
@@ -203,6 +201,38 @@ body{
 }
 .search input:focus{ border-color:#94a3b8; }
 
+/* ===== PAGINACIÓN ===== */
+.pager{
+  margin-top:6px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background: rgba(248,250,252,.95);
+  padding:8px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.pbtn{
+  width:52px;
+  height:42px;
+  border-radius:14px;
+  border:2px solid #cbd5e1;
+  background:#fff;
+  font-weight:1000;
+  cursor:pointer;
+}
+.pbtn:disabled{
+  opacity:.45;
+  cursor:default;
+}
+.pstat{
+  font-weight:1000;
+  color:var(--muted);
+  font-size:13px;
+  letter-spacing:.02em;
+}
+
 /* ===== AVISO CARGANDO ===== */
 .loadingRow{
   margin-top:6px;
@@ -227,7 +257,7 @@ body{
 }
 @keyframes spin{ to{ transform:rotate(360deg);} }
 
-/* ✅ aviso "Sin coincidencias" (solo texto) */
+/* ✅ aviso "Sin coincidencias" */
 .noMatch{
   margin-top:6px;
   padding:10px 12px;
@@ -241,51 +271,29 @@ body{
 }
 .noMatch[hidden]{ display:none; }
 
-/* ✅ PAGINACIÓN */
-.pager{
-  margin-top:6px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-  padding:6px 10px;
-  border:1px solid var(--line);
-  border-radius:12px;
-  background: rgba(248,250,252,.95);
-}
-.pager[hidden]{ display:none; }
-.pgBtn{
-  border:1px solid var(--line);
-  background:#fff;
-  border-radius:10px;
-  padding:6px 10px;
-  font-weight:1000;
-  cursor:pointer;
-}
-.pgBtn:active{ transform:scale(.98); }
-.pgBtn[disabled]{ opacity:.4; cursor:default; }
-.pgInfo{
-  font-size:12px;
-  font-weight:900;
-  color:var(--muted);
-  min-width:72px;
-  text-align:center;
-}
-
 /* ===== ENCABEZADO FIJO DEL LISTADO ===== */
 .tableHeadRow{
   margin-top:6px;
   border:1px solid var(--line);
   border-radius:12px;
-  overflow:hidden;
   background:#f8fafc;
+
+  /* ✅ el header también scrollea horizontal */
+  overflow:auto;
+  -webkit-overflow-scrolling: touch;
 }
+.tableHeadRow::-webkit-scrollbar{ height:0px; }
+
 .tableHeadGrid{
   display:grid;
   grid-template-columns: var(--wFolio) var(--wNombre) repeat(9, var(--wSel)) var(--wA);
   gap:0;
-  padding-right: var(--sbw, 0px); /* ✅ compensa scrollbar */
+
+  /* ✅ permite que existan TODAS las columnas */
+  width:max-content;
+  min-width:100%;
 }
+
 .thCell{
   padding:6px 4px;
   border-right:1px solid rgba(215,230,220,.7);
@@ -319,7 +327,7 @@ body{
   overflow:hidden;
 }
 
-/* ✅ solo aquí scrollea */
+/* ✅ solo aquí scrollea (vertical + horizontal) */
 .tableBox{
   border:1px solid var(--line);
   border-radius:14px;
@@ -339,7 +347,8 @@ body{
 }
 
 table{
-  width:100%;
+  width:max-content;   /* ✅ tabla puede ser más ancha */
+  min-width:100%;
   border-collapse:separate;
   border-spacing:0;
   table-layout:fixed;
@@ -404,6 +413,19 @@ td.selCell{
 
 td.col-ac.win1{ background:var(--azul1); color:#fff; }
 td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
+
+/* responsive: solo variables */
+@media (max-width:520px){
+  :root{ --wNombre: 170px; --wSel: 18px; --wA: 24px; }
+  .title{ font-size:16px; }
+  .partidos{ font-size:9px; gap:2px; }
+  .p{ padding:2px 6px; }
+  .chip{ font-size:9px; padding:2px 5px; }
+}
+@media (max-width:420px){
+  :root{ --wNombre: 150px; --wSel: 17px; --wA: 24px; }
+  .selPill{ width:16px; height:18px; font-size:11px; }
+}
 </style>
 </head>
 
@@ -431,6 +453,13 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
           </div>
         </div>
 
+        <!-- ✅ paginación (500 por página) -->
+        <div class="pager" id="pager" aria-label="Paginación">
+          <button class="pbtn" id="btnPrev" type="button" aria-label="Anterior">◀</button>
+          <div class="pstat" id="pageTxt">1 / 1</div>
+          <button class="pbtn" id="btnNext" type="button" aria-label="Siguiente">▶</button>
+        </div>
+
         <div class="loadingRow" id="loadingRow" hidden>
           <span class="spinner" aria-hidden="true"></span>
           <span id="loadingTxt">Cargando listado…</span>
@@ -438,14 +467,8 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
 
         <div class="noMatch" id="noMatch" hidden>Sin coincidencias</div>
 
-        <!-- ✅ PAGINACIÓN -->
-        <div class="pager" id="pager" hidden>
-          <button class="pgBtn" id="prevBtn" type="button">◀</button>
-          <div class="pgInfo" id="pgInfo">1 / 1</div>
-          <button class="pgBtn" id="nextBtn" type="button">▶</button>
-        </div>
-
-        <div class="tableHeadRow" aria-hidden="true">
+        <!-- ✅ header fijo, ahora con scroll horizontal + sync -->
+        <div class="tableHeadRow" aria-label="Encabezado">
           <div class="tableHeadGrid" id="fixedHead">
             <div class="thCell folio">#</div>
             <div class="thCell left nombre">Nombre</div>
@@ -472,7 +495,10 @@ const BASE = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCu
 const ENDPOINT = BASE + "?mode=clasif";
 const CONFIG   = BASE + "?mode=config";
 
+const PAGE_SIZE = 500;
+
 let raw = [];
+let view = []; // lo que se muestra (filtrado o no)
 let resultados = [];
 let marcadores = [];
 let lastCfgSig = "";
@@ -481,6 +507,9 @@ let isLoading = false;
 let isUserScrolling = false;
 let scrollTimer = null;
 let pendingRefresh = false;
+
+let page = 1;
+let totalPages = 1;
 
 const $ = (id) => document.getElementById(id);
 
@@ -493,16 +522,6 @@ function hideLoading(){ $("loadingRow").hidden = true; }
 function showNoMatch(show){
   $("noMatch").hidden = !show;
 }
-
-/* ✅ compensa scrollbar para alinear header/tabla en teléfonos raros */
-function syncScrollbarWidth(){
-  const box = $("tableBox");
-  if (!box) return;
-  const sbw = box.offsetWidth - box.clientWidth;
-  document.documentElement.style.setProperty("--sbw", sbw + "px");
-}
-window.addEventListener("resize", syncScrollbarWidth, {passive:true});
-setTimeout(syncScrollbarWidth, 0);
 
 function buildBodyOnly(){
   return `<tbody></tbody>`;
@@ -532,7 +551,7 @@ function computePlaces(rows){
   });
 }
 
-/* ✅ render rápido (1 solo innerHTML) */
+/* ✅ render rápido: un solo innerHTML */
 function render(rows){
   const tbody = document.querySelector("#tabla tbody");
   if (!tbody) return;
@@ -565,53 +584,46 @@ function render(rows){
 }
 
 /* ===== PAGINACIÓN ===== */
-const PAGE_SIZE = 500;
-let page = 1;
-let filtered = null;
-
-function totalPages(arr){
-  return Math.max(1, Math.ceil((arr.length || 0) / PAGE_SIZE));
+function clampPage(){
+  totalPages = Math.max(1, Math.ceil(view.length / PAGE_SIZE));
+  if (page < 1) page = 1;
+  if (page > totalPages) page = totalPages;
 }
-function pageSlice(arr){
+
+function updatePager(){
+  clampPage();
+  $("pageTxt").textContent = `${page} / ${totalPages}`;
+  $("btnPrev").disabled = (page <= 1);
+  $("btnNext").disabled = (page >= totalPages);
+}
+
+function scrollTopReset(){
+  const box = $("tableBox");
+  if (box) box.scrollTop = 0;
+}
+
+function renderPage(){
+  clampPage();
+  updatePager();
+
   const start = (page - 1) * PAGE_SIZE;
-  return arr.slice(start, start + PAGE_SIZE);
-}
-function updatePager(arr){
-  const tp = totalPages(arr);
-  if ((arr.length || 0) <= PAGE_SIZE){
-    $("pager").hidden = true;
-  } else {
-    $("pager").hidden = false;
-  }
-  $("pgInfo").textContent = `${page} / ${tp}`;
-  $("prevBtn").disabled = page <= 1;
-  $("nextBtn").disabled = page >= tp;
-}
-function renderPaged(arr){
-  const tp = totalPages(arr);
-  if (page > tp) page = tp;
-  render(pageSlice(arr));
-  updatePager(arr);
-  // por si cambió el scrollbar por el tamaño de contenido
-  setTimeout(syncScrollbarWidth, 0);
+  const end = start + PAGE_SIZE;
+  const slice = view.slice(start, end);
+
+  showNoMatch(view.length === 0 && $("searchInput").value.trim().length > 0);
+  render(slice);
+  scrollTopReset();
 }
 
-$("prevBtn").addEventListener("click", () => {
-  const arr = filtered ?? raw;
-  if (page > 1){ page--; renderPaged(arr); }
-});
-$("nextBtn").addEventListener("click", () => {
-  const arr = filtered ?? raw;
-  if (page < totalPages(arr)){ page++; renderPaged(arr); }
-});
-
+/* ===== FILTRO ===== */
 function applyFilter(){
   const q = $("searchInput").value.trim().toLowerCase();
+
   if (!q){
     showNoMatch(false);
-    filtered = null;
+    view = raw;
     page = 1;
-    renderPaged(raw);
+    renderPage();
     return;
   }
 
@@ -621,10 +633,9 @@ function applyFilter(){
            String(r.nombre ?? "").toLowerCase().includes(q);
   });
 
-  showNoMatch(out.length === 0);
-  filtered = out;
+  view = out;
   page = 1;
-  renderPaged(out);
+  renderPage();
 }
 
 function renderPartidos(cfg){
@@ -649,13 +660,7 @@ function renderPartidos(cfg){
   });
 }
 
-function withScrollPreserved(fn){
-  const box = $("tableBox");
-  const prev = box.scrollTop;
-  fn();
-  requestAnimationFrame(() => { box.scrollTop = prev; });
-}
-
+/* ===== Scroll vertical “en uso” ===== */
 function markScrolling(){
   isUserScrolling = true;
   if (scrollTimer) clearTimeout(scrollTimer);
@@ -667,13 +672,34 @@ function markScrolling(){
       load(true);
       return;
     }
-    if ($("searchInput").value.trim()){
-      withScrollPreserved(applyFilter);
-    }
   }, 180);
 }
 $("tableBox").addEventListener("scroll", markScrolling, {passive:true});
 
+/* ✅ Sync scroll horizontal header <-> tabla */
+function syncHeaderScroll(){
+  const box  = $("tableBox");
+  const head = document.querySelector(".tableHeadRow");
+  if (!box || !head) return;
+
+  let lock = false;
+
+  box.addEventListener("scroll", () => {
+    if (lock) return;
+    lock = true;
+    head.scrollLeft = box.scrollLeft;
+    requestAnimationFrame(() => (lock = false));
+  }, { passive:true });
+
+  head.addEventListener("scroll", () => {
+    if (lock) return;
+    lock = true;
+    box.scrollLeft = head.scrollLeft;
+    requestAnimationFrame(() => (lock = false));
+  }, { passive:true });
+}
+
+/* ===== CARGA ===== */
 async function load(force=false){
   if (isLoading) return;
   if (isUserScrolling){
@@ -691,6 +717,7 @@ async function load(force=false){
 
     if (!force && cfgSig === lastCfgSig){
       hideLoading();
+      isLoading = false;
       return;
     }
     lastCfgSig = cfgSig;
@@ -712,6 +739,7 @@ async function load(force=false){
     if (iF<0 || iN<0 || iA<0){
       console.warn("Headers inválidos:", headers);
       hideLoading();
+      isLoading = false;
       return;
     }
 
@@ -736,15 +764,17 @@ async function load(force=false){
     const tabla = $("tabla");
     tabla.innerHTML = buildBodyOnly();
 
-    withScrollPreserved(() => {
-      page = 1;
-      filtered = null;
-      if ($("searchInput").value.trim()) applyFilter();
-      else {
-        showNoMatch(false);
-        renderPaged(raw);
-      }
-    });
+    // vista inicial (sin filtro) + paginación
+    view = raw;
+    page = 1;
+
+    // render según filtro actual (si ya había texto)
+    if ($("searchInput").value.trim()){
+      applyFilter();
+    } else {
+      showNoMatch(false);
+      renderPage();
+    }
 
     hideLoading();
   } catch(err){
@@ -755,12 +785,18 @@ async function load(force=false){
   }
 }
 
+/* ===== Eventos ===== */
+$("btnPrev").addEventListener("click", () => { page--; renderPage(); });
+$("btnNext").addEventListener("click", () => { page++; renderPage(); });
+
 /* ✅ ENTER => oculta teclado */
 const searchInput = $("searchInput");
 searchInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
     e.preventDefault();
     searchInput.blur();
+    // aplica al instante (sin esperar debounce)
+    if (!isUserScrolling) applyFilter();
   }
 });
 
@@ -769,14 +805,15 @@ searchInput.addEventListener("input", () => {
   if (searchTO) clearTimeout(searchTO);
   searchTO = setTimeout(() => {
     if (isUserScrolling) return;
-    withScrollPreserved(applyFilter);
-  }, 60);
+    applyFilter();
+  }, 80);
 });
 
-/* primera carga */
+/* ===== init ===== */
+setTimeout(syncHeaderScroll, 0);
 load(true);
 
-/* refresco solo por cambio de CONFIG */
+/* ✅ refresco solo por cambio de CONFIG (ligero) */
 const POLL_CONFIG_MS = 2000;
 setInterval(async () => {
   if (isLoading) return;
