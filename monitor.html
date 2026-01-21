@@ -6,45 +6,274 @@
 <title>Quiniela Azteca – Clasificación</title>
 
 <style>
-html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
-body{ margin:0; font-family:system-ui; background:#eef6f1; }
+  :root{
+    --bg:#eef6f1;
+    --line:#cfe5da;
+    --line2:#e2eee8;
+    --txt:#0f172a;
+    --muted:#475569;
 
-.header{
-  position:sticky; top:0; z-index:10;
-  background:#fff; border-bottom:1px solid #cfe5da;
-  padding:8px;
-}
-.partidos{ font-size:11px; }
-.p{ display:flex; justify-content:space-between; padding:4px 6px; }
+    --win1:#dcfce7; /* verde suave */
+    --win2:#fef9c3; /* amarillo suave */
 
-.wrap{ padding:8px; }
+    --wSel: 22px;
+    --wA: 24px;
+    --wFN: 1fr;
 
-.row{
-  display:grid;
-  grid-template-columns: 28px 1fr repeat(9,20px) 22px;
-  align-items:center;
-  gap:2px;
-  padding:4px 2px;
-  border-bottom:1px solid #e2eee8;
-  font-size:11px;
-}
-.row.win1{ background:#dcfce7; }
-.row.win2{ background:#fef9c3; }
+    --fsRow: 11px;
+    --fsSmall: 9px;
+    --fsTiny: 8px;
+  }
 
-.sel{ text-align:center; font-weight:900; }
-.ac{ text-align:center; font-weight:900; }
+  html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+  body{ margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif; background:var(--bg); color:var(--txt); }
 
-.nav{
-  display:flex; gap:6px; justify-content:center;
-  margin:10px 0;
-}
-.nav button{
-  padding:4px 8px;
-  border-radius:6px;
-  border:1px solid #cbd5e1;
-  background:#fff;
-  font-weight:700;
-}
+  .header{
+    position:sticky; top:0; z-index:10;
+    background:#fff;
+    border-bottom:1px solid var(--line);
+    padding:8px 8px 6px;
+  }
+  .partidos{ font-size:11px; line-height:1.15; }
+  .p{
+    display:flex; justify-content:space-between; gap:8px;
+    padding:3px 6px;
+    border-radius:10px;
+    background:rgba(238,246,241,.6);
+    border:1px solid rgba(207,229,218,.65);
+    margin-bottom:4px;
+  }
+  .p .left{
+    flex:1;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    font-weight:800;
+  }
+  .p .right{
+    flex-shrink:0;
+    display:flex; gap:6px; align-items:center;
+    white-space:nowrap;
+    color:var(--muted);
+    font-weight:900;
+    font-size:10px;
+  }
+  .chip{
+    padding:2px 6px;
+    border-radius:999px;
+    border:1px solid rgba(203,213,225,.9);
+    background:#f8fafc;
+    color:var(--txt);
+  }
+  .chip.pick{
+    background:#ecfdf5;
+    border-color:#bbf7d0;
+    color:#065f46;
+  }
+
+  .wrap{ padding:8px; }
+
+  /* Encabezado fijo del "grid" */
+  .headRow{
+    position:sticky; top:calc(0px + 0px); /* se pega bajo header */
+    z-index:9;
+    margin-top:8px;
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:12px;
+    overflow:hidden;
+  }
+  .headGrid{
+    display:grid;
+    grid-template-columns: var(--wFN) repeat(9, var(--wSel)) var(--wA);
+    gap:0;
+    align-items:stretch;
+  }
+  .hCell{
+    padding:6px 2px;
+    border-right:1px solid rgba(207,229,218,.7);
+    text-align:center;
+    font-weight:1000;
+    font-size:10px;
+    letter-spacing:.02em;
+    background:#f8fafc;
+  }
+  .hCell:first-child{
+    text-align:left;
+    padding-left:8px;
+    font-size:10px;
+    color:var(--muted);
+    background:#fff;
+  }
+  .hCell:last-child{ border-right:none; }
+
+  /* Listado */
+  #list{
+    margin-top:6px;
+    border:1px solid var(--line);
+    border-radius:14px;
+    overflow:hidden;
+    background:#fff;
+  }
+
+  .row{
+    display:grid;
+    grid-template-columns: var(--wFN) repeat(9, var(--wSel)) var(--wA);
+    align-items:center;
+    gap:0;
+    padding:4px 0;
+    border-bottom:1px solid var(--line2);
+    font-size:var(--fsRow);
+  }
+  .row:last-child{ border-bottom:none; }
+  .row.win1{ background:var(--win1); }
+  .row.win2{ background:var(--win2); }
+
+  .fn{
+    padding-left:8px;
+    display:flex;
+    align-items:baseline;
+    gap:6px;
+    min-width:0;
+  }
+  .folio{
+    font-size:var(--fsTiny);
+    font-weight:900;
+    color:var(--muted);
+    flex:0 0 auto;
+  }
+  .nombre{
+    font-size:var(--fsRow);
+    font-weight:1000;
+    min-width:0;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  .selCell, .aCell{
+    text-align:center;
+    padding:0 1px;
+  }
+
+  /* Selección: número arriba, valor abajo, ultra compacto */
+  .selBox{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    line-height:1;
+    gap:1px;
+    padding:2px 0;
+  }
+  .selNum{
+    font-size:var(--fsTiny);
+    font-weight:900;
+    color:var(--muted);
+  }
+  .selVal{
+    font-size:var(--fsSmall);
+    font-weight:1000;
+  }
+
+  /* Aciertos: A arriba + número abajo */
+  .aBox{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    line-height:1;
+    gap:1px;
+    padding:2px 0;
+  }
+  .aLab{
+    font-size:var(--fsTiny);
+    font-weight:1000;
+    color:var(--muted);
+  }
+  .aVal{
+    font-size:var(--fsSmall);
+    font-weight:1000;
+  }
+
+  .loading{
+    margin-top:8px;
+    padding:10px 12px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:#fff;
+    color:var(--muted);
+    font-weight:900;
+    text-align:center;
+  }
+  .loading[hidden]{ display:none; }
+
+  .noMatch{
+    margin-top:8px;
+    padding:10px 12px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:#fff;
+    color:var(--muted);
+    font-weight:900;
+    text-align:center;
+  }
+  .noMatch[hidden]{ display:none; }
+
+  /* Navegación */
+  .nav{
+    display:flex;
+    gap:6px;
+    justify-content:center;
+    align-items:center;
+    flex-wrap:wrap;
+    margin:10px 0 6px;
+  }
+  .nav button{
+    padding:5px 8px;
+    border-radius:10px;
+    border:1px solid #cbd5e1;
+    background:#fff;
+    font-weight:900;
+    font-size:12px;
+  }
+  .nav button[disabled]{
+    opacity:.45;
+  }
+  .pages{
+    display:flex;
+    gap:6px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  .pg{
+    padding:5px 8px;
+    border-radius:10px;
+    border:1px solid #cbd5e1;
+    background:#fff;
+    font-weight:1000;
+    font-size:12px;
+    min-width:34px;
+  }
+  .pg.active{
+    background:#0f172a;
+    color:#fff;
+    border-color:#0f172a;
+  }
+  .dots{
+    color:var(--muted);
+    font-weight:1000;
+    font-size:12px;
+    padding:0 2px;
+  }
+
+  /* Responsive: apretamos aún más si hace falta */
+  @media (max-width:420px){
+    :root{
+      --wSel: 20px;
+      --wA: 22px;
+      --fsRow: 10px;
+      --fsSmall: 9px;
+      --fsTiny: 8px;
+    }
+    .nav button, .pg{ font-size:11px; padding:5px 7px; }
+  }
 </style>
 </head>
 
@@ -55,61 +284,280 @@ body{ margin:0; font-family:system-ui; background:#eef6f1; }
 </div>
 
 <div class="wrap">
+
+  <!-- Encabezado fijo del grid -->
+  <div class="headRow" aria-hidden="true">
+    <div class="headGrid">
+      <div class="hCell">Folio / Nombre</div>
+      <div class="hCell">1</div><div class="hCell">2</div><div class="hCell">3</div>
+      <div class="hCell">4</div><div class="hCell">5</div><div class="hCell">6</div>
+      <div class="hCell">7</div><div class="hCell">8</div><div class="hCell">9</div>
+      <div class="hCell">A</div>
+    </div>
+  </div>
+
+  <div class="loading" id="loading" hidden>Cargando…</div>
+  <div class="noMatch" id="noMatch" hidden>Sin coincidencias</div>
+
   <div id="list"></div>
 
   <div class="nav">
-    <button onclick="go(1)">Primera</button>
-    <button onclick="go(page-1)">‹</button>
-    <span id="pages"></span>
-    <button onclick="go(page+1)">›</button>
-    <button onclick="go(totalPages)">Última</button>
+    <button id="btnFirst" onclick="go(1)">Primera</button>
+    <button id="btnPrev" onclick="go(page-1)">‹</button>
+    <div class="pages" id="pages"></div>
+    <button id="btnNext" onclick="go(page+1)">›</button>
+    <button id="btnLast" onclick="go(totalPages)">Última</button>
   </div>
+
 </div>
 
 <script>
 const BASE = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec";
 const PAGE_SIZE = 500;
 
-let page=1, totalPages=1;
+let page = 1, totalPages = 1;
 
-async function load(){
-  const res = await fetch(`${BASE}?mode=clasif&page=${page}&pageSize=${PAGE_SIZE}`);
-  const j = await res.json();
+// Para pintar 1º/2º lugar de forma consistente en TODAS las páginas
+let globalMax = null;
+let globalSecond = null;
 
-  totalPages = j.totalPages;
-  render(j.rows, j.headers);
-  renderNav();
+const $ = (id) => document.getElementById(id);
+
+function setLoading(on, txt="Cargando…"){
+  const el = $("loading");
+  if (!el) return;
+  el.textContent = txt;
+  el.hidden = !on;
+}
+function setNoMatch(on){
+  $("noMatch").hidden = !on;
 }
 
-function render(rows, headers){
-  const list = document.getElementById("list");
+async function loadConfigOnce(){
+  try{
+    const r = await fetch(`${BASE}?mode=config`, {cache:"no-store"});
+    const j = await r.json();
+    const cfg = (j && j.cfg) ? j.cfg : {};
+    const partidos = (cfg.partidos || []).slice(0,9);
+
+    // resultados/marcadores también vienen en cfg por tu doGet(config)
+    const resultados = (cfg.resultados || []).slice(0,9);
+    const marcadores = (cfg.marcadores || []).slice(0,9);
+
+    renderPartidos(partidos, resultados, marcadores);
+  }catch(e){
+    // si falla config, no bloqueamos el monitor
+    $("partidos").textContent = "";
+  }
+}
+
+function renderPartidos(partidos, resultados, marcadores){
+  const box = $("partidos");
+  box.innerHTML = "";
+
+  for (let i=0; i<9; i++){
+    const p = partidos[i] || {local:"", visita:""};
+    if (!p.local && !p.visita) continue;
+
+    const m = (marcadores[i] && String(marcadores[i]).trim()) ? String(marcadores[i]).trim() : "-";
+    const r = (resultados[i] && String(resultados[i]).trim()) ? String(resultados[i]).trim().toUpperCase() : "-";
+
+    const div = document.createElement("div");
+    div.className = "p";
+    div.innerHTML = `
+      <span class="left">${i+1} ${p.local} vs ${p.visita}</span>
+      <span class="right">
+        <span class="chip">${m}</span>
+        <span class="chip pick">${r}</span>
+      </span>
+    `;
+    box.appendChild(div);
+  }
+}
+
+function computeGlobalPlacesFromSorted(rows, iA){
+  // Hoja clasificacion_prueba está ordenada desc por aciertos.
+  // Tomamos max del primer elemento y buscamos el primer valor menor para 2º.
+  if (!rows || !rows.length) return;
+
+  const first = Number(rows[0][iA] || 0);
+  if (globalMax == null) globalMax = first;
+
+  if (globalSecond == null){
+    for (let i=0; i<rows.length; i++){
+      const v = Number(rows[i][iA] || 0);
+      if (v < globalMax){
+        globalSecond = v;
+        break;
+      }
+    }
+  }
+}
+
+async function load(){
+  setLoading(true, "Cargando…");
+  setNoMatch(false);
+
+  try{
+    const res = await fetch(`${BASE}?mode=clasif&page=${page}&pageSize=${PAGE_SIZE}`, {cache:"no-store"});
+    const j = await res.json();
+
+    // Estructura esperada: { ok, data:{headers, rows, page, totalPages, ...}, resultados, marcadores, ... }
+    const d = j && j.data ? j.data : null;
+    if (!d){
+      $("list").innerHTML = "";
+      setLoading(false);
+      return;
+    }
+
+    totalPages = Number(d.totalPages || 1);
+    page = Number(d.page || page);
+
+    const headers = d.headers || [];
+    const rows = d.rows || [];
+
+    // indices: folio=0, nombre=1, selecciones 2..(A-1), aciertos = last
+    const iA = headers.length ? (headers.length - 1) : (rows[0] ? rows[0].length - 1 : 0);
+
+    // aprendemos max/second desde páginas cargadas (idealmente desde la 1)
+    computeGlobalPlacesFromSorted(rows, iA);
+
+    render(rows, iA);
+    renderNav();
+
+  }catch(e){
+    $("list").innerHTML = "";
+  } finally {
+    setLoading(false);
+  }
+}
+
+function render(rows, iA){
+  const list = $("list");
   list.innerHTML = "";
 
-  const iF=0,iN=1,iA=headers.length-1;
+  if (!rows || rows.length === 0){
+    setNoMatch(true);
+    return;
+  }
 
-  rows.forEach(r=>{
-    const div=document.createElement("div");
-    div.className="row";
-    div.innerHTML =
-      `<div>${r[iF]}</div>
-       <div>${r[iN]}</div>` +
-      r.slice(2,iA).map(s=>`<div class="sel">${s||'-'}</div>`).join("") +
-      `<div class="ac">${r[iA]}</div>`;
+  for (let idx=0; idx<rows.length; idx++){
+    const r = rows[idx] || [];
+    const folio = r[0] ?? "";
+    const nombre = r[1] ?? "";
+
+    const ac = Number(r[iA] ?? 0);
+
+    let cls = "row";
+    if (globalMax != null && ac === globalMax) cls += " win1";
+    else if (globalSecond != null && ac === globalSecond) cls += " win2";
+
+    const div = document.createElement("div");
+    div.className = cls;
+
+    // Selecciones: r[2]..r[iA-1] (9)
+    let selsHtml = "";
+    for (let k=0; k<9; k++){
+      const v = r[2 + k] ?? "";
+      selsHtml += `
+        <div class="selCell">
+          <div class="selBox">
+            <div class="selNum">${k+1}</div>
+            <div class="selVal">${v ? String(v) : "-"}</div>
+          </div>
+        </div>`;
+    }
+
+    // Aciertos
+    const aHtml = `
+      <div class="aCell">
+        <div class="aBox">
+          <div class="aLab">A</div>
+          <div class="aVal">${r[iA] ?? ""}</div>
+        </div>
+      </div>`;
+
+    div.innerHTML = `
+      <div class="fn">
+        <span class="folio">${folio}</span>
+        <span class="nombre">${nombre}</span>
+      </div>
+      ${selsHtml}
+      ${aHtml}
+    `;
+
     list.appendChild(div);
-  });
+  }
+}
+
+function makePageButtons(current, total){
+  const out = [];
+
+  const add = (x) => out.push({t:String(x), p:x, type:"page"});
+  const dots = () => out.push({t:"…", type:"dots"});
+
+  if (total <= 10){
+    for (let i=1; i<=total; i++) add(i);
+    return out;
+  }
+
+  add(1);
+  if (current > 4) dots();
+
+  const start = Math.max(2, current - 2);
+  const end = Math.min(total - 1, current + 2);
+
+  for (let i=start; i<=end; i++) add(i);
+
+  if (current < total - 3) dots();
+  add(total);
+
+  return out;
 }
 
 function renderNav(){
-  const p=document.getElementById("pages");
-  p.textContent = `${page} / ${totalPages}`;
+  $("btnFirst").disabled = (page <= 1);
+  $("btnPrev").disabled  = (page <= 1);
+  $("btnNext").disabled  = (page >= totalPages);
+  $("btnLast").disabled  = (page >= totalPages);
+
+  const box = $("pages");
+  box.innerHTML = "";
+
+  const items = makePageButtons(page, totalPages);
+
+  items.forEach(it=>{
+    if (it.type === "dots"){
+      const s = document.createElement("span");
+      s.className = "dots";
+      s.textContent = it.t;
+      box.appendChild(s);
+      return;
+    }
+    const b = document.createElement("button");
+    b.className = "pg" + (it.p === page ? " active" : "");
+    b.textContent = it.t;
+    b.onclick = () => go(it.p);
+    box.appendChild(b);
+  });
 }
 
 function go(p){
-  if (p<1||p>totalPages) return;
-  page=p; load();
+  p = Number(p);
+  if (!isFinite(p)) return;
+  if (p < 1 || p > totalPages) return;
+  page = p;
+
+  // Subimos un poquito para que se note el cambio (y no se sienta “atascado”)
+  window.scrollTo({top: 0, behavior: "instant" in window ? "instant" : "auto"});
+  load();
 }
 
-load();
+// INIT
+(async function init(){
+  await loadConfigOnce();
+  await load();
+})();
 </script>
 </body>
 </html>
