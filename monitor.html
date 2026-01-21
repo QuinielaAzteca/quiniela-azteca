@@ -6,792 +6,242 @@
 <title>Quiniela Azteca – Monitor</title>
 
 <style>
-:root{
-  --fg:#0f172a;
-  --muted:#475569;
-
-  --bg:#eaf3ee;
-  --bg2:#dfeee7;
-  --card:#ffffff;
-  --line:#d7e6dc;
-
-  --l:#0a6b3a;
-  --v:#c62828;
-
-  --rowA:#f6fbf8;
-  --rowB:#eff7f2;
-
-  --shadow: 0 10px 24px rgba(2, 44, 20, .10);
-
-  --okBg:#ecfdf5;
-  --okBd:#bbf7d0;
-  --okFg:#065f46;
-
-  --chipBg:#f8fafc;
-  --chipBd:#e5e7eb;
-  --chipFg:#0f172a;
-
-  --azul1:#1d4ed8;
-  --azul2:#93c5fd;
-
-  --pillBorder:#cbd5e1;
-  --pillHitBg:#dcfce7;
-  --pillHitBd:#86efac;
-  --pillHitTx:#064e3b;
-
-  --badge1:#1d4ed8;
-  --badge2:#93c5fd;
-}
-
-/* evita “auto-zoom” raro de texto en algunos Android */
 html{
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
+  -webkit-text-size-adjust:100%;
+  text-size-adjust:100%;
 }
-
 *{box-sizing:border-box}
-html, body { height:100%; overflow:hidden; }
 
 body{
   margin:0;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
-  color:var(--fg);
-  background: radial-gradient(1200px 520px at 50% -140px, #ffffff 0%, var(--bg) 55%, var(--bg2) 100%);
-  display:flex;
-  flex-direction:column;
-  min-height:100vh;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  background:#eaf3ee;
+  color:#0f172a;
 }
 
-/* ===== HEADER FIJO ===== */
+/* ===== HEADER ===== */
 .header{
   position:sticky;
   top:0;
-  z-index:50;
+  z-index:10;
   background:#fff;
-  border-bottom:1px solid rgba(215,230,220,.85);
-  box-shadow: 0 10px 24px rgba(2,6,23,.05);
-}
-.header-inner{
-  max-width:1100px;
-  margin:auto;
-  padding:8px 10px;
-}
-.headerCard{
-  background: linear-gradient(180deg, #ffffff 0%, #fbfdfc 100%);
-  border:1px solid var(--line);
-  border-radius:14px;
-  overflow:hidden;
-  box-shadow: var(--shadow);
-}
-.headerBar{
-  height:6px;
-  background:linear-gradient(90deg, var(--l) 0%, var(--l) 33%, #ffffff 33%, #ffffff 66%, var(--v) 66%, var(--v) 100%);
-}
-.headerCardInner{ padding:6px 8px; }
-
-.brandRow{
-  display:flex;
-  align-items:flex-end;
-  justify-content:space-between;
-  gap:10px;
-  flex-wrap:wrap;
-  margin-bottom:6px;
+  padding:10px;
+  border-bottom:1px solid #d7e6dc;
 }
 .title{
-  margin:0;
   font-weight:1000;
-  font-size:18px;
   letter-spacing:.04em;
-  line-height:1.05;
 }
-.title .mxg{color:var(--l)}
-.title .mxr{color:var(--v)}
+.title .g{color:#0a6b3a}
+.title .r{color:#c62828}
 .week{
   font-size:12px;
-  font-weight:900;
-  color:var(--muted);
-  margin-top:2px;
-}
-
-/* ===== PARTIDOS ===== */
-.partidos{
-  font-size:10px;
-  font-weight:900;
-  line-height:1.05;
-  display:flex;
-  flex-direction:column;
-  gap:3px;
-  margin-top:4px;
-}
-.p{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:8px;
-  padding:3px 6px;
-  border-radius:10px;
-  background: var(--rowA);
-  border:1px solid rgba(215,230,220,.55);
-}
-.p:nth-child(even){ background: var(--rowB); }
-.p .left{
-  flex:1;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.p .right{
-  flex-shrink:0;
-  display:flex;
-  gap:5px;
-  align-items:center;
-  white-space:nowrap;
-}
-.chip{
-  padding:2px 6px;
-  border-radius:999px;
-  border:1px solid var(--chipBd);
-  background: var(--chipBg);
-  font-size:10px;
-  font-weight:1000;
-  line-height:1;
-  color:var(--chipFg);
-}
-.chip.pick{
-  background: var(--okBg);
-  border-color: var(--okBd);
-  color: var(--okFg);
+  font-weight:700;
+  color:#475569;
 }
 
 /* ===== BUSCADOR ===== */
-.searchRow{
-  margin-top:6px;
-  display:flex;
-  gap:8px;
-  align-items:stretch;
-}
 .search{
-  position:relative;
-  flex:1;
-}
-.search::before{
-  content:"🔍";
-  position:absolute;
-  left:10px;
-  top:50%;
-  transform:translateY(-50%);
-  font-size:14px;
-  opacity:.75;
+  margin-top:6px;
 }
 .search input{
   width:100%;
-  padding:8px 10px 8px 36px;
+  padding:8px 12px;
   font-size:14px;
-  font-weight:900;
-  border:2px solid #cbd5e1;
-  border-radius:14px;
-  outline:none;
-  background:#fff;
-}
-.search input:focus{ border-color:#94a3b8; }
-
-/* ===== PAGINACIÓN ===== */
-.pager{
-  margin-top:6px;
-  border:1px solid var(--line);
-  border-radius:14px;
-  background:#f8fafc;
-  padding:10px 10px;
-  display:grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items:center;
-  gap:10px;
-}
-.pbtn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  width:78px;
-  height:52px;
-  border-radius:20px;
-  border:3px solid #cbd5e1;
-  background:#fff;
-  font-weight:1000;
-  cursor:pointer;
-  user-select:none;
-}
-.pbtn:active{ transform:translateY(1px); }
-.pbtn[disabled]{
-  opacity:.35;
-  cursor:not-allowed;
-}
-.pmid{
-  text-align:center;
-  font-weight:1000;
-  color:var(--muted);
-  line-height:1.05;
-}
-.pmid .pnums{
-  font-size:22px;
-  letter-spacing:.02em;
-  color:#0f172a;
-}
-.pmid .ptotal{
-  margin-top:4px;
-  font-size:16px;
-}
-
-/* ===== CARGANDO ===== */
-.loadingRow{
-  margin-top:6px;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:6px 10px;
-  border:1px solid var(--line);
-  border-radius:12px;
-  background: rgba(248,250,252,.95);
-  color: var(--muted);
-  font-size:12px;
   font-weight:800;
-}
-.loadingRow[hidden]{ display:none; }
-.spinner{
-  width:14px; height:14px;
-  border-radius:50%;
-  border:2px solid rgba(71,85,105,.25);
-  border-top-color: rgba(71,85,105,.9);
-  animation: spin .8s linear infinite;
-}
-@keyframes spin{ to{ transform:rotate(360deg);} }
-
-/* ===== NO MATCH ===== */
-.noMatch{
-  margin-top:6px;
-  padding:10px 12px;
-  border:1px solid var(--line);
   border-radius:12px;
-  background: rgba(248,250,252,.95);
-  color: var(--muted);
-  font-size:12px;
-  font-weight:900;
-  text-align:center;
-}
-.noMatch[hidden]{ display:none; }
-
-/* ===== LISTA ===== */
-.wrap{
-  max-width:1100px;
-  width:100%;
-  margin:auto;
-  padding:10px 12px 14px;
-  flex:1 1 auto;
-  min-height:0;
-  overflow:hidden;
-}
-.listBox{
-  height:100%;
-  min-height:0;
-  overflow:auto;
-  border-radius:14px;
-  border:1px solid var(--line);
-  background:transparent;
-  overscroll-behavior: contain;
-}
-.listBox::after{
-  content:"";
-  display:block;
-  height: calc(84px + env(safe-area-inset-bottom));
+  border:2px solid #cbd5e1;
 }
 
-/* ===== TARJETAS COMPACTAS ===== */
-.card{
-  background: var(--card);
-  border:1px solid rgba(215,230,220,.85);
-  border-radius:16px;
-  box-shadow: var(--shadow);
-  padding:10px 10px;
-  margin-bottom:10px;
-}
-.cardTop{
+/* ===== LISTADO ===== */
+.list{
+  padding:8px;
   display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:10px;
+  flex-direction:column;
+  gap:6px;
 }
-.meta{
-  min-width:0;
+
+/* ===== TARJETA ===== */
+.card{
+  background:#fff;
+  border-radius:14px;
+  padding:8px 10px;
+  box-shadow:0 4px 12px rgba(0,0,0,.08);
+}
+
+/* fila nombre */
+.row-head{
+  display:flex;
+  align-items:baseline;
+  gap:6px;
+  margin-bottom:4px;
 }
 .folio{
-  font-size:12px;
-  font-weight:1000;
-  color:#334155;
-  margin-bottom:2px;
+  font-size:10px;
+  font-weight:700;
+  color:#64748b;
 }
-.name{
-  font-size:18px;
-  font-weight:1000;
-  line-height:1.05;
+.nombre{
+  font-size:13px;
+  font-weight:900;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
 }
-.badge{
-  flex:0 0 auto;
-  width:78px;
-  height:78px;
-  border-radius:22px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-weight:1000;
-  font-size:28px;
-  color:#fff;
-  background: var(--badge1);
-}
-.badge.win2{
-  background: var(--badge2);
-  color:#0f172a;
-}
 
-/* separador */
-.hr{
-  margin:10px 0 8px;
-  height:1px;
-  background: rgba(215,230,220,.9);
-}
-
-/* selecciones en 1 renglón */
-.selsRow{
+/* selecciones */
+.row-sels{
   display:flex;
-  gap:8px;
-  flex-wrap:nowrap;          /* ✅ un solo renglón */
-  overflow-x:auto;           /* si un teléfono es MUY angosto, que pueda deslizar */
-  -webkit-overflow-scrolling: touch;
-  padding-bottom:2px;
-}
-.selsRow::-webkit-scrollbar{ height:6px; }
-.selsRow::-webkit-scrollbar-thumb{ background: rgba(148,163,184,.6); border-radius:999px; }
-.selsRow::-webkit-scrollbar-track{ background: transparent; }
-
-.selItem{
-  flex:0 0 auto;
-  width:34px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
   gap:4px;
 }
-.selN{
-  font-size:10px;
-  font-weight:1000;
+.sel{
+  flex:1;
+  text-align:center;
+}
+.sel .n{
+  font-size:9px;
+  font-weight:800;
   color:#64748b;
   line-height:1;
 }
-.selPill{
-  width:34px;
-  height:34px;
-  border-radius:999px;
-  border:2px solid var(--pillBorder);
+.sel .v{
+  margin-top:1px;
+  height:20px;
+  border-radius:10px;
+  border:1px solid #cbd5e1;
+  font-size:12px;
+  font-weight:900;
   display:flex;
   align-items:center;
   justify-content:center;
-  font-weight:1000;
-  font-size:16px;
-  background:#fff;
-  color:#0f172a;
 }
-.selPill.hit{
-  background:var(--pillHitBg);
-  border-color:var(--pillHitBd);
-  color:var(--pillHitTx);
+.sel.hit .v{
+  background:#dcfce7;
+  border-color:#86efac;
+  color:#064e3b;
 }
 
-/* un poquito más compacto en pantallas chicas */
-@media (max-width:420px){
-  .card{ padding:9px 9px; margin-bottom:9px; }
-  .name{ font-size:17px; }
-  .badge{ width:72px; height:72px; font-size:26px; border-radius:20px; }
-  .selItem{ width:32px; }
-  .selPill{ width:32px; height:32px; font-size:15px; }
+/* aciertos */
+.sel.aciertos .v{
+  background:#1d4ed8;
+  color:#fff;
+  border-color:#1d4ed8;
 }
 
-/* ultra angosto */
-@media (max-width:360px){
-  .badge{ width:66px; height:66px; font-size:24px; }
-  .selItem{ width:30px; }
-  .selPill{ width:30px; height:30px; font-size:14px; }
+/* aviso */
+.noMatch{
+  padding:12px;
+  text-align:center;
+  font-weight:800;
+  color:#475569;
 }
 </style>
 </head>
 
 <body>
-<div class="header" id="header">
-  <div class="header-inner">
-    <div class="headerCard">
-      <div class="headerBar"></div>
-      <div class="headerCardInner">
 
-        <div class="brandRow">
-          <div>
-            <div class="title">
-              <span class="mxg">QUINIELA</span> <span class="mxr">AZTECA</span>
-            </div>
-            <div class="week" id="weekTxt"></div>
-          </div>
-        </div>
-
-        <div class="partidos" id="partidosTxt"></div>
-
-        <div class="searchRow">
-          <div class="search">
-            <input id="searchInput" placeholder="Busca aqui por telefono, nombre o folio" autocomplete="off">
-          </div>
-        </div>
-
-        <div class="pager" id="pager" hidden>
-          <button class="pbtn" id="prevBtn" type="button">◀</button>
-          <div class="pmid">
-            <div class="pnums" id="pageTxt">1 / 1</div>
-            <div class="ptotal" id="countTxt">0 registros</div>
-          </div>
-          <button class="pbtn" id="nextBtn" type="button">▶</button>
-        </div>
-
-        <div class="loadingRow" id="loadingRow" hidden>
-          <span class="spinner" aria-hidden="true"></span>
-          <span id="loadingTxt">Cargando listado…</span>
-        </div>
-
-        <div class="noMatch" id="noMatch" hidden>Sin coincidencias</div>
-
-      </div>
-    </div>
+<div class="header">
+  <div class="title"><span class="g">QUINIELA</span> <span class="r">AZTECA</span></div>
+  <div class="week" id="weekTxt"></div>
+  <div class="search">
+    <input id="searchInput" placeholder="Buscar por nombre, folio o teléfono">
   </div>
 </div>
 
-<div class="wrap">
-  <div class="listBox" id="listBox">
-    <div id="list"></div>
-  </div>
-</div>
+<div class="list" id="list"></div>
+<div class="noMatch" id="noMatch" hidden>Sin coincidencias</div>
 
 <script>
-/* === ENDPOINTS === */
 const BASE = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec";
 const ENDPOINT = BASE + "?mode=clasif";
 const CONFIG   = BASE + "?mode=config";
 
-/* === STATE === */
-const PAGE_SIZE = 500;
-
-let raw = [];          // todas
-let filtered = [];     // filtradas
+let raw = [];
 let resultados = [];
-let marcadores = [];
-let lastCfgSig = "";
 
-let isLoading = false;
-let isUserScrolling = false;
-let scrollTimer = null;
-let pendingRefresh = false;
+const $ = id => document.getElementById(id);
 
-let page = 1;
-let totalPages = 1;
+function norm(v){return String(v||"").toUpperCase().trim();}
 
-const $ = (id) => document.getElementById(id);
-
-function showLoading(msg="Cargando listado…"){
-  $("loadingTxt").textContent = msg;
-  $("loadingRow").hidden = false;
-}
-function hideLoading(){ $("loadingRow").hidden = true; }
-
-function showNoMatch(show){
-  $("noMatch").hidden = !show;
-}
-
-function fmtNum(n){
-  try{ return Number(n||0).toLocaleString("es-MX"); }catch(e){ return String(n||0); }
-}
-
-/* firma rápida para detectar cambios de config */
-function sigCfg(cfg){
-  const s = {
-    subtitulo: cfg.subtitulo || "",
-    resultados: (cfg.resultados||[]).slice(0,9),
-    marcadores: (cfg.marcadores||[]).slice(0,9),
-    partidos: (cfg.partidos||[]).slice(0,9).map(p=>`${p.local}|${p.visita}`)
-  };
-  return JSON.stringify(s);
-}
-
-function norm(v){ return String(v ?? "").trim().toUpperCase(); }
-
-/* lugares 1/2 por aciertos */
-function computePlaces(rows){
-  if (!rows.length) return;
-  const acs = rows.map(r => Number(r.aciertos)||0);
-  const max = Math.max(...acs);
-  const uniq = [...new Set(acs)].sort((a,b)=>b-a);
-  let secondVal = null;
-  for (const a of uniq){ if (a < max){ secondVal = a; break; } }
-  rows.forEach(r=>{
-    const a = Number(r.aciertos)||0;
-    r._lugar = (a===max) ? 1 : (secondVal!=null && a===secondVal ? 2 : 0);
-  });
-}
-
-function renderPartidos(cfg){
-  const partidos = (cfg.partidos || []).slice(0,9);
-  const box = $("partidosTxt");
+function render(rows){
+  const box = $("list");
   box.innerHTML = "";
+  $("noMatch").hidden = rows.length > 0;
 
-  for (let i=0; i<partidos.length; i++){
-    const p = partidos[i] || {};
-    const m = (marcadores[i] && String(marcadores[i]).trim()) ? String(marcadores[i]).trim() : "-";
-    const r = (resultados[i] && String(resultados[i]).trim()) ? String(resultados[i]).trim().toUpperCase() : "-";
+  rows.forEach(r=>{
+    const card = document.createElement("div");
+    card.className="card";
 
-    const div = document.createElement("div");
-    div.className = "p";
-    div.innerHTML = `
-      <span class="left">${i+1} ${p.local || ""} vs ${p.visita || ""}</span>
-      <span class="right">
-        <span class="chip">${m}</span>
-        <span class="chip pick">${r}</span>
-      </span>
-    `;
-    box.appendChild(div);
-  }
-}
-
-/* ==== PAGINACIÓN ==== */
-function setPage(newPage){
-  page = Math.max(1, Math.min(totalPages, newPage));
-  renderPage();
-}
-
-function updatePager(){
-  const q = $("searchInput").value.trim();
-  const count = (q ? filtered.length : raw.length);
-
-  totalPages = Math.max(1, Math.ceil(count / PAGE_SIZE));
-  if (page > totalPages) page = totalPages;
-
-  $("pager").hidden = (count === 0);
-  $("pageTxt").textContent = `${page} / ${totalPages}`;
-  $("countTxt").textContent = `${fmtNum(count)} registros`;
-
-  $("prevBtn").disabled = (page <= 1);
-  $("nextBtn").disabled = (page >= totalPages);
-}
-
-/* render SOLO la página (cards) */
-function renderPage(){
-  updatePager();
-
-  const q = $("searchInput").value.trim();
-  const src = (q ? filtered : raw);
-
-  showNoMatch(q && src.length === 0);
-
-  const start = (page-1)*PAGE_SIZE;
-  const slice = src.slice(start, start + PAGE_SIZE);
-
-  const resNorm = resultados.map(norm);
-  const parts = [];
-
-  for (let k=0; k<slice.length; k++){
-    const r = slice[k];
-    const badgeClass = (r._lugar===2) ? "win2" : "";
-    const badgeVal = (r.aciertos ?? "");
-
-    let selsHtml = "";
-    for (let i=0; i<9; i++){
-      const s = r.sels[i] ?? "";
-      const ok = resNorm[i] && norm(s) === resNorm[i];
+    let selsHtml="";
+    for(let i=0;i<9;i++){
+      const s = r.sels[i]||"-";
+      const hit = resultados[i] && norm(s)===norm(resultados[i]);
       selsHtml += `
-        <div class="selItem">
-          <div class="selN">${i+1}</div>
-          <div class="selPill ${ok?'hit':''}">${s || "-"}</div>
-        </div>
-      `;
+        <div class="sel ${hit?'hit':''}">
+          <div class="n">${i+1}</div>
+          <div class="v">${s}</div>
+        </div>`;
     }
 
-    parts.push(`
-      <div class="card">
-        <div class="cardTop">
-          <div class="meta">
-            <div class="folio"># ${r.folio ?? ""}</div>
-            <div class="name">${r.nombre_show ?? ""}</div>
-          </div>
-          <div class="badge ${badgeClass}">${badgeVal}</div>
-        </div>
-        <div class="hr"></div>
-        <div class="selsRow">${selsHtml}</div>
+    selsHtml += `
+      <div class="sel aciertos">
+        <div class="n">A</div>
+        <div class="v">${r.aciertos||0}</div>
+      </div>`;
+
+    card.innerHTML = `
+      <div class="row-head">
+        <div class="folio">#${r.folio||""}</div>
+        <div class="nombre">${r.nombre_show||""}</div>
       </div>
-    `);
-  }
-
-  $("list").innerHTML = parts.join("");
-}
-
-/* ==== FILTRO ==== */
-function applyFilter(){
-  const q = $("searchInput").value.trim().toLowerCase();
-  if (!q){
-    filtered = [];
-    page = 1;
-    renderPage();
-    return;
-  }
-
-  // ✅ se puede buscar por teléfono aunque NO se muestre
-  filtered = raw.filter(r=>{
-    return String(r.folio ?? "").toLowerCase().includes(q) ||
-           String(r.telefono ?? "").toLowerCase().includes(q) ||
-           String(r.nombre ?? "").toLowerCase().includes(q);
+      <div class="row-sels">${selsHtml}</div>
+    `;
+    box.appendChild(card);
   });
-
-  page = 1;
-  renderPage();
 }
 
-/* scroll: si el usuario está scrolleando, evitamos refrescos */
-function markScrolling(){
-  isUserScrolling = true;
-  if (scrollTimer) clearTimeout(scrollTimer);
-  scrollTimer = setTimeout(()=>{
-    isUserScrolling = false;
-    if (pendingRefresh){
-      pendingRefresh = false;
-      load(true);
-      return;
-    }
-  }, 180);
-}
-$("listBox").addEventListener("scroll", markScrolling, {passive:true});
-
-/* ==== LOAD ==== */
-async function load(force=false){
-  if (isLoading) return;
-  if (isUserScrolling){
-    pendingRefresh = pendingRefresh || force;
-    return;
-  }
-
-  isLoading = true;
-  try{
-    showLoading(force ? "Cargando listado…" : "Actualizando…");
-
-    const cfgRes = await fetch(CONFIG, {cache:"no-store"}).then(r=>r.json());
-    const cfg = (cfgRes && cfgRes.cfg) ? cfgRes.cfg : {};
-    const cfgSig = sigCfg(cfg);
-
-    if (!force && cfgSig === lastCfgSig){
-      hideLoading();
-      return;
-    }
-    lastCfgSig = cfgSig;
-
-    $("weekTxt").textContent = cfg.subtitulo || "";
-    resultados = (cfg.resultados || []).slice(0,9);
-    marcadores = (cfg.marcadores || []).slice(0,9);
-    renderPartidos(cfg);
-
-    const res = await fetch(ENDPOINT, {cache:"no-store"}).then(r=>r.json());
-
-    // soporte a: res.data = {headers, rows}
-    const data = (res && res.data) ? res.data : {headers:[], rows:[]};
-    const headers = (data.headers || []).map(x => String(x).toLowerCase());
-
-    const iF = headers.indexOf("folio");
-    const iN = headers.indexOf("nombre");
-    const iT = headers.indexOf("telefono_envio");
-    const iA = headers.indexOf("aciertos");
-
-    if (iF<0 || iN<0 || iA<0){
-      console.warn("Headers inválidos:", headers);
-      hideLoading();
-      return;
-    }
-
-    const startSel = iN + 1;
-    const endSel   = iA;
-
-    raw = (data.rows || []).map(r=>{
-      const nombreShow = String(r[iN] ?? "").trim().toUpperCase();
-      return {
-        folio: r[iF],
-        telefono: (iT>=0 ? String(r[iT] ?? "").trim() : ""),
-        nombre: nombreShow.toLowerCase(),
-        nombre_show: nombreShow,
-        sels: r.slice(startSel, endSel).slice(0,9),
-        aciertos: r[iA],
-        _lugar: 0
-      };
-    });
-
-    computePlaces(raw);
-
-    // si hay texto en buscador, re-filtra
-    const q = $("searchInput").value.trim();
-    if (q) applyFilter();
-    else {
-      filtered = [];
-      page = 1;
-      showNoMatch(false);
-      renderPage();
-    }
-
-    hideLoading();
-  }catch(err){
-    console.error(err);
-    hideLoading();
-  }finally{
-    isLoading = false;
-  }
+function applyFilter(){
+  const q = $("searchInput").value.toLowerCase().trim();
+  if(!q){ render(raw); return; }
+  render(raw.filter(r =>
+    String(r.folio).includes(q) ||
+    String(r.telefono).includes(q) ||
+    r.nombre.includes(q)
+  ));
 }
 
-/* ==== UI events ==== */
-$("prevBtn").addEventListener("click", ()=> setPage(page-1));
-$("nextBtn").addEventListener("click", ()=> setPage(page+1));
-
-/* ENTER => oculta teclado (sin meter listeners dentro de applyFilter) */
-const searchInput = $("searchInput");
-searchInput.addEventListener("keydown", (e)=>{
-  if (e.key === "Enter"){
-    e.preventDefault();
-    searchInput.blur();
-  }
+$("searchInput").addEventListener("input", applyFilter);
+$("searchInput").addEventListener("keydown", e=>{
+  if(e.key==="Enter"){ e.preventDefault(); e.target.blur(); }
 });
 
-let searchTO = null;
-searchInput.addEventListener("input", ()=>{
-  if (searchTO) clearTimeout(searchTO);
-  searchTO = setTimeout(()=>{
-    if (isUserScrolling) return;
-    applyFilter();
-  }, 80);
-});
+async function load(){
+  const cfg = await fetch(CONFIG).then(r=>r.json());
+  $("weekTxt").textContent = cfg.cfg?.subtitulo||"";
+  resultados = cfg.cfg?.resultados||[];
 
-/* primer load */
-load(true);
+  const res = await fetch(ENDPOINT).then(r=>r.json());
+  const h = res.data.headers.map(x=>x.toLowerCase());
+  const rows = res.data.rows;
 
-/* refresco solo por cambio de CONFIG */
-const POLL_CONFIG_MS = 2000;
-setInterval(async ()=>{
-  if (isLoading) return;
-  if (isUserScrolling) return;
-  try{
-    const cfgRes = await fetch(CONFIG, {cache:"no-store"}).then(r=>r.json());
-    const cfg = (cfgRes && cfgRes.cfg) ? cfgRes.cfg : {};
-    const cfgSig = sigCfg(cfg);
-    if (cfgSig !== lastCfgSig){
-      load(true);
-    }
-  }catch(e){}
-}, POLL_CONFIG_MS);
+  const iF=h.indexOf("folio");
+  const iT=h.indexOf("telefono_envio");
+  const iN=h.indexOf("nombre");
+  const iA=h.indexOf("aciertos");
+
+  raw = rows.map(r=>({
+    folio:r[iF],
+    telefono:r[iT],
+    nombre:r[iN].toLowerCase(),
+    nombre_show:r[iN],
+    sels:r.slice(iN+1,iA),
+    aciertos:r[iA]
+  }));
+
+  render(raw);
+}
+
+load();
 </script>
 </body>
 </html>
