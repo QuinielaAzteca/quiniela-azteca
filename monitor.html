@@ -6,150 +6,190 @@
 <title>Quiniela Azteca – Monitor</title>
 
 <style>
-html{
-  -webkit-text-size-adjust:100%;
-  text-size-adjust:100%;
+:root{
+  --fg:#0f172a;
+  --muted:#475569;
+  --bg:#eef6f1;
+  --card:#ffffff;
+  --line:#d7e6dc;
+
+  --greenWin:#16a34a;
+  --greenBg:#dcfce7;
+
+  --yellowWin:#facc15;
+  --yellowBg:#fef9c3;
+
+  --pill:#e5e7eb;
 }
+
 *{box-sizing:border-box}
-
+html,body{margin:0;height:100%;font-family:system-ui,Segoe UI,Roboto,Arial}
 body{
-  margin:0;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-  background:#eaf3ee;
-  color:#0f172a;
+  background:var(--bg);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
 }
 
-/* ===== HEADER ===== */
+/* ===== HEADER FIJO ===== */
 .header{
   position:sticky;
   top:0;
-  z-index:10;
+  z-index:20;
   background:#fff;
-  padding:10px;
-  border-bottom:1px solid #d7e6dc;
+  border-bottom:1px solid var(--line);
 }
+.header-inner{
+  max-width:900px;
+  margin:auto;
+  padding:8px 10px;
+}
+
 .title{
-  font-weight:1000;
-  letter-spacing:.04em;
+  font-weight:900;
+  font-size:18px;
 }
-.title .g{color:#0a6b3a}
-.title .r{color:#c62828}
 .week{
   font-size:12px;
-  font-weight:700;
-  color:#475569;
+  color:var(--muted);
+  margin-bottom:6px;
+}
+
+/* ===== PARTIDOS ===== */
+.partidos{
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+  font-size:11px;
+  margin-bottom:6px;
+}
+.partido{
+  display:flex;
+  justify-content:space-between;
+  padding:3px 6px;
+  background:#f6fbf8;
+  border-radius:8px;
+}
+.partido span:last-child{
+  font-weight:800;
 }
 
 /* ===== BUSCADOR ===== */
 .search{
-  margin-top:6px;
+  position:relative;
 }
 .search input{
   width:100%;
-  padding:8px 12px;
+  padding:7px 10px;
   font-size:14px;
   font-weight:800;
   border-radius:12px;
   border:2px solid #cbd5e1;
+  outline:none;
 }
 
-/* ===== LISTADO ===== */
-.list{
+/* ===== CONTENEDOR ===== */
+.wrap{
+  flex:1;
+  overflow:auto;
   padding:8px;
-  display:flex;
-  flex-direction:column;
-  gap:6px;
 }
 
-/* ===== TARJETA ===== */
+/* ===== TARJETAS ===== */
 .card{
-  background:#fff;
-  border-radius:14px;
-  padding:8px 10px;
-  box-shadow:0 4px 12px rgba(0,0,0,.08);
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:6px 8px;
+  margin-bottom:6px;
 }
 
-/* fila nombre */
-.row-head{
+/* ===== FILA SUPERIOR ===== */
+.topRow{
   display:flex;
   align-items:baseline;
   gap:6px;
-  margin-bottom:4px;
+  font-size:11px;
 }
 .folio{
-  font-size:10px;
-  font-weight:700;
-  color:#64748b;
+  font-size:9px;
+  color:var(--muted);
 }
 .nombre{
-  font-size:13px;
   font-weight:900;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
+  font-size:11px;
+  flex:1;
 }
 
-/* selecciones */
-.row-sels{
+/* ===== SELECCIONES ===== */
+.sels{
   display:flex;
-  gap:4px;
+  justify-content:space-between;
+  margin-top:4px;
 }
 .sel{
-  flex:1;
-  text-align:center;
-}
-.sel .n{
-  font-size:9px;
-  font-weight:800;
-  color:#64748b;
-  line-height:1;
-}
-.sel .v{
-  margin-top:1px;
-  height:20px;
-  border-radius:10px;
-  border:1px solid #cbd5e1;
-  font-size:12px;
-  font-weight:900;
   display:flex;
+  flex-direction:column;
   align-items:center;
-  justify-content:center;
+  gap:1px;
 }
-.sel.hit .v{
-  background:#dcfce7;
-  border-color:#86efac;
-  color:#064e3b;
+.selNum{
+  font-size:8px;
+  color:var(--muted);
+}
+.selVal{
+  font-size:11px;
+  font-weight:900;
+  padding:2px 4px;
+  border-radius:6px;
+  background:#f1f5f9;
 }
 
-/* aciertos */
-.sel.aciertos .v{
-  background:#1d4ed8;
-  color:#fff;
-  border-color:#1d4ed8;
+/* ===== ACIERTOS ===== */
+.aciertos{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+.aciertos span:first-child{
+  font-size:8px;
+  color:var(--muted);
+}
+.aciertos span:last-child{
+  font-weight:900;
+  font-size:12px;
 }
 
-/* aviso */
-.noMatch{
-  padding:12px;
-  text-align:center;
-  font-weight:800;
-  color:#475569;
+/* ===== GANADORES ===== */
+.win1{
+  background:var(--greenBg);
+  border-color:var(--greenWin);
+}
+.win2{
+  background:var(--yellowBg);
+  border-color:var(--yellowWin);
 }
 </style>
 </head>
 
 <body>
 
+<!-- HEADER -->
 <div class="header">
-  <div class="title"><span class="g">QUINIELA</span> <span class="r">AZTECA</span></div>
-  <div class="week" id="weekTxt"></div>
-  <div class="search">
-    <input id="searchInput" placeholder="Buscar por nombre, folio o teléfono">
+  <div class="header-inner">
+    <div class="title">QUINIELA AZTECA</div>
+    <div class="week" id="weekTxt"></div>
+
+    <div class="partidos" id="partidosTxt"></div>
+
+    <div class="search">
+      <input id="searchInput" placeholder="Buscar por nombre, folio o teléfono">
+    </div>
   </div>
 </div>
 
-<div class="list" id="list"></div>
-<div class="noMatch" id="noMatch" hidden>Sin coincidencias</div>
+<!-- LISTADO -->
+<div class="wrap" id="listado"></div>
 
 <script>
 const BASE = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec";
@@ -157,89 +197,91 @@ const ENDPOINT = BASE + "?mode=clasif";
 const CONFIG   = BASE + "?mode=config";
 
 let raw = [];
-let resultados = [];
 
 const $ = id => document.getElementById(id);
 
-function norm(v){return String(v||"").toUpperCase().trim();}
-
-function render(rows){
-  const box = $("list");
-  box.innerHTML = "";
-  $("noMatch").hidden = rows.length > 0;
-
-  rows.forEach(r=>{
-    const card = document.createElement("div");
-    card.className="card";
-
-    let selsHtml="";
-    for(let i=0;i<9;i++){
-      const s = r.sels[i]||"-";
-      const hit = resultados[i] && norm(s)===norm(resultados[i]);
-      selsHtml += `
-        <div class="sel ${hit?'hit':''}">
-          <div class="n">${i+1}</div>
-          <div class="v">${s}</div>
-        </div>`;
-    }
-
-    selsHtml += `
-      <div class="sel aciertos">
-        <div class="n">A</div>
-        <div class="v">${r.aciertos||0}</div>
-      </div>`;
-
-    card.innerHTML = `
-      <div class="row-head">
-        <div class="folio">#${r.folio||""}</div>
-        <div class="nombre">${r.nombre_show||""}</div>
-      </div>
-      <div class="row-sels">${selsHtml}</div>
-    `;
-    box.appendChild(card);
+function renderPartidos(cfg){
+  const box = $("partidosTxt");
+  box.innerHTML="";
+  (cfg.partidos||[]).slice(0,9).forEach((p,i)=>{
+    const div=document.createElement("div");
+    div.className="partido";
+    div.innerHTML=`<span>${i+1} ${p.local} vs ${p.visita}</span>
+                   <span>${cfg.marcadores[i]||"-"} ${cfg.resultados[i]||"-"}</span>`;
+    box.appendChild(div);
   });
 }
 
-function applyFilter(){
-  const q = $("searchInput").value.toLowerCase().trim();
-  if(!q){ render(raw); return; }
-  render(raw.filter(r =>
-    String(r.folio).includes(q) ||
-    String(r.telefono).includes(q) ||
-    r.nombre.includes(q)
-  ));
+function render(rows){
+  const cont = $("listado");
+  cont.innerHTML="";
+  rows.forEach(r=>{
+    const card=document.createElement("div");
+    card.className="card "+(r._lugar===1?"win1":r._lugar===2?"win2":"");
+
+    const sels = r.sels.map((s,i)=>`
+      <div class="sel">
+        <div class="selNum">${i+1}</div>
+        <div class="selVal">${s||"-"}</div>
+      </div>`).join("");
+
+    card.innerHTML=`
+      <div class="topRow">
+        <div class="folio">#${r.folio}</div>
+        <div class="nombre">${r.nombre_show}</div>
+      </div>
+
+      <div class="sels">
+        ${sels}
+        <div class="aciertos">
+          <span>A</span>
+          <span>${r.aciertos}</span>
+        </div>
+      </div>
+    `;
+    cont.appendChild(card);
+  });
 }
 
-$("searchInput").addEventListener("input", applyFilter);
-$("searchInput").addEventListener("keydown", e=>{
-  if(e.key==="Enter"){ e.preventDefault(); e.target.blur(); }
-});
-
 async function load(){
-  const cfg = await fetch(CONFIG).then(r=>r.json());
-  $("weekTxt").textContent = cfg.cfg?.subtitulo||"";
-  resultados = cfg.cfg?.resultados||[];
+  const cfg = await fetch(CONFIG).then(r=>r.json()).then(j=>j.cfg);
+  $("weekTxt").textContent = cfg.subtitulo || "";
+  renderPartidos(cfg);
 
   const res = await fetch(ENDPOINT).then(r=>r.json());
-  const h = res.data.headers.map(x=>x.toLowerCase());
-  const rows = res.data.rows;
+  raw = res.data.rows.map(r=>{
+    return {
+      folio:r[0],
+      telefono:r[1],
+      nombre_show:r[2],
+      nombre:r[2].toLowerCase(),
+      sels:r.slice(3,12),
+      aciertos:r[r.length-1],
+      _lugar:0
+    }
+  });
 
-  const iF=h.indexOf("folio");
-  const iT=h.indexOf("telefono_envio");
-  const iN=h.indexOf("nombre");
-  const iA=h.indexOf("aciertos");
-
-  raw = rows.map(r=>({
-    folio:r[iF],
-    telefono:r[iT],
-    nombre:r[iN].toLowerCase(),
-    nombre_show:r[iN],
-    sels:r.slice(iN+1,iA),
-    aciertos:r[iA]
-  }));
+  // lugares
+  const acs = raw.map(r=>r.aciertos);
+  const max = Math.max(...acs);
+  const sec = [...new Set(acs.filter(a=>a<max))].sort((a,b)=>b-a)[0];
+  raw.forEach(r=>{
+    if(r.aciertos===max) r._lugar=1;
+    else if(r.aciertos===sec) r._lugar=2;
+  });
 
   render(raw);
 }
+
+$("searchInput").addEventListener("input", e=>{
+  const q=e.target.value.toLowerCase();
+  if(!q){render(raw);return;}
+  render(raw.filter(r=>
+    String(r.folio).includes(q) ||
+    r.nombre.includes(q) ||
+    String(r.telefono).includes(q)
+  ));
+});
 
 load();
 </script>
