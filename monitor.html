@@ -271,17 +271,14 @@ body{
 .noMatch[hidden]{ display:none; }
 
 /* ===== ENCABEZADO FIJO DEL LISTADO ===== */
+/* ✅ CLAVE: YA NO SCROLLEA. Se mueve por transform para calzar siempre. */
 .tableHeadRow{
   margin-top:6px;
   border:1px solid var(--line);
   border-radius:12px;
   background:#f8fafc;
-
-  overflow:auto;
-  -webkit-overflow-scrolling: touch;
+  overflow:hidden;
 }
-.tableHeadRow::-webkit-scrollbar{ height:0px; }
-
 .tableHeadGrid{
   display:grid;
   grid-template-columns: var(--wFolio) var(--wNombre) repeat(9, var(--wSel)) var(--wA);
@@ -290,10 +287,9 @@ body{
   width:max-content;
   min-width:100%;
 
-  /* ✅ compensa scrollbar para que calce con la tabla */
   padding-right: var(--sbw);
+  will-change: transform;
 }
-
 .thCell{
   padding:6px 4px;
   border-right:1px solid rgba(215,230,220,.7);
@@ -455,7 +451,7 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
 
         <div class="noMatch" id="noMatch" hidden>Sin coincidencias</div>
 
-        <div class="tableHeadRow" aria-label="Encabezado" id="headRow">
+        <div class="tableHeadRow" aria-label="Encabezado">
           <div class="tableHeadGrid" id="fixedHead">
             <div class="thCell folio">#</div>
             <div class="thCell left nombre">Nombre</div>
@@ -560,7 +556,7 @@ function render(rows){
   tbody.innerHTML = parts.join("");
 }
 
-/* ===== Scrollbar width => alinear header ===== */
+/* ===== Scrollbar width => alinear (sbw) ===== */
 function syncScrollbarWidth(){
   const box = $("tableBox");
   if (!box) return;
@@ -568,27 +564,22 @@ function syncScrollbarWidth(){
   document.documentElement.style.setProperty("--sbw", sbw + "px");
 }
 
-/* ===== Sync scroll horizontal header <-> tabla ===== */
-function syncHeaderScroll(){
-  const box  = $("tableBox");
-  const head = $("headRow");
+/* ===== CLAVE: header se mueve por transform (siempre calza) ===== */
+function startHeaderTransformSync(){
+  const box = $("tableBox");
+  const head = $("fixedHead");
   if (!box || !head) return;
 
-  let lock = false;
-
-  box.addEventListener("scroll", () => {
-    if (lock) return;
-    lock = true;
-    head.scrollLeft = box.scrollLeft;
-    requestAnimationFrame(() => (lock = false));
-  }, { passive:true });
-
-  head.addEventListener("scroll", () => {
-    if (lock) return;
-    lock = true;
-    box.scrollLeft = head.scrollLeft;
-    requestAnimationFrame(() => (lock = false));
-  }, { passive:true });
+  let last = -1;
+  const tick = () => {
+    const sl = box.scrollLeft;
+    if (sl !== last){
+      head.style.transform = `translateX(${-sl}px)`;
+      last = sl;
+    }
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
 }
 
 /* ===== paginación ===== */
@@ -611,7 +602,12 @@ function renderPage(){
   const slice = view.slice(start, end);
   showNoMatch(view.length === 0 && $("searchInput").value.trim().length > 0);
   render(slice);
-  $("tableBox").scrollTop = 0;
+
+  const box = $("tableBox");
+  if (box) box.scrollTop = 0;
+
+  // recalcular después de pintar
+  requestAnimationFrame(syncScrollbarWidth);
 }
 
 function applyFilter(){
@@ -717,9 +713,6 @@ async function load(force=false){
     if ($("searchInput").value.trim()) applyFilter();
     else { showNoMatch(false); renderPage(); }
 
-    // ✅ recalcular sbw después de render
-    requestAnimationFrame(syncScrollbarWidth);
-
     hideLoading();
   } catch(e){
     console.error(e);
@@ -730,8 +723,8 @@ async function load(force=false){
 }
 
 /* eventos */
-$("btnPrev").addEventListener("click", () => { page--; renderPage(); requestAnimationFrame(syncScrollbarWidth); });
-$("btnNext").addEventListener("click", () => { page++; renderPage(); requestAnimationFrame(syncScrollbarWidth); });
+$("btnPrev").addEventListener("click", () => { page--; renderPage(); });
+$("btnNext").addEventListener("click", () => { page++; renderPage(); });
 
 const searchInput = $("searchInput");
 searchInput.addEventListener("keydown", (e) => {
@@ -749,11 +742,9 @@ searchInput.addEventListener("input", () => {
 });
 
 /* init */
-syncHeaderScroll();
+startHeaderTransformSync();
 syncScrollbarWidth();
-window.addEventListener("resize", () => {
-  syncScrollbarWidth();
-}, {passive:true});
+window.addEventListener("resize", syncScrollbarWidth, {passive:true});
 
 load(true);
 </script>
