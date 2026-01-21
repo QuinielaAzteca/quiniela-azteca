@@ -9,281 +9,836 @@
 :root{
   --fg:#0f172a;
   --muted:#475569;
-  --bg:#eef6f1;
+
+  --bg:#eaf3ee;
+  --bg2:#dfeee7;
   --card:#ffffff;
   --line:#d7e6dc;
 
-  --greenWin:#16a34a;
-  --greenBg:#dcfce7;
+  --l:#0a6b3a;
+  --v:#c62828;
 
-  --yellowWin:#facc15;
-  --yellowBg:#fef9c3;
+  --rowA:#f6fbf8;
+  --rowB:#eff7f2;
 
-  --pill:#e5e7eb;
+  --shadow: 0 10px 24px rgba(2, 44, 20, .10);
+
+  --okBg:#ecfdf5;
+  --okBd:#bbf7d0;
+  --okFg:#065f46;
+
+  --chipBg:#f8fafc;
+  --chipBd:#e5e7eb;
+  --chipFg:#0f172a;
+
+  /* ✅ 1er / 2do (verde / amarillo) */
+  --win1Bg:#dcfce7;
+  --win1Bd:#16a34a;
+  --win1Tx:#065f46;
+
+  --win2Bg:#fef9c3;
+  --win2Bd:#f59e0b;
+  --win2Tx:#7c2d12;
+
+  --pillBorder:#cbd5e1;
+  --pillHitBg:#dcfce7;
+  --pillHitBd:#86efac;
+  --pillHitTx:#064e3b;
+
+  --selBg:#ffffff;
+  --selBd:#d7e6dc;
+
+  --A_bg:#f1f5f9;
+  --A_bd:#cbd5e1;
+  --A_tx:#0f172a;
+}
+
+/* ✅ evita auto-zoom de texto que descuadra layouts en Android */
+html{
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 *{box-sizing:border-box}
-html,body{margin:0;height:100%;font-family:system-ui,Segoe UI,Roboto,Arial}
+html, body { height:100%; overflow:hidden; }
+
 body{
-  background:var(--bg);
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+  color:var(--fg);
+  background: radial-gradient(1200px 520px at 50% -140px, #ffffff 0%, var(--bg) 55%, var(--bg2) 100%);
   display:flex;
   flex-direction:column;
-  overflow:hidden;
+  min-height:100vh;
 }
 
 /* ===== HEADER FIJO ===== */
 .header{
   position:sticky;
   top:0;
-  z-index:20;
+  z-index:50;
   background:#fff;
-  border-bottom:1px solid var(--line);
+  border-bottom:1px solid rgba(215,230,220,.85);
+  box-shadow: 0 10px 24px rgba(2,6,23,.05);
 }
 .header-inner{
-  max-width:900px;
+  max-width:1100px;
   margin:auto;
   padding:8px 10px;
 }
 
-.title{
-  font-weight:900;
-  font-size:18px;
+.headerCard{
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdfc 100%);
+  border:1px solid var(--line);
+  border-radius:14px;
+  overflow:hidden;
+  box-shadow: var(--shadow);
 }
-.week{
-  font-size:12px;
-  color:var(--muted);
+.headerBar{
+  height:6px;
+  background:linear-gradient(90deg, var(--l) 0%, var(--l) 33%, #ffffff 33%, #ffffff 66%, var(--v) 66%, var(--v) 100%);
+}
+.headerCardInner{ padding:6px 8px; }
+
+.brandRow{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
   margin-bottom:6px;
 }
+.title{
+  margin:0;
+  font-weight:1000;
+  font-size:18px;
+  letter-spacing:.04em;
+  line-height:1.05;
+}
+.title .mxg{color:var(--l)}
+.title .mxr{color:var(--v)}
 
-/* ===== PARTIDOS ===== */
+.week{
+  font-size:12px;
+  font-weight:900;
+  color:var(--muted);
+  margin-top:2px;
+}
+
+/* ===== PARTIDOS (FIJO) ===== */
 .partidos{
+  font-size:10px;
+  font-weight:900;
+  line-height:1.05;
   display:flex;
   flex-direction:column;
   gap:3px;
-  font-size:11px;
-  margin-bottom:6px;
+  margin-top:4px;
 }
-.partido{
+.p{
   display:flex;
+  align-items:center;
   justify-content:space-between;
+  gap:8px;
   padding:3px 6px;
-  background:#f6fbf8;
-  border-radius:8px;
+  border-radius:10px;
+  background: var(--rowA);
+  border:1px solid rgba(215,230,220,.55);
 }
-.partido span:last-child{
-  font-weight:800;
+.p:nth-child(even){ background: var(--rowB); }
+.p .left{
+  flex:1;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.p .right{
+  flex-shrink:0;
+  display:flex;
+  gap:5px;
+  align-items:center;
+  white-space:nowrap;
+}
+.chip{
+  padding:2px 6px;
+  border-radius:999px;
+  border:1px solid var(--chipBd);
+  background: var(--chipBg);
+  font-size:10px;
+  font-weight:1000;
+  line-height:1;
+  color:var(--chipFg);
+}
+.chip.pick{
+  background: var(--okBg);
+  border-color: var(--okBd);
+  color: var(--okFg);
 }
 
-/* ===== BUSCADOR ===== */
+/* ===== BUSCADOR + PAGINACIÓN (FIJO) ===== */
+.searchRow{
+  margin-top:6px;
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap;
+}
 .search{
   position:relative;
+  flex:1 1 260px;
+  min-width:220px;
+}
+.search::before{
+  content:"🔍";
+  position:absolute;
+  left:10px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:14px;
+  opacity:.75;
 }
 .search input{
   width:100%;
-  padding:7px 10px;
+  padding:8px 10px 8px 36px;
   font-size:14px;
-  font-weight:800;
-  border-radius:12px;
+  font-weight:900;
   border:2px solid #cbd5e1;
+  border-radius:14px;
   outline:none;
+  background:#fff;
+}
+.search input:focus{ border-color:#94a3b8; }
+
+.pager{
+  display:flex;
+  gap:6px;
+  align-items:center;
+  flex:0 0 auto;
+}
+.pbtn{
+  border:1px solid #cbd5e1;
+  background:#fff;
+  border-radius:12px;
+  padding:7px 10px;
+  font-weight:1000;
+  font-size:12px;
+  cursor:pointer;
+  user-select:none;
+}
+.pbtn:active{ transform:translateY(1px); }
+.pbtn[disabled]{ opacity:.45; cursor:default; transform:none; }
+
+.pnum{
+  min-width:34px;
+  text-align:center;
+  padding:7px 10px;
+  border-radius:12px;
+  border:1px solid #cbd5e1;
+  background:#fff;
+  font-weight:1000;
+  font-size:12px;
+  cursor:pointer;
+}
+.pnum.active{
+  background:#0f172a;
+  color:#fff;
+  border-color:#0f172a;
 }
 
-/* ===== CONTENEDOR ===== */
+/* ===== AVISO CARGANDO ===== */
+.loadingRow{
+  margin-top:6px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 10px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background: rgba(248,250,252,.95);
+  color: var(--muted);
+  font-size:12px;
+  font-weight:800;
+}
+.loadingRow[hidden]{ display:none; }
+.spinner{
+  width:14px; height:14px;
+  border-radius:50%;
+  border:2px solid rgba(71,85,105,.25);
+  border-top-color: rgba(71,85,105,.9);
+  animation: spin .8s linear infinite;
+}
+@keyframes spin{ to{ transform:rotate(360deg);} }
+
+/* ✅ aviso sin coincidencias */
+.noMatch{
+  margin-top:6px;
+  padding:10px 12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background: rgba(248,250,252,.95);
+  color: var(--muted);
+  font-size:12px;
+  font-weight:900;
+  text-align:center;
+}
+.noMatch[hidden]{ display:none; }
+
+/* ✅ wrap ocupa resto */
 .wrap{
-  flex:1;
+  max-width:1100px;
+  width:100%;
+  margin:auto;
+  padding:10px 12px 14px;
+  flex:1 1 auto;
+  min-height:0;
+  overflow:hidden;
+}
+
+/* ✅ solo aquí scrollea */
+.listBox{
+  border:1px solid var(--line);
+  border-radius:14px;
   overflow:auto;
-  padding:8px;
+  background:#fff;
+  box-shadow: var(--shadow);
+  height:100%;
+  min-height:0;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ✅ “colchón” al final (barra del móvil) */
+.listBox::after{
+  content:"";
+  display:block;
+  height: calc(84px + env(safe-area-inset-bottom));
 }
 
 /* ===== TARJETAS ===== */
-.card{
-  background:var(--card);
-  border:1px solid var(--line);
-  border-radius:12px;
-  padding:6px 8px;
-  margin-bottom:6px;
+.cards{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  padding:10px;
 }
 
-/* ===== FILA SUPERIOR ===== */
-.topRow{
+.card{
+  border:1px solid var(--line);
+  border-radius:14px;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdfc 100%);
+  box-shadow: 0 8px 18px rgba(2, 44, 20, .08);
+  overflow:hidden;
+}
+
+.card.win1{
+  border-color: var(--win1Bd);
+  box-shadow: 0 10px 22px rgba(22,163,74,.12);
+}
+.card.win2{
+  border-color: var(--win2Bd);
+  box-shadow: 0 10px 22px rgba(245,158,11,.12);
+}
+
+.cardTop{
   display:flex;
   align-items:baseline;
-  gap:6px;
-  font-size:11px;
+  gap:8px;
+  padding:8px 10px 6px;
 }
+
 .folio{
-  font-size:9px;
-  color:var(--muted);
+  font-size:10px;
+  font-weight:1000;
+  color:#64748b;
+  white-space:nowrap;
 }
 .nombre{
-  font-weight:900;
-  font-size:11px;
-  flex:1;
-}
-
-/* ===== SELECCIONES ===== */
-.sels{
-  display:flex;
-  justify-content:space-between;
-  margin-top:4px;
-}
-.sel{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:1px;
-}
-.selNum{
-  font-size:8px;
-  color:var(--muted);
-}
-.selVal{
-  font-size:11px;
-  font-weight:900;
-  padding:2px 4px;
-  border-radius:6px;
-  background:#f1f5f9;
-}
-
-/* ===== ACIERTOS ===== */
-.aciertos{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-}
-.aciertos span:first-child{
-  font-size:8px;
-  color:var(--muted);
-}
-.aciertos span:last-child{
-  font-weight:900;
   font-size:12px;
+  font-weight:1000;
+  color:#0f172a;
+  flex:1;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
 }
 
-/* ===== GANADORES ===== */
-.win1{
-  background:var(--greenBg);
-  border-color:var(--greenWin);
+/* ✅ fila selecciones + A */
+.cardMid{
+  display:flex;
+  align-items:stretch;
+  gap:8px;
+  padding:0 10px 10px;
 }
-.win2{
-  background:var(--yellowBg);
-  border-color:var(--yellowWin);
+
+.selsRow{
+  display:grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap:6px;
+  flex:1;
+  min-width:0;
+}
+
+.sel{
+  border:1px solid var(--selBd);
+  border-radius:12px;
+  background:var(--selBg);
+  padding:4px 0 5px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  min-width:0;
+}
+
+.sel .n{
+  font-size:9px;
+  font-weight:1000;
+  color:#64748b;
+  line-height:1;
+}
+.sel .v{
+  margin-top:2px;
+  font-size:11px;
+  font-weight:1000;
+  line-height:1;
+  color:#0f172a;
+}
+
+/* ✅ hit */
+.sel.hit{
+  background: var(--pillHitBg);
+  border-color: var(--pillHitBd);
+  color: var(--pillHitTx);
+}
+.sel.hit .v{ color: var(--pillHitTx); }
+.sel.hit .n{ color: var(--pillHitTx); opacity:.9; }
+
+/* ✅ Aciertos a la derecha (misma fila) */
+.aBox{
+  width:44px;
+  flex:0 0 44px;
+  border:1px solid var(--A_bd);
+  border-radius:14px;
+  background:var(--A_bg);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:6px 0;
+}
+.aBox .lab{
+  font-size:10px;
+  font-weight:1000;
+  color:#64748b;
+  line-height:1;
+}
+.aBox .val{
+  margin-top:3px;
+  font-size:16px;
+  font-weight:1100;
+  color:var(--A_tx);
+  line-height:1;
+}
+
+/* ===== RESPONSIVE (solo compactación visual) ===== */
+@media (max-width:520px){
+  .title{ font-size:16px; }
+  .partidos{ font-size:9px; gap:2px; }
+  .p{ padding:2px 6px; }
+  .chip{ font-size:9px; padding:2px 5px; }
+
+  .cardTop{ padding:7px 9px 5px; }
+  .nombre{ font-size:12px; }
+  .folio{ font-size:9px; }
+
+  .cards{ padding:8px; gap:7px; }
+  .selsRow{ gap:5px; }
+  .sel{ border-radius:11px; padding:3px 0 4px; }
+  .sel .n{ font-size:8px; }
+  .sel .v{ font-size:10px; }
+
+  .aBox{ width:42px; flex-basis:42px; }
+  .aBox .val{ font-size:15px; }
+}
+
+@media (max-width:420px){
+  .search input{ font-size:13px; }
+  .selsRow{ gap:4px; }
+  .sel{ border-radius:10px; }
+  .sel .v{ font-size:10px; }
+  .aBox{ width:40px; flex-basis:40px; }
+}
+
+/* ✅ extra: si el sistema agranda letras, no rompe tanto */
+@media (prefers-reduced-motion: reduce){
+  .spinner{ animation:none; }
 }
 </style>
 </head>
 
 <body>
-
-<!-- HEADER -->
-<div class="header">
+<div class="header" id="header">
   <div class="header-inner">
-    <div class="title">QUINIELA AZTECA</div>
-    <div class="week" id="weekTxt"></div>
+    <div class="headerCard">
+      <div class="headerBar"></div>
+      <div class="headerCardInner">
 
-    <div class="partidos" id="partidosTxt"></div>
+        <div class="brandRow">
+          <div>
+            <div class="title">
+              <span class="mxg">QUINIELA</span> <span class="mxr">AZTECA</span>
+            </div>
+            <div class="week" id="weekTxt"></div>
+          </div>
+        </div>
 
-    <div class="search">
-      <input id="searchInput" placeholder="Buscar por nombre, folio o teléfono">
+        <div class="partidos" id="partidosTxt"></div>
+
+        <div class="searchRow">
+          <div class="search">
+            <input id="searchInput" placeholder="Busca aqui por telefono, nombre o folio" autocomplete="off" inputmode="search" enterkeyhint="search">
+          </div>
+
+          <div class="pager" id="pager">
+            <button class="pbtn" id="btnPrev" type="button">◀</button>
+            <button class="pnum" id="p1" type="button">1</button>
+            <button class="pnum" id="p2" type="button">2</button>
+            <button class="pnum" id="p3" type="button">3</button>
+            <button class="pnum" id="p4" type="button">4</button>
+            <button class="pnum" id="p5" type="button">5</button>
+            <button class="pbtn" id="btnNext" type="button">▶</button>
+          </div>
+        </div>
+
+        <div class="loadingRow" id="loadingRow" hidden>
+          <span class="spinner" aria-hidden="true"></span>
+          <span id="loadingTxt">Cargando listado…</span>
+        </div>
+
+        <div class="noMatch" id="noMatch" hidden>Sin coincidencias</div>
+
+      </div>
     </div>
   </div>
 </div>
 
-<!-- LISTADO -->
-<div class="wrap" id="listado"></div>
+<div class="wrap">
+  <div class="listBox" id="listBox">
+    <div class="cards" id="cards"></div>
+  </div>
+</div>
 
 <script>
 const BASE = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec";
 const ENDPOINT = BASE + "?mode=clasif";
 const CONFIG   = BASE + "?mode=config";
 
-let raw = [];
+/* ✅ 5 páginas fijas */
+const FIXED_PAGES = 5;
 
-const $ = id => document.getElementById(id);
+let raw = [];
+let resultados = [];
+let marcadores = [];
+let lastCfgSig = "";
+
+let isLoading = false;
+
+/* ✅ paginación */
+let curPage = 1; // 1..5
+let pageSlices = []; // [{start,end},...]
+let pageRowsCache = []; // rows por página (pre-slices)
+
+const $ = (id) => document.getElementById(id);
+
+function showLoading(msg="Cargando listado…"){
+  $("loadingTxt").textContent = msg;
+  $("loadingRow").hidden = false;
+}
+function hideLoading(){ $("loadingRow").hidden = true; }
+
+function showNoMatch(show){
+  $("noMatch").hidden = !show;
+}
+
+function norm(v){ return String(v ?? "").trim().toUpperCase(); }
+
+function sigCfg(cfg){
+  const s = {
+    subtitulo: cfg.subtitulo || "",
+    resultados: (cfg.resultados||[]).slice(0,9),
+    marcadores: (cfg.marcadores||[]).slice(0,9),
+    partidos: (cfg.partidos||[]).slice(0,9).map(p=>`${p.local}|${p.visita}`)
+  };
+  return JSON.stringify(s);
+}
+
+function computePlaces(rows){
+  const acs = rows.map(r => Number(r.aciertos)||0);
+  const max = Math.max(...acs);
+  const uniq = [...new Set(acs)].sort((a,b)=>b-a);
+  let secondVal = null;
+  for (const a of uniq){ if (a < max){ secondVal = a; break; } }
+  rows.forEach(r=>{
+    const a = Number(r.aciertos)||0;
+    r._lugar = (a===max) ? 1 : (secondVal!=null && a===secondVal ? 2 : 0);
+  });
+}
 
 function renderPartidos(cfg){
+  const partidos = (cfg.partidos || []).slice(0,9);
   const box = $("partidosTxt");
-  box.innerHTML="";
-  (cfg.partidos||[]).slice(0,9).forEach((p,i)=>{
-    const div=document.createElement("div");
-    div.className="partido";
-    div.innerHTML=`<span>${i+1} ${p.local} vs ${p.visita}</span>
-                   <span>${cfg.marcadores[i]||"-"} ${cfg.resultados[i]||"-"}</span>`;
+  box.innerHTML = "";
+
+  for (let i=0; i<partidos.length; i++){
+    const p = partidos[i];
+    const m = (marcadores[i] && String(marcadores[i]).trim()) ? String(marcadores[i]).trim() : "-";
+    const r = (resultados[i] && String(resultados[i]).trim()) ? String(resultados[i]).trim().toUpperCase() : "-";
+
+    const div = document.createElement("div");
+    div.className = "p";
+    div.innerHTML = `
+      <span class="left">${i+1} ${p.local} vs ${p.visita}</span>
+      <span class="right">
+        <span class="chip">${m}</span>
+        <span class="chip pick">${r}</span>
+      </span>
+    `;
     box.appendChild(div);
-  });
+  }
 }
 
-function render(rows){
-  const cont = $("listado");
-  cont.innerHTML="";
-  rows.forEach(r=>{
-    const card=document.createElement("div");
-    card.className="card "+(r._lugar===1?"win1":r._lugar===2?"win2":"");
+/* ✅ divide en 5 páginas iguales (por conteo) */
+function buildFixedPages(){
+  const n = raw.length;
+  pageSlices = [];
+  pageRowsCache = [];
+  if (!n){
+    for (let i=0;i<FIXED_PAGES;i++){
+      pageSlices.push({start:0,end:0});
+      pageRowsCache.push([]);
+    }
+    return;
+  }
 
-    const sels = r.sels.map((s,i)=>`
-      <div class="sel">
-        <div class="selNum">${i+1}</div>
-        <div class="selVal">${s||"-"}</div>
-      </div>`).join("");
+  const base = Math.floor(n / FIXED_PAGES);
+  const rem  = n % FIXED_PAGES;
 
-    card.innerHTML=`
-      <div class="topRow">
-        <div class="folio">#${r.folio}</div>
-        <div class="nombre">${r.nombre_show}</div>
-      </div>
+  let start = 0;
+  for (let i=0; i<FIXED_PAGES; i++){
+    const size = base + (i < rem ? 1 : 0);
+    const end  = start + size;
+    pageSlices.push({start, end});
+    pageRowsCache.push(raw.slice(start, end));
+    start = end;
+  }
+}
 
-      <div class="sels">
-        ${sels}
-        <div class="aciertos">
-          <span>A</span>
-          <span>${r.aciertos}</span>
+function setActivePage(p){
+  curPage = Math.min(FIXED_PAGES, Math.max(1, p));
+
+  for (let i=1;i<=FIXED_PAGES;i++){
+    const b = $("p"+i);
+    if (!b) continue;
+    b.classList.toggle("active", i===curPage);
+  }
+
+  $("btnPrev").disabled = (curPage <= 1);
+  $("btnNext").disabled = (curPage >= FIXED_PAGES);
+
+  // reset scroll al cambiar página (más claro para usuario)
+  $("listBox").scrollTop = 0;
+
+  // render según búsqueda
+  if ($("searchInput").value.trim()){
+    applyFilter();
+  } else {
+    showNoMatch(false);
+    renderCards(pageRowsCache[curPage-1] || []);
+  }
+}
+
+/* ✅ render tarjetas en 1 golpe */
+function renderCards(rows){
+  const el = $("cards");
+  const resNorm = resultados.map(norm);
+
+  const parts = [];
+  for (let k=0; k<rows.length; k++){
+    const r = rows[k];
+    const winClass = (r._lugar===1) ? "win1" : (r._lugar===2) ? "win2" : "";
+    const aVal = (r.aciertos ?? "");
+
+    let selsHtml = "";
+    for (let i=0; i<9; i++){
+      const s = (r.sels[i] ?? "");
+      const ok = resNorm[i] && norm(s) === resNorm[i];
+      selsHtml += `
+        <div class="sel ${ok ? "hit" : ""}">
+          <div class="n">${i+1}</div>
+          <div class="v">${s || "-"}</div>
+        </div>
+      `;
+    }
+
+    parts.push(`
+      <div class="card ${winClass}">
+        <div class="cardTop">
+          <div class="folio">${r.folio ?? ""}</div>
+          <div class="nombre">${r.nombre_show ?? ""}</div>
+        </div>
+        <div class="cardMid">
+          <div class="selsRow">${selsHtml}</div>
+          <div class="aBox">
+            <div class="lab">A</div>
+            <div class="val">${aVal}</div>
+          </div>
         </div>
       </div>
-    `;
-    cont.appendChild(card);
-  });
+    `);
+  }
+
+  el.innerHTML = parts.join("");
 }
 
-async function load(){
-  const cfg = await fetch(CONFIG).then(r=>r.json()).then(j=>j.cfg);
-  $("weekTxt").textContent = cfg.subtitulo || "";
-  renderPartidos(cfg);
+function applyFilter(){
+  const q = $("searchInput").value.trim().toLowerCase();
 
-  const res = await fetch(ENDPOINT).then(r=>r.json());
-  raw = res.data.rows.map(r=>{
-    return {
-      folio:r[0],
-      telefono:r[1],
-      nombre_show:r[2],
-      nombre:r[2].toLowerCase(),
-      sels:r.slice(3,12),
-      aciertos:r[r.length-1],
-      _lugar:0
-    }
+  // si no hay búsqueda => mostrar solo la página actual
+  if (!q){
+    showNoMatch(false);
+    renderCards(pageRowsCache[curPage-1] || []);
+    return;
+  }
+
+  // ✅ filtra en TODO el dataset (aunque no muestre teléfono)
+  const out = raw.filter(r=>{
+    return String(r.folio ?? "").toLowerCase().includes(q) ||
+           String(r.telefono ?? "").toLowerCase().includes(q) ||
+           String(r.nombre ?? "").toLowerCase().includes(q);
   });
 
-  // lugares
-  const acs = raw.map(r=>r.aciertos);
-  const max = Math.max(...acs);
-  const sec = [...new Set(acs.filter(a=>a<max))].sort((a,b)=>b-a)[0];
-  raw.forEach(r=>{
-    if(r.aciertos===max) r._lugar=1;
-    else if(r.aciertos===sec) r._lugar=2;
-  });
-
-  render(raw);
+  showNoMatch(out.length === 0);
+  renderCards(out);
 }
 
-$("searchInput").addEventListener("input", e=>{
-  const q=e.target.value.toLowerCase();
-  if(!q){render(raw);return;}
-  render(raw.filter(r=>
-    String(r.folio).includes(q) ||
-    r.nombre.includes(q) ||
-    String(r.telefono).includes(q)
-  ));
+/* ✅ ENTER => oculta teclado */
+const searchInput = $("searchInput");
+searchInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    searchInput.blur();
+  }
 });
 
-load();
+/* ✅ input con debounce */
+let searchTO = null;
+searchInput.addEventListener("input", () => {
+  if (searchTO) clearTimeout(searchTO);
+  searchTO = setTimeout(() => {
+    applyFilter();
+  }, 70);
+});
+
+/* ✅ paginación buttons */
+$("btnPrev").addEventListener("click", ()=> setActivePage(curPage-1));
+$("btnNext").addEventListener("click", ()=> setActivePage(curPage+1));
+for (let i=1;i<=FIXED_PAGES;i++){
+  $("p"+i).addEventListener("click", ()=> setActivePage(i));
+}
+
+async function load(force=false){
+  if (isLoading) return;
+  isLoading = true;
+
+  try{
+    showLoading("Cargando listado…");
+
+    // 1) CONFIG
+    const cfgRes = await fetch(CONFIG, {cache:"no-store"}).then(r=>r.json());
+    const cfg = cfgRes.cfg || {};
+    const cfgSig = sigCfg(cfg);
+
+    // si no cambió config y no force, no tocamos nada
+    if (!force && cfgSig === lastCfgSig){
+      hideLoading();
+      isLoading = false;
+      return;
+    }
+    lastCfgSig = cfgSig;
+
+    $("weekTxt").textContent = cfg.subtitulo || "";
+    resultados = (cfg.resultados || []).slice(0,9);
+    marcadores = (cfg.marcadores || []).slice(0,9);
+    renderPartidos(cfg);
+
+    // 2) CLASIF (todo el dataset; la paginación es visual)
+    const res = await fetch(ENDPOINT, {cache:"no-store"}).then(r=>r.json());
+    const data = res.data || {headers:[], rows:[]};
+    const headers = (data.headers || []).map(x => String(x).toLowerCase());
+
+    const iF = headers.indexOf("folio");
+    const iN = headers.indexOf("nombre");
+    const iT = headers.indexOf("telefono_envio");
+    const iA = headers.indexOf("aciertos");
+
+    if (iF<0 || iN<0 || iA<0){
+      console.warn("Headers inválidos:", headers);
+      hideLoading();
+      isLoading = false;
+      return;
+    }
+
+    const startSel = iN + 1;
+    const endSel   = iA;
+
+    raw = (data.rows || []).map(r=>{
+      const nombreShow = String(r[iN] ?? "").trim();
+      return {
+        folio: r[iF],
+        telefono: (iT>=0 ? r[iT] : ""),      // ✅ se usa para buscar, NO se muestra
+        nombre: nombreShow.toLowerCase(),
+        nombre_show: nombreShow,
+        sels: r.slice(startSel, endSel).slice(0,9),
+        aciertos: r[iA],
+        _lugar: 0
+      };
+    });
+
+    computePlaces(raw);
+    buildFixedPages();
+
+    // si estaba buscando, respeta búsqueda; si no, muestra página 1
+    if ($("searchInput").value.trim()){
+      applyFilter();
+    } else {
+      setActivePage(1);
+    }
+
+    hideLoading();
+  }catch(err){
+    console.error(err);
+    hideLoading();
+  }finally{
+    isLoading = false;
+  }
+}
+
+/* ✅ primera carga */
+load(true);
+
+/* ✅ poll ligero: solo revisa CONFIG; si cambia, recarga */
+const POLL_CONFIG_MS = 2000;
+setInterval(async () => {
+  if (isLoading) return;
+  try{
+    const cfgRes = await fetch(CONFIG, {cache:"no-store"}).then(r=>r.json());
+    const cfg = cfgRes.cfg || {};
+    const cfgSig = sigCfg(cfg);
+    if (cfgSig !== lastCfgSig){
+      load(true);
+    }
+  } catch(e){}
+}, POLL_CONFIG_MS);
 </script>
 </body>
 </html>
