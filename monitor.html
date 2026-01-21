@@ -12,6 +12,7 @@
 
   --bg:#eaf3ee;
   --bg2:#dfeee7;
+  --card:#ffffff;
   --line:#d7e6dc;
 
   --l:#0a6b3a;
@@ -37,25 +38,15 @@
   --pillHitBg:#dcfce7;
   --pillHitBd:#86efac;
   --pillHitTx:#064e3b;
-
-  /* ✅ ANCHOS SINCRONIZADOS */
-  --wFolio: 22px;
-  --wNombre: 200px;
-  --wSel: 20px;
-  --wA: 24px;
-
-  /* ✅ scrollbar width (lo calcula JS) */
-  --sbw: 0px;
 }
 
-*{box-sizing:border-box}
-
-/* ✅ evita “auto zoom” de texto (Android) */
+/* ✅ evita auto-zoom de texto en Android (descuadres) */
 html{
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
 
+*{box-sizing:border-box}
 html, body { height:100%; overflow:hidden; }
 
 body{
@@ -216,23 +207,32 @@ body{
   gap:10px;
 }
 .pbtn{
-  width:52px;
-  height:42px;
-  border-radius:14px;
+  width:64px;
+  height:46px;
+  border-radius:18px;
   border:2px solid #cbd5e1;
   background:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
   font-weight:1000;
   cursor:pointer;
+  user-select:none;
 }
-.pbtn:disabled{ opacity:.45; cursor:default; }
-.pstat{
-  font-weight:1000;
-  color:var(--muted);
-  font-size:13px;
-  letter-spacing:.02em;
-}
+.pbtn:active{ transform: translateY(1px); }
+.pbtn[disabled]{ opacity:.35; cursor:not-allowed; transform:none; }
 
-/* ===== AVISO CARGANDO ===== */
+.pmid{
+  flex:1;
+  text-align:center;
+  color:var(--muted);
+  font-weight:1000;
+  letter-spacing:.03em;
+}
+.pmid .big{ color:#0f172a; font-size:16px; }
+
+/* ===== AVISOS ===== */
 .loadingRow{
   margin-top:6px;
   display:flex;
@@ -256,7 +256,6 @@ body{
 }
 @keyframes spin{ to{ transform:rotate(360deg);} }
 
-/* ✅ aviso "Sin coincidencias" */
 .noMatch{
   margin-top:6px;
   padding:10px 12px;
@@ -270,41 +269,7 @@ body{
 }
 .noMatch[hidden]{ display:none; }
 
-/* ===== ENCABEZADO FIJO DEL LISTADO ===== */
-/* ✅ CLAVE: YA NO SCROLLEA. Se mueve por transform para calzar siempre. */
-.tableHeadRow{
-  margin-top:6px;
-  border:1px solid var(--line);
-  border-radius:12px;
-  background:#f8fafc;
-  overflow:hidden;
-}
-.tableHeadGrid{
-  display:grid;
-  grid-template-columns: var(--wFolio) var(--wNombre) repeat(9, var(--wSel)) var(--wA);
-  gap:0;
-
-  width:max-content;
-  min-width:100%;
-
-  padding-right: var(--sbw);
-  will-change: transform;
-}
-.thCell{
-  padding:6px 4px;
-  border-right:1px solid rgba(215,230,220,.7);
-  font-size:11px;
-  font-weight:1000;
-  letter-spacing:.04em;
-  text-align:center;
-  color:#0f172a;
-}
-.thCell:last-child{ border-right:none; }
-.thCell.left{ text-align:left; }
-.thCell.folio{ font-size:7px; font-weight:700; text-align:right; padding-right:3px; }
-.thCell.nombre{ font-size:10px; font-weight:700; }
-
-/* ✅ wrap ocupa resto */
+/* ===== LISTA (TARJETAS) ===== */
 .wrap{
   max-width:1100px;
   width:100%;
@@ -315,8 +280,7 @@ body{
   overflow:hidden;
 }
 
-/* ✅ solo aquí scrollea */
-.tableBox{
+.listBox{
   border:1px solid var(--line);
   border-radius:14px;
   overflow:auto;
@@ -325,91 +289,109 @@ body{
   height:100%;
   min-height:0;
   overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
-
-/* ✅ “colchón” al final */
-.tableBox::after{
+.listBox::after{
   content:"";
   display:block;
   height: calc(84px + env(safe-area-inset-bottom));
 }
 
-table{
-  width:max-content;
-  min-width:100%;
-  border-collapse:separate;
-  border-spacing:0;
-  table-layout:fixed;
+.cards{
+  padding:10px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
 }
-tbody td{
-  border-bottom:1px solid var(--line);
-  padding:4px 4px;
-  text-align:center;
-  vertical-align:middle;
-  font-weight:1000;
-}
-tbody tr:nth-child(even){ background:#fbfdff; }
-tbody tr:last-child td{ border-bottom:none; }
 
-/* ✅ columnas sincronizadas */
-td.col-folio{
-  width:var(--wFolio);
-  font-size:7px;
-  font-weight:700;
-  color:#334155;
-  text-align:right;
-  padding-right:3px;
+.cardRow{
+  border:1px solid rgba(215,230,220,.85);
+  border-radius:14px;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdfc 100%);
+  overflow:hidden;
 }
-td.col-nombre{
-  width:var(--wNombre);
-  text-align:left;
+
+.cardTop{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px 10px 8px;
+}
+.metaLeft{ min-width:0; }
+.folio{
+  font-size:11px;
+  font-weight:900;
+  color:#334155;
+}
+.nombre{
+  margin-top:2px;
+  font-size:15px;
+  font-weight:1000;
+  letter-spacing:.02em;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
-  font-size:10px;
-  font-weight:700;
-  color:#0f172a;
 }
-td.col-ac{
-  width:var(--wA);
-  font-size:12px;
-  font-weight:1000;
+.tel{
+  margin-top:2px;
+  font-size:11px;
+  font-weight:900;
+  color:var(--muted);
 }
-td.selCell{ width:var(--wSel); padding:3px 0; }
 
-.selPill{
-  display:inline-flex;
+.badgeA{
+  flex-shrink:0;
+  width:54px;
+  height:54px;
+  border-radius:16px;
+  border:2px solid #cbd5e1;
+  display:flex;
   align-items:center;
   justify-content:center;
-  width:18px;
-  height:20px;
-  border-radius:12px;
-  border:1px solid var(--pillBorder);
-  font-weight:900;
-  font-size:12px;
-  line-height:1;
+  font-size:18px;
+  font-weight:1000;
   background:#fff;
 }
-.selPill.hit{
+.badgeA.win1{ background:var(--azul1); color:#fff; border-color:rgba(29,78,216,.45); }
+.badgeA.win2{ background:var(--azul2); color:#0f172a; border-color:rgba(147,197,253,.75); }
+
+.cardBottom{ padding:0 10px 10px; }
+
+.picksRow{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  padding-top:6px;
+  border-top:1px solid rgba(215,230,220,.65);
+}
+
+.pickPill{
+  width:30px;
+  height:30px;
+  border-radius:999px;
+  border:2px solid var(--pillBorder);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:1000;
+  background:#fff;
+  font-size:14px;
+  line-height:1;
+}
+.pickPill.hit{
   background:var(--pillHitBg);
   border-color:var(--pillHitBd);
   color:var(--pillHitTx);
 }
 
-td.col-ac.win1{ background:var(--azul1); color:#fff; }
-td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
-
-/* responsive: solo variables */
 @media (max-width:520px){
-  :root{ --wNombre: 170px; --wSel: 18px; --wA: 24px; }
   .title{ font-size:16px; }
   .partidos{ font-size:9px; gap:2px; }
   .p{ padding:2px 6px; }
   .chip{ font-size:9px; padding:2px 5px; }
-}
-@media (max-width:420px){
-  :root{ --wNombre: 150px; --wSel: 17px; --wA: 24px; }
-  .selPill{ width:16px; height:18px; font-size:11px; }
+  .nombre{ font-size:14px; }
+  .badgeA{ width:50px; height:50px; border-radius:16px; font-size:17px; }
 }
 </style>
 </head>
@@ -434,14 +416,21 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
 
         <div class="searchRow">
           <div class="search">
-            <input id="searchInput" placeholder="Busca aqui por telefono, nombre o folio" autocomplete="off">
+            <input id="searchInput"
+                   placeholder="Busca aqui por telefono, nombre o folio"
+                   autocomplete="off"
+                   inputmode="search"
+                   enterkeyhint="search">
           </div>
         </div>
 
-        <div class="pager" id="pager" aria-label="Paginación">
-          <button class="pbtn" id="btnPrev" type="button" aria-label="Anterior">◀</button>
-          <div class="pstat" id="pageTxt">1 / 1</div>
-          <button class="pbtn" id="btnNext" type="button" aria-label="Siguiente">▶</button>
+        <div class="pager" id="pager" hidden>
+          <button class="pbtn" id="prevBtn" type="button" aria-label="Anterior">◀</button>
+          <div class="pmid">
+            <span class="big" id="pageTxt">1 / 1</span><br>
+            <span id="countTxt">0</span>
+          </div>
+          <button class="pbtn" id="nextBtn" type="button" aria-label="Siguiente">▶</button>
         </div>
 
         <div class="loadingRow" id="loadingRow" hidden>
@@ -451,25 +440,14 @@ td.col-ac.win2{ background:var(--azul2); color:#0f172a; }
 
         <div class="noMatch" id="noMatch" hidden>Sin coincidencias</div>
 
-        <div class="tableHeadRow" aria-label="Encabezado">
-          <div class="tableHeadGrid" id="fixedHead">
-            <div class="thCell folio">#</div>
-            <div class="thCell left nombre">Nombre</div>
-            <div class="thCell">1</div><div class="thCell">2</div><div class="thCell">3</div>
-            <div class="thCell">4</div><div class="thCell">5</div><div class="thCell">6</div>
-            <div class="thCell">7</div><div class="thCell">8</div><div class="thCell">9</div>
-            <div class="thCell">A</div>
-          </div>
-        </div>
-
       </div>
     </div>
   </div>
 </div>
 
 <div class="wrap">
-  <div class="tableBox" id="tableBox">
-    <table id="tabla"></table>
+  <div class="listBox" id="listBox">
+    <div class="cards" id="cards"></div>
   </div>
 </div>
 
@@ -478,18 +456,26 @@ const BASE = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCu
 const ENDPOINT = BASE + "?mode=clasif";
 const CONFIG   = BASE + "?mode=config";
 
-const PAGE_SIZE = 500;
+const PAGE_SIZE = 500;      // ✅ lo que pediste
+const POLL_CONFIG_MS = 2000;
 
-let raw = [];
-let view = [];
+// cache local (para arrancar rápido en tel viejos)
+const LS_KEY = "qa_monitor_cache_v1";
+
 let resultados = [];
 let marcadores = [];
 let lastCfgSig = "";
 
-let isLoading = false;
-
+let allRows = [];
+let filteredRows = [];
 let page = 1;
 let totalPages = 1;
+let totalRows = 0;
+
+let isLoading = false;
+let isUserScrolling = false;
+let scrollTimer = null;
+let pendingRefresh = false;
 
 const $ = (id) => document.getElementById(id);
 
@@ -498,10 +484,17 @@ function showLoading(msg="Cargando listado…"){
   $("loadingRow").hidden = false;
 }
 function hideLoading(){ $("loadingRow").hidden = true; }
-
 function showNoMatch(show){ $("noMatch").hidden = !show; }
-function buildBodyOnly(){ return `<tbody></tbody>`; }
+
 function norm(v){ return String(v ?? "").trim().toUpperCase(); }
+function escapeHtml(s){
+  return String(s ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#39;");
+}
 
 function sigCfg(cfg){
   const s = {
@@ -513,127 +506,13 @@ function sigCfg(cfg){
   return JSON.stringify(s);
 }
 
-function computePlaces(rows){
-  const acs = rows.map(r => Number(r.aciertos)||0);
-  const max = Math.max(...acs);
-  const uniq = [...new Set(acs)].sort((a,b)=>b-a);
-  let secondVal = null;
-  for (const a of uniq){ if (a < max){ secondVal = a; break; } }
-  rows.forEach(r=>{
-    const a = Number(r.aciertos)||0;
-    r._lugar = (a===max) ? 1 : (secondVal!=null && a===secondVal ? 2 : 0);
-  });
-}
-
-function render(rows){
-  const tbody = document.querySelector("#tabla tbody");
-  if (!tbody) return;
-
-  const resNorm = resultados.map(norm);
-  const parts = [];
-
-  for (let k=0; k<rows.length; k++){
-    const r = rows[k];
-    const acClass = (r._lugar===1) ? "win1" : (r._lugar===2) ? "win2" : "";
-
-    let selsHtml = "";
-    for (let i=0; i<9; i++){
-      const s = r.sels[i] ?? "";
-      const ok = resNorm[i] && norm(s) === resNorm[i];
-      selsHtml += `<td class="selCell"><span class="selPill ${ok?'hit':''}">${s || '-'}</span></td>`;
-    }
-
-    parts.push(
-      `<tr>
-        <td class="col-folio">${r.folio ?? ''}</td>
-        <td class="col-nombre">${r.nombre_show ?? ''}</td>
-        ${selsHtml}
-        <td class="col-ac ${acClass}">${r.aciertos ?? ''}</td>
-      </tr>`
-    );
-  }
-
-  tbody.innerHTML = parts.join("");
-}
-
-/* ===== Scrollbar width => alinear (sbw) ===== */
-function syncScrollbarWidth(){
-  const box = $("tableBox");
-  if (!box) return;
-  const sbw = box.offsetWidth - box.clientWidth;
-  document.documentElement.style.setProperty("--sbw", sbw + "px");
-}
-
-/* ===== CLAVE: header se mueve por transform (siempre calza) ===== */
-function startHeaderTransformSync(){
-  const box = $("tableBox");
-  const head = $("fixedHead");
-  if (!box || !head) return;
-
-  let last = -1;
-  const tick = () => {
-    const sl = box.scrollLeft;
-    if (sl !== last){
-      head.style.transform = `translateX(${-sl}px)`;
-      last = sl;
-    }
-    requestAnimationFrame(tick);
-  };
-  requestAnimationFrame(tick);
-}
-
-/* ===== paginación ===== */
-function clampPage(){
-  totalPages = Math.max(1, Math.ceil(view.length / PAGE_SIZE));
-  if (page < 1) page = 1;
-  if (page > totalPages) page = totalPages;
-}
-function updatePager(){
-  clampPage();
-  $("pageTxt").textContent = `${page} / ${totalPages}`;
-  $("btnPrev").disabled = (page <= 1);
-  $("btnNext").disabled = (page >= totalPages);
-}
-function renderPage(){
-  clampPage();
-  updatePager();
-  const start = (page - 1) * PAGE_SIZE;
-  const end = start + PAGE_SIZE;
-  const slice = view.slice(start, end);
-  showNoMatch(view.length === 0 && $("searchInput").value.trim().length > 0);
-  render(slice);
-
-  const box = $("tableBox");
-  if (box) box.scrollTop = 0;
-
-  // recalcular después de pintar
-  requestAnimationFrame(syncScrollbarWidth);
-}
-
-function applyFilter(){
-  const q = $("searchInput").value.trim().toLowerCase();
-  if (!q){
-    showNoMatch(false);
-    view = raw;
-    page = 1;
-    renderPage();
-    return;
-  }
-  view = raw.filter(r=>{
-    return String(r.folio ?? "").toLowerCase().includes(q) ||
-           String(r.telefono ?? "").toLowerCase().includes(q) ||
-           String(r.nombre ?? "").toLowerCase().includes(q);
-  });
-  page = 1;
-  renderPage();
-}
-
 function renderPartidos(cfg){
   const partidos = (cfg.partidos || []).slice(0,9);
   const box = $("partidosTxt");
   box.innerHTML = "";
 
-  partidos.forEach((p,i)=>{
+  for (let i=0;i<partidos.length;i++){
+    const p = partidos[i];
     const m = (marcadores[i] && String(marcadores[i]).trim()) ? String(marcadores[i]).trim() : "-";
     const r = (resultados[i] && String(resultados[i]).trim()) ? String(resultados[i]).trim().toUpperCase() : "-";
 
@@ -647,23 +526,204 @@ function renderPartidos(cfg){
       </span>
     `;
     box.appendChild(div);
+  }
+}
+
+function computePlaces(rows){
+  const acs = rows.map(r => Number(r.aciertos)||0);
+  const max = Math.max(...acs, 0);
+  const uniq = [...new Set(acs)].sort((a,b)=>b-a);
+  let secondVal = null;
+  for (const a of uniq){ if (a < max){ secondVal = a; break; } }
+  for (const r of rows){
+    const a = Number(r.aciertos)||0;
+    r._lugar = (a===max) ? 1 : (secondVal!=null && a===secondVal ? 2 : 0);
+  }
+}
+
+function markScrolling(){
+  isUserScrolling = true;
+  if (scrollTimer) clearTimeout(scrollTimer);
+  scrollTimer = setTimeout(()=>{
+    isUserScrolling = false;
+    if (pendingRefresh){
+      pendingRefresh = false;
+      load(true);
+    }
+  }, 180);
+}
+$("listBox").addEventListener("scroll", markScrolling, {passive:true});
+
+function renderCards(rows){
+  const root = $("cards");
+  const resNorm = resultados.map(norm);
+  const parts = [];
+
+  for (let k=0; k<rows.length; k++){
+    const r = rows[k];
+    const a = Number(r.aciertos)||0;
+    const badgeClass = (r._lugar===1) ? "win1" : (r._lugar===2) ? "win2" : "";
+
+    let picks = "";
+    for (let i=0;i<9;i++){
+      const s = String(r.sels[i] ?? "");
+      const ok = resNorm[i] && norm(s) === resNorm[i];
+      picks += `<span class="pickPill ${ok?'hit':''}" title="${i+1}">${escapeHtml(s || "-")}</span>`;
+    }
+
+    parts.push(`
+      <div class="cardRow">
+        <div class="cardTop">
+          <div class="metaLeft">
+            <div class="folio"># ${escapeHtml(r.folio ?? "")}</div>
+            <div class="nombre">${escapeHtml(r.nombre_show ?? "")}</div>
+            ${(r.telefono ? `<div class="tel">${escapeHtml(r.telefono)}</div>` : ``)}
+          </div>
+          <div class="badgeA ${badgeClass}">${a}</div>
+        </div>
+        <div class="cardBottom">
+          <div class="picksRow">${picks}</div>
+        </div>
+      </div>
+    `);
+  }
+
+  root.innerHTML = parts.join("");
+}
+
+function updatePager(){
+  $("pager").hidden = false;
+  $("pageTxt").textContent = `${page} / ${totalPages}`;
+  $("countTxt").textContent = `${totalRows.toLocaleString("es-MX")} registros`;
+  $("prevBtn").disabled = (page <= 1);
+  $("nextBtn").disabled = (page >= totalPages);
+}
+
+$("prevBtn").addEventListener("click", ()=>{
+  if (page <= 1) return;
+  page--;
+  drawPage();
+});
+$("nextBtn").addEventListener("click", ()=>{
+  if (page >= totalPages) return;
+  page++;
+  drawPage();
+});
+
+function drawPage(){
+  const q = $("searchInput").value.trim().toLowerCase();
+  const src = q ? filteredRows : allRows;
+
+  totalRows = src.length;
+  totalPages = Math.max(1, Math.ceil(totalRows / PAGE_SIZE));
+  if (page > totalPages) page = totalPages;
+
+  const start = (page-1)*PAGE_SIZE;
+  const slice = src.slice(start, start + PAGE_SIZE);
+
+  showNoMatch(!!q && totalRows === 0);
+  updatePager();
+
+  $("listBox").scrollTop = 0;
+  requestAnimationFrame(()=> renderCards(slice));
+}
+
+function parseClasif(res){
+  const d = (res && res.data) ? res.data : (res || {}).data;
+  const data = d || {headers:[], rows:[]};
+  const headers = (data.headers || []).map(x => String(x).toLowerCase());
+
+  const iF = headers.indexOf("folio");
+  const iT = headers.indexOf("telefono_envio");
+  const iN = headers.indexOf("nombre");
+  const iA = headers.indexOf("aciertos");
+
+  if (iF<0 || iN<0 || iA<0){
+    console.warn("Headers inválidos:", headers);
+    return [];
+  }
+
+  const startSel = iN + 1;
+  const endSel   = iA;
+
+  return (data.rows || []).map(r=>{
+    const nombreShow = String(r[iN] ?? "").trim();
+    return {
+      folio: r[iF],
+      telefono: (iT>=0 ? r[iT] : ""),
+      nombre: nombreShow.toLowerCase(),
+      nombre_show: nombreShow,
+      sels: r.slice(startSel, endSel).slice(0,9),
+      aciertos: r[iA],
+      _lugar: 0,
+      _s: ""
+    };
   });
+}
+
+function saveLocalCache(){
+  try{
+    const payload = {
+      ts: Date.now(),
+      resultados,
+      marcadores,
+      rows: allRows
+    };
+    localStorage.setItem(LS_KEY, JSON.stringify(payload));
+  }catch(e){}
+}
+
+function tryLoadLocalCache(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return false;
+    const obj = JSON.parse(raw);
+
+    if (!obj || !Array.isArray(obj.rows)) return false;
+
+    // pintamos algo “inmediato”
+    resultados = Array.isArray(obj.resultados) ? obj.resultados.slice(0,9) : [];
+    marcadores = Array.isArray(obj.marcadores) ? obj.marcadores.slice(0,9) : [];
+
+    allRows = obj.rows;
+    computePlaces(allRows);
+
+    for (const r of allRows){
+      r._s = (String(r.folio??"") + " " + String(r.telefono??"") + " " + String(r.nombre??"")).toLowerCase();
+    }
+
+    page = 1;
+    filteredRows = [];
+    $("pager").hidden = false;
+    drawPage();
+
+    // indicamos que está mostrando “cache”
+    showLoading("Actualizando…");
+    return true;
+  }catch(e){
+    return false;
+  }
 }
 
 async function load(force=false){
   if (isLoading) return;
+  if (isUserScrolling){
+    pendingRefresh = pendingRefresh || force;
+    return;
+  }
+
   isLoading = true;
-
   try{
-    showLoading("Cargando listado…");
+    if (!force) showLoading("Actualizando…");
+    else showLoading("Cargando listado…");
 
+    // CONFIG primero
     const cfgRes = await fetch(CONFIG, {cache:"no-store"}).then(r=>r.json());
     const cfg = cfgRes.cfg || {};
     const cfgSig = sigCfg(cfg);
 
     if (!force && cfgSig === lastCfgSig){
       hideLoading();
-      isLoading = false;
       return;
     }
     lastCfgSig = cfgSig;
@@ -673,80 +733,83 @@ async function load(force=false){
     marcadores = (cfg.marcadores || []).slice(0,9);
     renderPartidos(cfg);
 
+    // LISTADO completo (tu backend actual siempre manda todo)
     const res = await fetch(ENDPOINT, {cache:"no-store"}).then(r=>r.json());
-    const data = res.data || {headers:[], rows:[]};
-    const headers = (data.headers || []).map(x => String(x).toLowerCase());
+    allRows = parseClasif(res);
+    computePlaces(allRows);
 
-    const iF = headers.indexOf("folio");
-    const iN = headers.indexOf("nombre");
-    const iT = headers.indexOf("telefono_envio");
-    const iA = headers.indexOf("aciertos");
-
-    if (iF<0 || iN<0 || iA<0){
-      hideLoading();
-      isLoading = false;
-      return;
+    // índice para búsqueda rápida
+    for (const r of allRows){
+      r._s = (String(r.folio??"") + " " + String(r.telefono??"") + " " + String(r.nombre??"")).toLowerCase();
     }
 
-    const startSel = iN + 1;
-    const endSel   = iA;
+    // aplicar filtro actual si existe
+    const q = $("searchInput").value.trim().toLowerCase();
+    if (q){
+      filteredRows = allRows.filter(r => r._s.includes(q));
+    } else {
+      filteredRows = [];
+    }
 
-    raw = (data.rows || []).map(r=>{
-      const nombreShow = String(r[iN] ?? "").trim();
-      return {
-        folio: r[iF],
-        telefono: (iT>=0 ? r[iT] : ""),
-        nombre: nombreShow.toLowerCase(),
-        nombre_show: nombreShow,
-        sels: r.slice(startSel, endSel).slice(0,9),
-        aciertos: r[iA],
-        _lugar: 0
-      };
-    });
-
-    computePlaces(raw);
-    $("tabla").innerHTML = buildBodyOnly();
-
-    view = raw;
     page = 1;
+    drawPage();
 
-    if ($("searchInput").value.trim()) applyFilter();
-    else { showNoMatch(false); renderPage(); }
-
+    saveLocalCache();
     hideLoading();
-  } catch(e){
-    console.error(e);
+  } catch(err){
+    console.error(err);
     hideLoading();
   } finally {
     isLoading = false;
   }
 }
 
-/* eventos */
-$("btnPrev").addEventListener("click", () => { page--; renderPage(); });
-$("btnNext").addEventListener("click", () => { page++; renderPage(); });
-
+/* ENTER => oculta teclado */
 const searchInput = $("searchInput");
 searchInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
     e.preventDefault();
     searchInput.blur();
-    applyFilter();
   }
 });
 
 let searchTO = null;
 searchInput.addEventListener("input", () => {
   if (searchTO) clearTimeout(searchTO);
-  searchTO = setTimeout(applyFilter, 80);
+  searchTO = setTimeout(() => {
+    if (isUserScrolling) return;
+    page = 1;
+
+    const q = searchInput.value.trim().toLowerCase();
+    if (!q){
+      filteredRows = [];
+      showNoMatch(false);
+      drawPage();
+      return;
+    }
+    filteredRows = allRows.filter(r => r._s.includes(q));
+    drawPage();
+  }, 140);
 });
 
-/* init */
-startHeaderTransformSync();
-syncScrollbarWidth();
-window.addEventListener("resize", syncScrollbarWidth, {passive:true});
-
+// init: pinta cache inmediato si hay
+tryLoadLocalCache();
+// luego carga real
 load(true);
+
+// refresh solo por cambio de CONFIG
+setInterval(async () => {
+  if (isLoading) return;
+  if (isUserScrolling) return;
+  try{
+    const cfgRes = await fetch(CONFIG, {cache:"no-store"}).then(r=>r.json());
+    const cfg = cfgRes.cfg || {};
+    const cfgSig = sigCfg(cfg);
+    if (cfgSig !== lastCfgSig){
+      load(true);
+    }
+  } catch(e){}
+}, POLL_CONFIG_MS);
 </script>
 </body>
 </html>
