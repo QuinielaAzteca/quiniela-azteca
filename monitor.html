@@ -16,24 +16,58 @@
     --win1:#dcfce7; /* verde suave */
     --win2:#fef9c3; /* amarillo suave */
 
+    --hitBg:#dcfce7;
+    --hitBd:#86efac;
+    --hitTx:#064e3b;
+
     --wSel: 22px;
     --wA: 24px;
-    --wFN: 1fr;
 
     --fsRow: 11px;
-    --fsSmall: 9px;
-    --fsTiny: 8px;
+    --fsSmall: 10px;
+    --fsTiny: 9px;
   }
 
   html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
-  body{ margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif; background:var(--bg); color:var(--txt); }
+  body{
+    margin:0;
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--txt);
+  }
 
   .header{
-    position:sticky; top:0; z-index:20;
+    position:sticky; top:0; z-index:30;
     background:#fff;
     border-bottom:1px solid var(--line);
-    padding:8px 8px 6px;
+    padding:8px 10px 8px;
   }
+
+  .brandRow{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:6px;
+  }
+  .title{
+    margin:0;
+    font-weight:1000;
+    letter-spacing:.04em;
+    line-height:1.05;
+    font-size:18px;
+  }
+  .title .mxg{ color:#0a6b3a; }
+  .title .mxr{ color:#c62828; }
+
+  .week{
+    font-size:12px;
+    font-weight:900;
+    color:var(--muted);
+    margin-top:2px;
+  }
+
   .partidos{ font-size:11px; line-height:1.15; }
   .p{
     display:flex; justify-content:space-between; gap:8px;
@@ -71,21 +105,21 @@
 
   .wrap{ padding:8px; }
 
-  /* Encabezado fijo del grid (debajo del header de partidos) */
+  /* ✅ Encabezado fijo del grid */
   .headRow{
     position:sticky;
-    top: calc(0px + 0px); /* se queda pegado al tope del viewport */
-    z-index:15;
+    top: calc(8px + 8px + 0px + env(safe-area-inset-top)); /* pegado bajo el header */
+    z-index:25;
     margin-top:8px;
     background:#fff;
     border:1px solid var(--line);
     border-radius:12px;
     overflow:hidden;
   }
+
   .headGrid{
     display:grid;
-    grid-template-columns: var(--wFN) repeat(9, var(--wSel)) var(--wA);
-    gap:0;
+    grid-template-columns: 1fr repeat(9, var(--wSel)) var(--wA);
     align-items:stretch;
   }
   .hCell{
@@ -117,12 +151,11 @@
 
   .row{
     display:grid;
-    grid-template-columns: var(--wFN) repeat(9, var(--wSel)) var(--wA);
+    grid-template-columns: 1fr repeat(9, var(--wSel)) var(--wA);
     align-items:center;
-    gap:0;
-    padding:4px 0;
     border-bottom:1px solid var(--line2);
     font-size:var(--fsRow);
+    padding:4px 0;
   }
   .row:last-child{ border-bottom:none; }
   .row.win1{ background:var(--win1); }
@@ -132,7 +165,7 @@
     padding-left:8px;
     display:flex;
     align-items:baseline;
-    gap:6px;
+    gap:8px;
     min-width:0;
   }
   .folio{
@@ -155,22 +188,23 @@
     padding:0 1px;
   }
 
-  .selBox{
-    display:flex;
-    flex-direction:column;
+  .selPill{
+    display:inline-flex;
     align-items:center;
-    line-height:1;
-    gap:1px;
-    padding:2px 0;
-  }
-  .selNum{
-    font-size:var(--fsTiny);
-    font-weight:900;
-    color:var(--muted);
-  }
-  .selVal{
-    font-size:var(--fsSmall);
+    justify-content:center;
+    width:18px;
+    height:20px;
+    border-radius:12px;
+    border:1px solid rgba(203,213,225,.95);
+    background:#fff;
     font-weight:1000;
+    font-size:var(--fsSmall);
+    line-height:1;
+  }
+  .selPill.hit{
+    background:var(--hitBg);
+    border-color:var(--hitBd);
+    color:var(--hitTx);
   }
 
   .aBox{
@@ -220,6 +254,7 @@
     font-size:12px;
   }
   .nav button[disabled]{ opacity:.45; }
+
   .pages{
     display:flex;
     gap:6px;
@@ -255,7 +290,9 @@
       --fsSmall: 9px;
       --fsTiny: 8px;
     }
+    .title{ font-size:16px; }
     .nav button, .pg{ font-size:11px; padding:5px 7px; }
+    .selPill{ width:16px; height:18px; }
   }
 </style>
 </head>
@@ -263,11 +300,19 @@
 <body>
 
 <div class="header">
+  <div class="brandRow">
+    <div>
+      <div class="title"><span class="mxg">QUINIELA</span> <span class="mxr">AZTECA</span></div>
+      <div class="week" id="weekTxt"></div>
+    </div>
+  </div>
+
   <div class="partidos" id="partidos"></div>
 </div>
 
 <div class="wrap">
 
+  <!-- ✅ fila fija -->
   <div class="headRow" aria-hidden="true">
     <div class="headGrid">
       <div class="hCell">Folio / Nombre</div>
@@ -303,6 +348,9 @@ let page = 1, totalPages = 1;
 let globalMax = null;
 let globalSecond = null;
 
+// ✅ Para pintar aciertos (comparar contra resultados de config)
+let resultadosCfg = []; // 9
+
 const $ = (id) => document.getElementById(id);
 
 function setLoading(on, txt="Cargando…"){
@@ -312,19 +360,27 @@ function setLoading(on, txt="Cargando…"){
 }
 function setNoMatch(on){ $("noMatch").hidden = !on; }
 
+function norm(v){ return String(v ?? "").trim().toUpperCase(); }
+
 async function loadConfigOnce(){
   try{
     const r = await fetch(`${BASE}?mode=config`, {cache:"no-store"});
     const j = await r.json();
     const cfg = (j && j.cfg) ? j.cfg : {};
-    const partidos = (cfg.partidos || []).slice(0,9);
 
+    $("weekTxt").textContent = cfg.subtitulo || "";
+
+    const partidos = (cfg.partidos || []).slice(0,9);
     const resultados = (cfg.resultados || []).slice(0,9);
     const marcadores = (cfg.marcadores || []).slice(0,9);
 
+    resultadosCfg = resultados.map(norm);
+
     renderPartidos(partidos, resultados, marcadores);
   }catch(e){
+    $("weekTxt").textContent = "";
     $("partidos").textContent = "";
+    resultadosCfg = [];
   }
 }
 
@@ -393,21 +449,18 @@ async function load(){
     const headers = d.headers || [];
     const rows = d.rows || [];
 
-    // ✅ CLAVE: encontrar índices reales por encabezado, NO asumir "última columna"
     const iF = idxOf(headers, "folio");
     const iN = idxOf(headers, "nombre");
     const iA = idxOf(headers, "aciertos");
 
     if (iF < 0 || iN < 0 || iA < 0){
-      // Si algo raro viene en headers, igual intentamos fallback a los primeros 2 + aciertos al final,
-      // pero sin romper la UI.
-      renderFallback(rows, headers);
+      renderFallback(rows);
       renderNav();
       setLoading(false);
       return;
     }
 
-    // Selecciones: 9 columnas después de nombre (como tu diseño)
+    // 9 selecciones después de nombre
     const startSel = iN + 1;
 
     computeGlobalPlacesFromSorted(rows, iA);
@@ -436,7 +489,6 @@ function render(rows, iF, iN, iA, startSel){
 
     const folio = r[iF] ?? "";
     const nombre = r[iN] ?? "";
-
     const ac = Number(r[iA] ?? 0);
 
     let cls = "row";
@@ -446,12 +498,12 @@ function render(rows, iF, iN, iA, startSel){
     let selsHtml = "";
     for (let k=0; k<9; k++){
       const v = r[startSel + k] ?? "";
+      const vN = norm(v);
+      const ok = resultadosCfg[k] && vN === resultadosCfg[k];
+
       selsHtml += `
         <div class="selCell">
-          <div class="selBox">
-            <div class="selNum">${k+1}</div>
-            <div class="selVal">${v ? String(v) : "-"}</div>
-          </div>
+          <span class="selPill ${ok ? "hit" : ""}">${v ? String(v) : "-"}</span>
         </div>`;
     }
 
@@ -477,8 +529,7 @@ function render(rows, iF, iN, iA, startSel){
   }
 }
 
-function renderFallback(rows, headers){
-  // fallback ultra defensivo si headers vienen raros
+function renderFallback(rows){
   const list = $("list");
   list.innerHTML = "";
 
@@ -496,17 +547,10 @@ function renderFallback(rows, headers){
         <span class="nombre">${(r[1] ?? "")}</span>
       </div>
       ${Array.from({length:9}).map((_,k)=>`
-        <div class="selCell">
-          <div class="selBox">
-            <div class="selNum">${k+1}</div>
-            <div class="selVal">${(r[2+k] ?? "-")}</div>
-          </div>
-        </div>`).join("")}
+        <div class="selCell"><span class="selPill">${(r[2+k] ?? "-")}</span></div>
+      `).join("")}
       <div class="aCell">
-        <div class="aBox">
-          <div class="aLab">A</div>
-          <div class="aVal">${(r[11] ?? "")}</div>
-        </div>
+        <div class="aBox"><div class="aLab">A</div><div class="aVal">${(r[11] ?? "")}</div></div>
       </div>
     `;
     list.appendChild(div);
