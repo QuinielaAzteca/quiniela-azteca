@@ -15,43 +15,57 @@
   --card:#ffffff;
   --line:#d7e6dc;
 
+  --l:#0a6b3a;
+  --v:#c62828;
+
   --rowA:#f6fbf8;
   --rowB:#eff7f2;
 
-  --shadow: 0 10px 24px rgba(2,44,20,.10);
+  --shadow: 0 10px 24px rgba(2, 44, 20, .10);
 
-  /* ✅ columnas */
-  --wFolio: 56px;
-  --wNombre: 1fr;
-  --wSel: 28px;
-  --wA: 28px;
+  --okBg:#ecfdf5;
+  --okBd:#bbf7d0;
+  --okFg:#065f46;
 
-  /* ✅ colores */
-  --hitBg:#22c55e;      /* “semaforo” */
-  --hitTx:#062a16;
+  --chipBg:#f8fafc;
+  --chipBd:#e5e7eb;
+  --chipFg:#0f172a;
 
-  /* 1° / 2° en grises */
+  /* ✅ acierto (verde semáforo) */
+  --hitBg:#22c55e;
+  --hitBd:#16a34a;
+  --hitTx:#ffffff;
+
+  /* ✅ ganadores (grises) */
   --win1Bg:#e5e7eb;
+  --win1Bd:#cbd5e1;
   --win2Bg:#f3f4f6;
-  --winTx:#0f172a;
+  --win2Bd:#e5e7eb;
 
-  --pillBd:#cbd5e1;
-  --pillBg:#ffffff;
+  /* ✅ widths (compacto) */
+  --wFolio: 28px;
+  --wNombre: 1fr;
+  --wSel: 20px;
+  --wA: 24px;
+
+  --sbw: 0px; /* scrollbar compensation */
 }
 
 *{box-sizing:border-box}
 html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
-html,body{ height:100%; }
+html,body{ height:100%; overflow:hidden; }
 body{
   margin:0;
   font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
   color:var(--fg);
   background: radial-gradient(1200px 520px at 50% -140px, #ffffff 0%, var(--bg) 55%, var(--bg2) 100%);
-  overflow-x:hidden; /* ✅ evita el “espacio raro” a la derecha */
 }
-a, a:visited{ color:inherit; text-decoration:none; } /* ✅ quita subrayados raros */
 
-/* ===== HEADER STICKY (todo lo de arriba fijo) ===== */
+/* quita subrayados “raros” */
+a{ color:inherit; text-decoration:none; }
+.header, .header *{ text-decoration:none; }
+
+/* ===== HEADER STICKY ===== */
 .header{
   position:sticky;
   top:0;
@@ -63,20 +77,21 @@ a, a:visited{ color:inherit; text-decoration:none; } /* ✅ quita subrayados rar
 .header-inner{
   max-width:1100px;
   margin:auto;
-  padding:10px 12px 10px;
+  padding:8px 10px;
 }
-.card{
+
+.headerCard{
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdfc 100%);
   border:1px solid var(--line);
-  border-radius:16px;
+  border-radius:14px;
   overflow:hidden;
-  background:linear-gradient(180deg, #ffffff 0%, #fbfdfc 100%);
-  box-shadow:var(--shadow);
+  box-shadow: var(--shadow);
 }
-.bar{
+.headerBar{
   height:6px;
-  background:linear-gradient(90deg,#0a6b3a 0%, #0a6b3a 33%, #ffffff 33%, #ffffff 66%, #c62828 66%, #c62828 100%);
+  background:linear-gradient(90deg, var(--l) 0%, var(--l) 33%, #ffffff 33%, #ffffff 66%, var(--v) 66%, var(--v) 100%);
 }
-.cardPad{ padding:10px 10px 8px; }
+.headerCardInner{ padding:6px 8px; }
 
 .brandRow{
   display:flex;
@@ -84,47 +99,47 @@ a, a:visited{ color:inherit; text-decoration:none; } /* ✅ quita subrayados rar
   justify-content:space-between;
   gap:10px;
   flex-wrap:wrap;
-  margin-bottom:8px;
+  margin-bottom:6px;
 }
 .title{
   margin:0;
   font-weight:1000;
+  font-size:18px;
   letter-spacing:.04em;
   line-height:1.05;
-  font-size:18px;
 }
-.title .g{ color:#0a6b3a; }
-.title .r{ color:#c62828; }
+.title .mxg{color:var(--l)}
+.title .mxr{color:var(--v)}
 .week{
-  margin-top:2px;
   font-size:12px;
   font-weight:900;
   color:var(--muted);
+  margin-top:2px;
 }
 
 /* ===== PARTIDOS ===== */
 .partidos{
+  font-size:10px;
+  font-weight:900;
+  line-height:1.05;
   display:flex;
   flex-direction:column;
-  gap:6px;
-  margin-top:6px;
+  gap:3px;
+  margin-top:4px;
 }
 .p{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:10px;
-  padding:6px 10px;
-  border-radius:14px;
+  gap:8px;
+  padding:3px 6px;
+  border-radius:10px;
   background: var(--rowA);
   border:1px solid rgba(215,230,220,.55);
 }
 .p:nth-child(even){ background: var(--rowB); }
 .p .left{
   flex:1;
-  min-width:0;
-  font-size:12px;
-  font-weight:900;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
@@ -132,30 +147,31 @@ a, a:visited{ color:inherit; text-decoration:none; } /* ✅ quita subrayados rar
 .p .right{
   flex-shrink:0;
   display:flex;
-  gap:8px;
+  gap:5px;
   align-items:center;
   white-space:nowrap;
 }
 .chip{
-  padding:4px 10px;
+  padding:2px 6px;
   border-radius:999px;
-  border:1px solid #e5e7eb;
-  background:#f8fafc;
-  font-size:12px;
+  border:1px solid var(--chipBd);
+  background: var(--chipBg);
+  font-size:10px;
   font-weight:1000;
   line-height:1;
+  color:var(--chipFg);
 }
 .chip.pick{
-  background:#ecfdf5;
-  border-color:#bbf7d0;
-  color:#065f46;
+  background: var(--okBg);
+  border-color: var(--okBd);
+  color: var(--okFg);
 }
 
 /* ===== BUSCADOR ===== */
 .searchRow{
-  margin-top:10px;
+  margin-top:6px;
   display:flex;
-  gap:10px;
+  gap:8px;
   align-items:stretch;
 }
 .search{
@@ -165,19 +181,19 @@ a, a:visited{ color:inherit; text-decoration:none; } /* ✅ quita subrayados rar
 .search::before{
   content:"🔍";
   position:absolute;
-  left:12px;
+  left:10px;
   top:50%;
   transform:translateY(-50%);
-  font-size:16px;
-  opacity:.7;
+  font-size:14px;
+  opacity:.75;
 }
 .search input{
   width:100%;
-  padding:12px 12px 12px 40px;
-  font-size:16px;
+  padding:8px 10px 8px 36px;
+  font-size:14px;
   font-weight:900;
   border:2px solid #cbd5e1;
-  border-radius:16px;
+  border-radius:14px;
   outline:none;
   background:#fff;
 }
@@ -185,76 +201,125 @@ a, a:visited{ color:inherit; text-decoration:none; } /* ✅ quita subrayados rar
 
 /* ===== NAV SIMPLE (arriba) ===== */
 .navTop{
-  margin-top:10px;
-  display:grid;
-  grid-template-columns: 1fr auto 1fr;
+  margin-top:6px;
+  display:flex;
   align-items:center;
+  justify-content:space-between;
   gap:10px;
-  padding:10px;
-  border:1px solid rgba(215,230,220,.8);
-  border-radius:16px;
+  padding:6px 8px;
+  border:1px solid var(--line);
+  border-radius:12px;
   background: rgba(248,250,252,.95);
 }
-.navBtn{
-  justify-self:start;
-  width:64px;
-  height:54px;
-  border-radius:18px;
-  border:2px solid #cbd5e1;
+.navTop .left{
+  display:flex; align-items:center; gap:8px;
+  min-width:0;
+}
+.navTop .meta{
+  font-size:12px;
+  font-weight:1000;
+  color:var(--muted);
+  white-space:nowrap;
+}
+.navTop .meta b{ color:var(--fg); }
+.navTop .right{
+  display:flex; gap:8px; align-items:center; flex-shrink:0;
+}
+.iconBtn{
+  width:34px; height:30px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:10px;
+  border:1px solid #cbd5e1;
   background:#fff;
   font-weight:1000;
-  font-size:22px;
-  line-height:1;
+  user-select:none;
 }
-.navBtn.right{ justify-self:end; }
-.navBtn:active{ transform:scale(.98); }
-.navCenter{
-  text-align:center;
-  font-weight:1000;
-  color:var(--fg);
-}
-.navCenter .pnum{ font-size:26px; letter-spacing:.02em; }
-.navCenter .tot{ font-size:14px; color:var(--muted); margin-top:2px; }
+.iconBtn:disabled{ opacity:.35; }
 
-/* ===== HEAD FIJO DEL LISTADO ===== */
-.headRow{
-  margin-top:10px;
+/* ===== AVISO CARGANDO ===== */
+.loadingRow{
+  margin-top:6px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 10px;
   border:1px solid var(--line);
-  border-radius:16px;
+  border-radius:12px;
+  background: rgba(248,250,252,.95);
+  color: var(--muted);
+  font-size:12px;
+  font-weight:800;
+}
+.loadingRow[hidden]{ display:none; }
+.spinner{
+  width:14px; height:14px;
+  border-radius:50%;
+  border:2px solid rgba(71,85,105,.25);
+  border-top-color: rgba(71,85,105,.9);
+  animation: spin .8s linear infinite;
+}
+@keyframes spin{ to{ transform:rotate(360deg);} }
+
+/* ===== NO MATCH ===== */
+.noMatch{
+  margin-top:6px;
+  padding:10px 12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background: rgba(248,250,252,.95);
+  color: var(--muted);
+  font-size:12px;
+  font-weight:900;
+  text-align:center;
+}
+.noMatch[hidden]{ display:none; }
+
+/* ===== FILA FIJA 1..9 ===== */
+.colsHeadRow{
+  margin-top:6px;
+  border:1px solid var(--line);
+  border-radius:12px;
   overflow:hidden;
   background:#f8fafc;
 }
-.headGrid{
+.colsHeadGrid{
   display:grid;
   grid-template-columns: var(--wFolio) var(--wNombre) repeat(9, var(--wSel)) var(--wA);
-  align-items:center;
-  padding-right: var(--sbw, 0px); /* ✅ compensa scrollbar si aparece */
+  gap:0;
+  padding-right: var(--sbw, 0px); /* ✅ compensa scrollbar */
 }
-.hc{
-  padding:10px 8px;
-  border-right:1px solid rgba(215,230,220,.8);
-  font-size:14px;
+.hcell{
+  padding:6px 2px;
+  border-right:1px solid rgba(215,230,220,.7);
+  font-size:11px;
   font-weight:1000;
+  letter-spacing:.02em;
   text-align:center;
+  color:#0f172a;
 }
-.hc:last-child{ border-right:none; }
-.hc.left{ text-align:left; }
-.hc.fn{ font-size:14px; }
+.hcell:last-child{ border-right:none; }
+.hcell.left{ text-align:left; padding-left:6px; }
+.hcell.folio{ font-size:9px; text-align:right; padding-right:4px; }
+.hcell.ac{ font-size:10px; }
 
 /* ===== CONTENEDOR LISTA ===== */
 .wrap{
   max-width:1100px;
-  margin:0 auto;
-  padding:12px 12px 18px;
+  margin:auto;
+  padding:10px 12px 14px;
+  height: calc(100vh - 0px);
+  min-height:0;
 }
 .listBox{
   border:1px solid var(--line);
-  border-radius:16px;
+  border-radius:14px;
   overflow:auto;
   background:#fff;
-  box-shadow:var(--shadow);
-  height: calc(100vh - 420px); /* ✅ ajusta “automático” debajo del header */
-  min-height:240px;
+  box-shadow: var(--shadow);
+  height: calc(100vh - 270px);
+  min-height:200px;
   overscroll-behavior: contain;
 }
 .listBox::after{
@@ -263,106 +328,106 @@ a, a:visited{ color:inherit; text-decoration:none; } /* ✅ quita subrayados rar
   height: calc(84px + env(safe-area-inset-bottom));
 }
 
-/* filas */
+.list{
+  width:100%;
+}
 .row{
   display:grid;
   grid-template-columns: var(--wFolio) var(--wNombre) repeat(9, var(--wSel)) var(--wA);
-  align-items:center;
   gap:0;
-  border-bottom:1px solid #e2eee8;
-  padding-right: var(--sbw, 0px); /* ✅ mismo padding que el head */
+  border-bottom:1px solid var(--line);
+  align-items:center;
 }
 .row:nth-child(even){ background:#fbfdff; }
+.row:last-child{ border-bottom:none; }
 
-.row.win1{ background:var(--win1Bg); color:var(--winTx); }
-.row.win2{ background:var(--win2Bg); color:var(--winTx); }
+.row.win1{
+  background: var(--win1Bg) !important;
+  outline: 1px solid var(--win1Bd);
+  outline-offset:-1px;
+}
+.row.win2{
+  background: var(--win2Bg) !important;
+  outline: 1px solid var(--win2Bd);
+  outline-offset:-1px;
+}
 
 .cell{
-  padding:10px 8px;
-  font-size:14px;
-  font-weight:900;
+  padding:4px 2px;
   text-align:center;
+  font-weight:1000;
+  font-size:11px;
 }
 .cell.folio{
-  text-align:right;
-  color:#334155;
+  font-size:9px;
   font-weight:800;
+  color:#334155;
+  text-align:right;
+  padding-right:4px;
 }
 .cell.name{
   text-align:left;
+  padding-left:6px;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
+  font-size:11px;
+  font-weight:900;
 }
 .cell.ac{
+  font-size:12px;
   font-weight:1000;
 }
 
-/* selecciones */
 .pill{
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  width:26px;
-  height:26px;
-  border-radius:999px;
-  border:1px solid var(--pillBd);
-  background:var(--pillBg);
-  font-size:14px;
+  width:18px;
+  height:20px;
+  border-radius:10px;
+  border:1px solid #cbd5e1;
+  background:#fff;
   font-weight:1000;
+  font-size:12px;
   line-height:1;
 }
 .pill.hit{
-  background: color-mix(in srgb, var(--hitBg) 25%, #ffffff 75%);
-  border-color: color-mix(in srgb, var(--hitBg) 55%, #ffffff 45%);
+  background: var(--hitBg);
+  border-color: var(--hitBd);
   color: var(--hitTx);
 }
 
-/* cargando / sin coincidencias */
-.msg{
-  margin:10px 0 0;
-  padding:10px 12px;
-  border:1px solid rgba(215,230,220,.85);
-  border-radius:14px;
-  background: rgba(248,250,252,.95);
-  color:var(--muted);
-  font-size:13px;
-  font-weight:900;
-  text-align:center;
-}
-.msg[hidden]{ display:none; }
+/* ✅ colorear aciertos también si es win1/win2 */
+.row.win1 .cell.ac{ background: transparent; }
+.row.win2 .cell.ac{ background: transparent; }
 
-/* responsive */
+/* responsive compacto */
 @media (max-width:520px){
-  :root{ --wFolio: 52px; --wSel: 26px; --wA: 26px; }
+  :root{ --wSel: 18px; --wA: 22px; }
   .title{ font-size:16px; }
-  .p .left{ font-size:11px; }
-  .chip{ font-size:11px; padding:3px 8px; }
-  .search input{ font-size:15px; padding:11px 12px 11px 40px; }
-  .hc{ font-size:13px; padding:9px 6px; }
-  .cell{ font-size:13px; padding:9px 6px; }
-  .pill{ width:24px; height:24px; font-size:13px; }
-  .navBtn{ width:60px; height:52px; border-radius:18px; }
+  .cell.name{ font-size:10px; }
+  .pill{ width:16px; height:18px; font-size:11px; }
 }
 @media (max-width:420px){
-  :root{ --wFolio: 50px; --wSel: 24px; --wA: 24px; }
-  .hc.fn{ font-size:13px; }
-  .pill{ width:22px; height:22px; font-size:12px; }
+  :root{ --wSel: 17px; --wA: 22px; }
+  .cell.name{ font-size:10px; }
 }
 </style>
 </head>
 
 <body>
-
-<div class="header" id="header">
+<div class="header">
   <div class="header-inner">
-    <div class="card">
-      <div class="bar"></div>
-      <div class="cardPad">
+    <div class="headerCard">
+      <div class="headerBar"></div>
+      <div class="headerCardInner">
 
         <div class="brandRow">
           <div>
-            <div class="title"><span class="g">QUINIELA</span> <span class="r">AZTECA</span></div>
+            <div class="title">
+              <span class="mxg">QUINIELA</span> <span class="mxr">AZTECA</span>
+            </div>
             <div class="week" id="weekTxt"></div>
           </div>
         </div>
@@ -371,31 +436,39 @@ a, a:visited{ color:inherit; text-decoration:none; } /* ✅ quita subrayados rar
 
         <div class="searchRow">
           <div class="search">
-            <input id="searchInput" placeholder="Busca aquí por teléfono, nombre o folio" autocomplete="off" inputmode="search">
+            <input id="searchInput" placeholder="Busca aquí por teléfono, nombre o folio" autocomplete="off">
           </div>
         </div>
 
-        <!-- NAV ARRIBA (simple como tu captura) -->
+        <!-- ✅ nav simple arriba -->
         <div class="navTop">
-          <button class="navBtn" id="btnPrev" aria-label="Anterior">◀</button>
-          <div class="navCenter">
-            <div class="pnum" id="pageTxt">1 / 1</div>
-            <div class="tot" id="totalTxt">0 registros</div>
+          <div class="left">
+            <div class="meta">
+              Página <b id="pageTxt">1 / 1</b> · <span id="totalTxt">0 registros</span>
+            </div>
           </div>
-          <button class="navBtn right" id="btnNext" aria-label="Siguiente">▶</button>
+          <div class="right">
+            <button class="iconBtn" id="btnPrev" title="Anterior">‹</button>
+            <button class="iconBtn" id="btnNext" title="Siguiente">›</button>
+          </div>
         </div>
 
-        <div class="msg" id="loadingMsg" hidden>Cargando…</div>
-        <div class="msg" id="noMatchMsg" hidden>Sin coincidencias</div>
+        <div class="loadingRow" id="loadingMsg" hidden>
+          <span class="spinner" aria-hidden="true"></span>
+          <span id="loadingTxt">Cargando listado…</span>
+        </div>
 
-        <!-- ✅ ESTA FILA QUEDA FIJA (está dentro del header sticky) -->
-        <div class="headRow" aria-hidden="true">
-          <div class="headGrid" id="headGrid">
-            <div class="hc fn">Folio / Nombre</div>
-            <div class="hc left" style="display:none"></div><!-- placeholder (no se usa) -->
-            <div class="hc">1</div><div class="hc">2</div><div class="hc">3</div><div class="hc">4</div><div class="hc">5</div>
-            <div class="hc">6</div><div class="hc">7</div><div class="hc">8</div><div class="hc">9</div>
-            <div class="hc">A</div>
+        <div class="noMatch" id="noMatchMsg" hidden>Sin coincidencias</div>
+
+        <!-- ✅ FILA FIJA 1..9 -->
+        <div class="colsHeadRow" aria-hidden="true">
+          <div class="colsHeadGrid" id="fixedHead">
+            <div class="hcell folio">#</div>
+            <div class="hcell left">Nombre</div>
+            <div class="hcell">1</div><div class="hcell">2</div><div class="hcell">3</div>
+            <div class="hcell">4</div><div class="hcell">5</div><div class="hcell">6</div>
+            <div class="hcell">7</div><div class="hcell">8</div><div class="hcell">9</div>
+            <div class="hcell ac">Ac</div>
           </div>
         </div>
 
@@ -406,7 +479,7 @@ a, a:visited{ color:inherit; text-decoration:none; } /* ✅ quita subrayados rar
 
 <div class="wrap">
   <div class="listBox" id="listBox">
-    <div id="list"></div>
+    <div class="list" id="list"></div>
   </div>
 </div>
 
@@ -418,12 +491,13 @@ let page = 1;
 let totalPages = 1;
 let totalRows = 0;
 
-let resultados = Array(9).fill(""); // L/E/V (para colorear aciertos)
+let resultados = Array(9).fill("");
 let marcadores = Array(9).fill("");
 
 const $ = (id) => document.getElementById(id);
 
-function showLoading(on){
+function showLoading(on, msg="Cargando listado…"){
+  $("loadingTxt").textContent = msg;
   $("loadingMsg").hidden = !on;
 }
 function showNoMatch(on){
@@ -444,12 +518,8 @@ function setPageText(){
   $("pageTxt").textContent = `${page} / ${totalPages}`;
   $("totalTxt").textContent = `${Number(totalRows||0).toLocaleString("es-MX")} registros`;
 
-  // botones
   $("btnPrev").disabled = (page <= 1);
   $("btnNext").disabled = (page >= totalPages);
-
-  $("btnPrev").style.opacity = $("btnPrev").disabled ? .4 : 1;
-  $("btnNext").style.opacity = $("btnNext").disabled ? .4 : 1;
 }
 
 function renderPartidos(cfg){
@@ -487,19 +557,34 @@ async function loadConfig(){
 
     renderPartidos(cfg);
   }catch(e){
-    // si falla config, igual dejamos la UI viva
+    // si falla, dejamos la UI viva
   }
 }
 
-function rowClassByPlace(r){
-  // Soporta cualquiera de estas formas:
-  // - r._lugar (1/2/0)
-  // - r.place  (1/2/0)
-  // - r[??] no (mejor no asumir)
-  const lugar = (typeof r === "object" && r) ? (r._lugar ?? r.place) : null;
-  if (lugar === 1) return "row win1";
-  if (lugar === 2) return "row win2";
-  return "row";
+/* ✅ si backend NO manda lugar, lo calculamos por la página (fallback) */
+function computePlacesFront(rows, idxAci, idxLugar){
+  // si ya existe lugar, no tocamos
+  if (idxLugar >= 0) return rows;
+
+  const acs = rows.map(r => Number(r[idxAci]) || 0);
+  const max = Math.max(...acs, 0);
+  const uniq = [...new Set(acs)].sort((a,b)=>b-a);
+  let secondVal = null;
+  for (const a of uniq){ if (a < max){ secondVal = a; break; } }
+
+  // metemos _lugar como propiedad no-enumerable no; mejor lo regresamos en paralelo:
+  return rows.map((r,i)=>{
+    const a = Number(r[idxAci]) || 0;
+    const lugar = (a===max) ? 1 : (secondVal!=null && a===secondVal ? 2 : 0);
+    // guardamos en una “cola” virtual al final (solo para render interno)
+    const rr = r.slice();
+    rr.__lugar = lugar;
+    return rr;
+  });
+}
+
+function currentQuery(){
+  return $("searchInput").value.trim();
 }
 
 function renderRows(payload){
@@ -507,41 +592,70 @@ function renderRows(payload){
   list.innerHTML = "";
 
   const headers = payload.headers || [];
-  const rows = payload.rows || [];
+  let rows = payload.rows || [];
 
-  // Estructura esperada del backend paginado:
-  // [folio, telefono_envio, nombre, sel1..sel9, aciertos, (opcional: lugar)]
-  // Nosotros NO mostramos teléfono, pero sí se usa para buscar.
+  // ✅ Normalizamos a SOLO lo que necesitamos (evita basura del cuadro resumen)
+  // Esperado: [folio, telefono, nombre, sel1..sel9, aciertos, (opcional lugar)]
   const idxFolio = 0;
   const idxTel   = 1;
   const idxNom   = 2;
-  const idxAci   = headers.length - 1; // aciertos
 
-  // si el backend manda lugar separado como último, ajustar:
-  // (si detecta "lugar" en headers, lo saca)
-  let idxLugar = -1;
+  // detecta lugar si viene
   const hLow = headers.map(h=>String(h||"").toLowerCase());
-  idxLugar = hLow.indexOf("lugar");
-  const hasLugar = idxLugar >= 0;
+  const idxLugar = hLow.indexOf("lugar");
 
+  // aciertos: normalmente último útil = 12 (0..12) si no hay extras
+  // pero como tu backend a veces trae columnas vacías, lo mejor es:
+  // buscar "aciertos" en headers y usar ese índice.
+  let idxAci = hLow.indexOf("aciertos");
+  if (idxAci < 0) idxAci = 12;
+
+  // recorta a [0..idxAci] (y + lugar si viene después)
+  const keepMax = (idxLugar >= 0) ? Math.max(idxAci, idxLugar) : idxAci;
+  rows = rows
+    .filter(r => Array.isArray(r))
+    .map(r => r.slice(0, keepMax + 1));
+
+  // ✅ Filtro (aunque el backend ignore &q=, aquí funciona al menos por página)
+  const q = currentQuery().toLowerCase();
+  if (q){
+    rows = rows.filter(r=>{
+      const folio = String(r[idxFolio] ?? "").toLowerCase();
+      const tel   = String(r[idxTel] ?? "").toLowerCase();
+      const nom   = String(r[idxNom] ?? "").toLowerCase();
+      return folio.includes(q) || tel.includes(q) || nom.includes(q);
+    });
+  }
+
+  showNoMatch(!!q && rows.length === 0);
+
+  // ✅ si no hay lugar, calculamos por página para pintar (fallback)
+  const rowsWithPlace = computePlacesFront(rows, idxAci, idxLugar);
+
+  const resNorm = resultados.map(norm);
   const parts = [];
-  for (let i=0; i<rows.length; i++){
-    const r = rows[i] || [];
+
+  for (let i=0; i<rowsWithPlace.length; i++){
+    const r = rowsWithPlace[i] || [];
     const folio = r[idxFolio] ?? "";
     const nombre = r[idxNom] ?? "";
-    const aciertos = hasLugar ? (r[idxAci-1] ?? "") : (r[idxAci] ?? "");
-    const lugar = hasLugar ? (r[idxLugar] ?? 0) : (r._lugar ?? r.place ?? 0);
+
+    // sels: 9 entre nombre y aciertos
+    const sels = r.slice(idxNom+1, idxNom+1+9);
+
+    const aciertos = r[idxAci] ?? "";
+
+    // lugar
+    let lugar = 0;
+    if (idxLugar >= 0) lugar = Number(r[idxLugar]) || 0;
+    else lugar = Number(r.__lugar) || 0;
 
     const cls = (lugar===1) ? "row win1" : (lugar===2) ? "row win2" : "row";
-
-    // sels: desde idxNom+1 hasta antes de aciertos (y antes de lugar si existe)
-    const end = hasLugar ? (idxAci-1) : idxAci;
-    const sels = r.slice(idxNom+1, end).slice(0,9);
 
     let selsHtml = "";
     for (let k=0; k<9; k++){
       const s = sels[k] ?? "";
-      const ok = resultados[k] && norm(s) === resultados[k];
+      const ok = resNorm[k] && norm(s) === resNorm[k];
       selsHtml += `<div class="cell"><span class="pill ${ok?'hit':''}">${(s||'-')}</span></div>`;
     }
 
@@ -559,35 +673,23 @@ function renderRows(payload){
   syncScrollbarWidth();
 }
 
-function currentQuery(){
-  return $("searchInput").value.trim();
-}
-
 async function loadPage(){
-  showLoading(true);
-  showNoMatch(false);
-
+  showLoading(true, "Cargando listado…");
   try{
-    const q = currentQuery();
-    const url =
-      `${BASE}?mode=clasif&page=${encodeURIComponent(page)}&pageSize=${encodeURIComponent(PAGE_SIZE)}`
-      + (q ? `&q=${encodeURIComponent(q)}` : "");
-
+    const url = `${BASE}?mode=clasif&page=${encodeURIComponent(page)}&pageSize=${encodeURIComponent(PAGE_SIZE)}`;
     const res = await fetch(url, {cache:"no-store"});
     const j = await res.json();
 
-    // esperamos: totalPages, totalRows (o totalRecords), headers, rows
-    totalPages = Number(j.totalPages || 1);
-    totalRows  = Number(j.totalRows ?? j.totalRecords ?? 0);
+    // ✅ TU backend manda todo dentro de j.data
+    const data = (j && j.data) ? j.data : j;
 
-    // si filtras y no hay filas:
-    const rows = j.rows || [];
-    showNoMatch(!!currentQuery() && rows.length === 0);
+    totalPages = Number(data.totalPages || 1);
+    totalRows  = Number(data.totalRows ?? data.totalRecords ?? 0);
 
-    renderRows(j);
+    renderRows(data);
     setPageText();
+
   }catch(e){
-    // si falla, mostramos “sin coincidencias” sólo si había búsqueda
     showNoMatch(!!currentQuery());
   }finally{
     showLoading(false);
@@ -597,11 +699,13 @@ async function loadPage(){
 /* navegación */
 $("btnPrev").addEventListener("click", ()=>{
   if (page<=1) return;
-  page--; loadPage();
+  page--;
+  loadPage();
 });
 $("btnNext").addEventListener("click", ()=>{
   if (page>=totalPages) return;
-  page++; loadPage();
+  page++;
+  loadPage();
 });
 
 /* Enter oculta teclado */
@@ -612,14 +716,14 @@ $("searchInput").addEventListener("keydown", (e)=>{
   }
 });
 
-/* búsqueda (con debounce) */
+/* búsqueda (debounce) */
 let searchTO = null;
 $("searchInput").addEventListener("input", ()=>{
   if (searchTO) clearTimeout(searchTO);
   searchTO = setTimeout(()=>{
-    page = 1;
+    // ojo: el filtro aquí es por página (pero sirve ya).
     loadPage();
-  }, 180);
+  }, 160);
 });
 
 /* init */
