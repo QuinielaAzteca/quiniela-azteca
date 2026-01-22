@@ -13,11 +13,15 @@
     --txt:#0f172a;
     --muted:#475569;
 
-    --win1:#dcfce7; /* verde suave (1er lugar) */
-    --win2:#fef9c3; /* amarillo suave (2do lugar) */
+    /* ✅ NUEVOS COLORES GANADORES (más claros y distintos) */
+    --win1Bg:#e0f2fe;   /* azul claro */
+    --win2Bg:#f3e8ff;   /* morado claro */
+
+    --win1A:#2563eb;    /* azul para aciertos */
+    --win2A:#7c3aed;    /* morado para aciertos */
 
     /* ✅ Verde semáforo para aciertos */
-    --hitBg:#d1fae5;
+    --hitBg:#dcfce7;
     --hitBd:#22c55e;
     --hitTx:#064e3b;
 
@@ -46,10 +50,10 @@
   .p .left { text-decoration:none !important; }
 
   .header{
-    position:sticky; top:0; z-index:40;
+    position:sticky; top:0; z-index:50;
     background:#fff;
     border-bottom:1px solid var(--line);
-    padding:8px 10px 8px;
+    padding:8px 10px 10px;
   }
 
   .brandRow{
@@ -112,13 +116,69 @@
     color:#065f46;
   }
 
+  /* ✅ BUSCADOR */
+  .searchRow{ margin-top:6px; display:flex; gap:8px; align-items:stretch; }
+  .search{ position:relative; flex:1; }
+  .search::before{
+    content:"🔍";
+    position:absolute;
+    left:10px;
+    top:50%;
+    transform:translateY(-50%);
+    font-size:14px;
+    opacity:.75;
+  }
+  .search input{
+    width:100%;
+    padding:8px 10px 8px 36px;
+    font-size:14px;
+    font-weight:900;
+    border:2px solid #cbd5e1;
+    border-radius:14px;
+    outline:none;
+    background:#fff;
+  }
+  .search input:focus{ border-color:#94a3b8; }
+
+  /* ✅ NAV SIMPLE ARRIBA (pocos botones) */
+  .navTop{
+    margin-top:8px;
+    display:flex;
+    gap:8px;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .navTop .btns{
+    display:flex;
+    gap:6px;
+    align-items:center;
+  }
+  .navBtn{
+    padding:6px 10px;
+    border-radius:12px;
+    border:1px solid #cbd5e1;
+    background:#fff;
+    font-weight:1000;
+    font-size:12px;
+    min-width:44px;
+  }
+  .navBtn[disabled]{ opacity:.45; }
+  .navInfo{
+    flex:1;
+    text-align:center;
+    font-weight:1000;
+    color:var(--muted);
+    font-size:12px;
+    white-space:nowrap;
+  }
+
   .wrap{ padding:8px; }
 
-  /* ✅ Encabezado fijo REAL: pegado bajo .header con altura medida */
+  /* ✅ Encabezado fijo REAL: pegado bajo .header */
   .headRow{
     position:sticky;
     top: var(--headerH);
-    z-index:35;
+    z-index:45;
     margin-top:8px;
     background:#fff;
     border:1px solid var(--line);
@@ -168,8 +228,9 @@
     padding:4px 0;
   }
   .row:last-child{ border-bottom:none; }
-  .row.win1{ background:var(--win1); }
-  .row.win2{ background:var(--win2); }
+
+  .row.win1{ background:var(--win1Bg); }
+  .row.win2{ background:var(--win2Bg); }
 
   .fn{
     padding-left:8px;
@@ -217,10 +278,28 @@
     color:var(--hitTx);
   }
 
-  /* ✅ sin letra A */
+  /* ✅ Aciertos: mismo color que el lugar */
   .aVal{
     font-size:var(--fsSmall);
     font-weight:1000;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:20px;
+    padding:2px 6px;
+    border-radius:10px;
+    border:1px solid rgba(203,213,225,.95);
+    background:#fff;
+  }
+  .row.win1 .aVal{
+    background:#dbeafe;
+    border-color:#93c5fd;
+    color:var(--win1A);
+  }
+  .row.win2 .aVal{
+    background:#ede9fe;
+    border-color:#c4b5fd;
+    color:var(--win2A);
   }
 
   .loading, .noMatch{
@@ -235,50 +314,16 @@
   }
   .loading[hidden], .noMatch[hidden]{ display:none; }
 
-  .nav{
+  /* ✅ NAV abajo se queda como “seguro”, pero simple también */
+  .navBottom{
     display:flex;
-    gap:6px;
+    gap:8px;
     justify-content:center;
     align-items:center;
-    flex-wrap:wrap;
     margin:10px 0 6px;
-  }
-  .nav button{
-    padding:5px 8px;
-    border-radius:10px;
-    border:1px solid #cbd5e1;
-    background:#fff;
-    font-weight:900;
-    font-size:12px;
-  }
-  .nav button[disabled]{ opacity:.45; }
-
-  .pages{
-    display:flex;
-    gap:6px;
-    align-items:center;
     flex-wrap:wrap;
   }
-  .pg{
-    padding:5px 8px;
-    border-radius:10px;
-    border:1px solid #cbd5e1;
-    background:#fff;
-    font-weight:1000;
-    font-size:12px;
-    min-width:34px;
-  }
-  .pg.active{
-    background:#0f172a;
-    color:#fff;
-    border-color:#0f172a;
-  }
-  .dots{
-    color:var(--muted);
-    font-weight:1000;
-    font-size:12px;
-    padding:0 2px;
-  }
+  .navBottom .navBtn{ padding:6px 10px; }
 
   @media (max-width:420px){
     :root{
@@ -289,8 +334,9 @@
       --fsTiny: 8px;
     }
     .title{ font-size:16px; }
-    .nav button, .pg{ font-size:11px; padding:5px 7px; }
     .selPill{ width:16px; height:18px; }
+    .navBtn{ font-size:11px; }
+    .search input{ font-size:13px; }
   }
 </style>
 </head>
@@ -306,10 +352,31 @@
   </div>
 
   <div class="partidos" id="partidos"></div>
+
+  <!-- ✅ BUSCADOR -->
+  <div class="searchRow">
+    <div class="search">
+      <input id="searchInput" placeholder="Busca por teléfono, nombre o folio" autocomplete="off">
+    </div>
+  </div>
+
+  <!-- ✅ NAV SIMPLE ARRIBA -->
+  <div class="navTop">
+    <div class="btns">
+      <button class="navBtn" id="topFirst" onclick="go(1)">«</button>
+      <button class="navBtn" id="topPrev"  onclick="go(page-1)">‹</button>
+    </div>
+    <div class="navInfo" id="topInfo">1 / 1</div>
+    <div class="btns">
+      <button class="navBtn" id="topNext" onclick="go(page+1)">›</button>
+      <button class="navBtn" id="topLast" onclick="go(totalPages)">»</button>
+    </div>
+  </div>
 </div>
 
 <div class="wrap">
 
+  <!-- ✅ Fila fija 1..9 A -->
   <div class="headRow" id="headRow" aria-hidden="true">
     <div class="headGrid">
       <div class="hCell">Folio / Nombre</div>
@@ -325,12 +392,13 @@
 
   <div id="list"></div>
 
-  <div class="nav">
-    <button id="btnFirst" onclick="go(1)">Primera</button>
-    <button id="btnPrev" onclick="go(page-1)">‹</button>
-    <div class="pages" id="pages"></div>
-    <button id="btnNext" onclick="go(page+1)">›</button>
-    <button id="btnLast" onclick="go(totalPages)">Última</button>
+  <!-- ✅ NAV SIMPLE ABAJO (igual que arriba) -->
+  <div class="navBottom">
+    <button class="navBtn" id="botFirst" onclick="go(1)">Primera</button>
+    <button class="navBtn" id="botPrev"  onclick="go(page-1)">‹</button>
+    <span class="navInfo" id="botInfo" style="min-width:90px;">1 / 1</span>
+    <button class="navBtn" id="botNext" onclick="go(page+1)">›</button>
+    <button class="navBtn" id="botLast" onclick="go(totalPages)">Última</button>
   </div>
 
 </div>
@@ -347,6 +415,9 @@ let globalSecond = null;
 
 // Para pintar aciertos
 let resultadosCfg = []; // 9
+
+// Búsqueda
+let query = "";
 
 const $ = (id) => document.getElementById(id);
 
@@ -380,8 +451,8 @@ async function loadConfigOnce(){
     const marcadores = (cfg.marcadores || []).slice(0,9);
 
     resultadosCfg = resultados.map(norm);
-
     renderPartidos(partidos, resultados, marcadores);
+
     syncHeaderHeight();
   }catch(e){
     $("weekTxt").textContent = "";
@@ -441,8 +512,15 @@ async function load(){
   setNoMatch(false);
 
   try{
-    const res = await fetch(`${BASE}?mode=clasif&page=${page}&pageSize=${PAGE_SIZE}`, {cache:"no-store"});
+    const url = new URL(BASE);
+    url.searchParams.set("mode","clasif");
+    url.searchParams.set("page", String(page));
+    url.searchParams.set("pageSize", String(PAGE_SIZE));
+    if (query) url.searchParams.set("q", query);
+
+    const res = await fetch(url.toString(), {cache:"no-store"});
     const j = await res.json();
+
     const d = j && j.data ? j.data : null;
     if (!d){
       $("list").innerHTML = "";
@@ -458,6 +536,7 @@ async function load(){
 
     const iF = idxOf(headers, "folio");
     const iN = idxOf(headers, "nombre");
+    const iT = idxOf(headers, "telefono_envio"); // para buscar aunque no se muestre
     const iA = idxOf(headers, "aciertos");
 
     if (iF < 0 || iN < 0 || iA < 0){
@@ -469,9 +548,20 @@ async function load(){
 
     const startSel = iN + 1;
 
-    computeGlobalPlacesFromSorted(rows, iA);
+    // ✅ si hay búsqueda, backend puede ya venir filtrado; si no, filtramos local con teléfono si existe
+    let rowsUse = rows;
+    if (query && iT >= 0){
+      const ql = query.toLowerCase();
+      rowsUse = rows.filter(r=>{
+        return String(r[iF] ?? "").toLowerCase().includes(ql) ||
+               String(r[iN] ?? "").toLowerCase().includes(ql) ||
+               String(r[iT] ?? "").toLowerCase().includes(ql);
+      });
+    }
 
-    render(rows, iF, iN, iA, startSel);
+    computeGlobalPlacesFromSorted(rowsUse, iA);
+
+    render(rowsUse, iF, iN, iA, startSel);
     renderNav();
 
   }catch(e){
@@ -555,55 +645,23 @@ function renderFallback(rows){
   }
 }
 
-function makePageButtons(current, total){
-  const out = [];
-  const add = (x) => out.push({t:String(x), p:x, type:"page"});
-  const dots = () => out.push({t:"…", type:"dots"});
-
-  if (total <= 10){
-    for (let i=1; i<=total; i++) add(i);
-    return out;
-  }
-
-  add(1);
-  if (current > 4) dots();
-
-  const start = Math.max(2, current - 2);
-  const end = Math.min(total - 1, current + 2);
-
-  for (let i=start; i<=end; i++) add(i);
-
-  if (current < total - 3) dots();
-  add(total);
-
-  return out;
-}
-
 function renderNav(){
-  $("btnFirst").disabled = (page <= 1);
-  $("btnPrev").disabled  = (page <= 1);
-  $("btnNext").disabled  = (page >= totalPages);
-  $("btnLast").disabled  = (page >= totalPages);
+  const infoTxt = `${page} / ${totalPages}`;
+  $("topInfo").textContent = infoTxt;
+  $("botInfo").textContent = infoTxt;
 
-  const box = $("pages");
-  box.innerHTML = "";
+  const disFirst = (page <= 1);
+  const disLast  = (page >= totalPages);
 
-  const items = makePageButtons(page, totalPages);
+  $("topFirst").disabled = disFirst;
+  $("topPrev").disabled  = disFirst;
+  $("topNext").disabled  = disLast;
+  $("topLast").disabled  = disLast;
 
-  for (const it of items){
-    if (it.type === "dots"){
-      const s = document.createElement("span");
-      s.className = "dots";
-      s.textContent = it.t;
-      box.appendChild(s);
-      continue;
-    }
-    const b = document.createElement("button");
-    b.className = "pg" + (it.p === page ? " active" : "");
-    b.textContent = it.t;
-    b.onclick = () => go(it.p);
-    box.appendChild(b);
-  }
+  $("botFirst").disabled = disFirst;
+  $("botPrev").disabled  = disFirst;
+  $("botNext").disabled  = disLast;
+  $("botLast").disabled  = disLast;
 }
 
 function go(p){
@@ -615,9 +673,31 @@ function go(p){
   load();
 }
 
+/* ✅ ENTER => oculta teclado */
+const searchInput = $("searchInput");
+searchInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    searchInput.blur();
+  }
+});
+
+/* ✅ búsqueda con debounce */
+let searchTO = null;
+searchInput.addEventListener("input", () => {
+  if (searchTO) clearTimeout(searchTO);
+  searchTO = setTimeout(() => {
+    query = searchInput.value.trim();
+    page = 1;            // al buscar, regresar a página 1
+    globalMax = null;    // recalcular marcas
+    globalSecond = null;
+    load();
+  }, 120);
+});
+
 (async function init(){
   await loadConfigOnce();
-  syncHeaderHeight(); // por si tarda config
+  syncHeaderHeight();
   await load();
 })();
 </script>
