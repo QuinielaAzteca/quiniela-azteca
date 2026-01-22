@@ -13,16 +13,11 @@
     --txt:#0f172a;
     --muted:#475569;
 
-    /* ✅ NUEVOS COLORES GANADORES (más claros y distintos) */
-    --win1Bg:#e0f2fe;   /* azul claro */
-    --win2Bg:#f3e8ff;   /* morado claro */
+    --win1:#dcfce7; /* verde suave */
+    --win2:#fef9c3; /* amarillo suave */
 
-    --win1A:#2563eb;    /* azul para aciertos */
-    --win2A:#7c3aed;    /* morado para aciertos */
-
-    /* ✅ Verde semáforo para aciertos */
     --hitBg:#dcfce7;
-    --hitBd:#22c55e;
+    --hitBd:#86efac;
     --hitTx:#064e3b;
 
     --wSel: 22px;
@@ -31,8 +26,6 @@
     --fsRow: 11px;
     --fsSmall: 10px;
     --fsTiny: 9px;
-
-    --headerH: 0px; /* ✅ se calcula por JS */
   }
 
   html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
@@ -43,17 +36,11 @@
     color:var(--txt);
   }
 
-  /* ✅ quitar subrayados raros / auto-links */
-  a, a:visited { color:inherit; text-decoration:none; }
-  * { text-decoration:none; }
-  .partidos, .p, .p * { text-decoration:none !important; }
-  .p .left { text-decoration:none !important; }
-
   .header{
-    position:sticky; top:0; z-index:50;
+    position:sticky; top:0; z-index:30;
     background:#fff;
     border-bottom:1px solid var(--line);
-    padding:8px 10px 10px;
+    padding:8px 10px 8px;
   }
 
   .brandRow{
@@ -116,75 +103,18 @@
     color:#065f46;
   }
 
-  /* ✅ BUSCADOR */
-  .searchRow{ margin-top:6px; display:flex; gap:8px; align-items:stretch; }
-  .search{ position:relative; flex:1; }
-  .search::before{
-    content:"🔍";
-    position:absolute;
-    left:10px;
-    top:50%;
-    transform:translateY(-50%);
-    font-size:14px;
-    opacity:.75;
-  }
-  .search input{
-    width:100%;
-    padding:8px 10px 8px 36px;
-    font-size:14px;
-    font-weight:900;
-    border:2px solid #cbd5e1;
-    border-radius:14px;
-    outline:none;
-    background:#fff;
-  }
-  .search input:focus{ border-color:#94a3b8; }
-
-  /* ✅ NAV SIMPLE ARRIBA (pocos botones) */
-  .navTop{
-    margin-top:8px;
-    display:flex;
-    gap:8px;
-    align-items:center;
-    justify-content:space-between;
-  }
-  .navTop .btns{
-    display:flex;
-    gap:6px;
-    align-items:center;
-  }
-  .navBtn{
-    padding:6px 10px;
-    border-radius:12px;
-    border:1px solid #cbd5e1;
-    background:#fff;
-    font-weight:1000;
-    font-size:12px;
-    min-width:44px;
-  }
-  .navBtn[disabled]{ opacity:.45; }
-  .navInfo{
-    flex:1;
-    text-align:center;
-    font-weight:1000;
-    color:var(--muted);
-    font-size:12px;
-    white-space:nowrap;
-  }
-
   .wrap{ padding:8px; }
 
-  /* ✅ Encabezado fijo REAL: pegado bajo .header */
+  /* ✅ Encabezado fijo del grid */
   .headRow{
     position:sticky;
-    top: var(--headerH);
-    z-index:45;
+    top: calc(8px + 8px + 0px + env(safe-area-inset-top)); /* pegado bajo el header */
+    z-index:25;
     margin-top:8px;
     background:#fff;
     border:1px solid var(--line);
     border-radius:12px;
     overflow:hidden;
-    box-shadow: 0 6px 18px rgba(2,6,23,.06);
   }
 
   .headGrid{
@@ -228,9 +158,8 @@
     padding:4px 0;
   }
   .row:last-child{ border-bottom:none; }
-
-  .row.win1{ background:var(--win1Bg); }
-  .row.win2{ background:var(--win2Bg); }
+  .row.win1{ background:var(--win1); }
+  .row.win2{ background:var(--win2); }
 
   .fn{
     padding-left:8px;
@@ -278,28 +207,22 @@
     color:var(--hitTx);
   }
 
-  /* ✅ Aciertos: mismo color que el lugar */
+  .aBox{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    line-height:1;
+    gap:1px;
+    padding:2px 0;
+  }
+  .aLab{
+    font-size:var(--fsTiny);
+    font-weight:1000;
+    color:var(--muted);
+  }
   .aVal{
     font-size:var(--fsSmall);
     font-weight:1000;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    min-width:20px;
-    padding:2px 6px;
-    border-radius:10px;
-    border:1px solid rgba(203,213,225,.95);
-    background:#fff;
-  }
-  .row.win1 .aVal{
-    background:#dbeafe;
-    border-color:#93c5fd;
-    color:var(--win1A);
-  }
-  .row.win2 .aVal{
-    background:#ede9fe;
-    border-color:#c4b5fd;
-    color:var(--win2A);
   }
 
   .loading, .noMatch{
@@ -314,16 +237,50 @@
   }
   .loading[hidden], .noMatch[hidden]{ display:none; }
 
-  /* ✅ NAV abajo se queda como “seguro”, pero simple también */
-  .navBottom{
+  .nav{
     display:flex;
-    gap:8px;
+    gap:6px;
     justify-content:center;
     align-items:center;
+    flex-wrap:wrap;
     margin:10px 0 6px;
+  }
+  .nav button{
+    padding:5px 8px;
+    border-radius:10px;
+    border:1px solid #cbd5e1;
+    background:#fff;
+    font-weight:900;
+    font-size:12px;
+  }
+  .nav button[disabled]{ opacity:.45; }
+
+  .pages{
+    display:flex;
+    gap:6px;
+    align-items:center;
     flex-wrap:wrap;
   }
-  .navBottom .navBtn{ padding:6px 10px; }
+  .pg{
+    padding:5px 8px;
+    border-radius:10px;
+    border:1px solid #cbd5e1;
+    background:#fff;
+    font-weight:1000;
+    font-size:12px;
+    min-width:34px;
+  }
+  .pg.active{
+    background:#0f172a;
+    color:#fff;
+    border-color:#0f172a;
+  }
+  .dots{
+    color:var(--muted);
+    font-weight:1000;
+    font-size:12px;
+    padding:0 2px;
+  }
 
   @media (max-width:420px){
     :root{
@@ -334,16 +291,15 @@
       --fsTiny: 8px;
     }
     .title{ font-size:16px; }
+    .nav button, .pg{ font-size:11px; padding:5px 7px; }
     .selPill{ width:16px; height:18px; }
-    .navBtn{ font-size:11px; }
-    .search input{ font-size:13px; }
   }
 </style>
 </head>
 
 <body>
 
-<div class="header" id="header">
+<div class="header">
   <div class="brandRow">
     <div>
       <div class="title"><span class="mxg">QUINIELA</span> <span class="mxr">AZTECA</span></div>
@@ -352,32 +308,12 @@
   </div>
 
   <div class="partidos" id="partidos"></div>
-
-  <!-- ✅ BUSCADOR -->
-  <div class="searchRow">
-    <div class="search">
-      <input id="searchInput" placeholder="Busca por teléfono, nombre o folio" autocomplete="off">
-    </div>
-  </div>
-
-  <!-- ✅ NAV SIMPLE ARRIBA -->
-  <div class="navTop">
-    <div class="btns">
-      <button class="navBtn" id="topFirst" onclick="go(1)">«</button>
-      <button class="navBtn" id="topPrev"  onclick="go(page-1)">‹</button>
-    </div>
-    <div class="navInfo" id="topInfo">1 / 1</div>
-    <div class="btns">
-      <button class="navBtn" id="topNext" onclick="go(page+1)">›</button>
-      <button class="navBtn" id="topLast" onclick="go(totalPages)">»</button>
-    </div>
-  </div>
 </div>
 
 <div class="wrap">
 
-  <!-- ✅ Fila fija 1..9 A -->
-  <div class="headRow" id="headRow" aria-hidden="true">
+  <!-- ✅ fila fija -->
+  <div class="headRow" aria-hidden="true">
     <div class="headGrid">
       <div class="hCell">Folio / Nombre</div>
       <div class="hCell">1</div><div class="hCell">2</div><div class="hCell">3</div>
@@ -392,13 +328,12 @@
 
   <div id="list"></div>
 
-  <!-- ✅ NAV SIMPLE ABAJO (igual que arriba) -->
-  <div class="navBottom">
-    <button class="navBtn" id="botFirst" onclick="go(1)">Primera</button>
-    <button class="navBtn" id="botPrev"  onclick="go(page-1)">‹</button>
-    <span class="navInfo" id="botInfo" style="min-width:90px;">1 / 1</span>
-    <button class="navBtn" id="botNext" onclick="go(page+1)">›</button>
-    <button class="navBtn" id="botLast" onclick="go(totalPages)">Última</button>
+  <div class="nav">
+    <button id="btnFirst" onclick="go(1)">Primera</button>
+    <button id="btnPrev" onclick="go(page-1)">‹</button>
+    <div class="pages" id="pages"></div>
+    <button id="btnNext" onclick="go(page+1)">›</button>
+    <button id="btnLast" onclick="go(totalPages)">Última</button>
   </div>
 
 </div>
@@ -413,11 +348,8 @@ let page = 1, totalPages = 1;
 let globalMax = null;
 let globalSecond = null;
 
-// Para pintar aciertos
+// ✅ Para pintar aciertos (comparar contra resultados de config)
 let resultadosCfg = []; // 9
-
-// Búsqueda
-let query = "";
 
 const $ = (id) => document.getElementById(id);
 
@@ -429,14 +361,6 @@ function setLoading(on, txt="Cargando…"){
 function setNoMatch(on){ $("noMatch").hidden = !on; }
 
 function norm(v){ return String(v ?? "").trim().toUpperCase(); }
-
-function syncHeaderHeight(){
-  const h = $("header");
-  if (!h) return;
-  const px = h.getBoundingClientRect().height;
-  document.documentElement.style.setProperty("--headerH", px + "px");
-}
-window.addEventListener("resize", syncHeaderHeight, {passive:true});
 
 async function loadConfigOnce(){
   try{
@@ -451,14 +375,12 @@ async function loadConfigOnce(){
     const marcadores = (cfg.marcadores || []).slice(0,9);
 
     resultadosCfg = resultados.map(norm);
-    renderPartidos(partidos, resultados, marcadores);
 
-    syncHeaderHeight();
+    renderPartidos(partidos, resultados, marcadores);
   }catch(e){
     $("weekTxt").textContent = "";
     $("partidos").textContent = "";
     resultadosCfg = [];
-    syncHeaderHeight();
   }
 }
 
@@ -512,15 +434,8 @@ async function load(){
   setNoMatch(false);
 
   try{
-    const url = new URL(BASE);
-    url.searchParams.set("mode","clasif");
-    url.searchParams.set("page", String(page));
-    url.searchParams.set("pageSize", String(PAGE_SIZE));
-    if (query) url.searchParams.set("q", query);
-
-    const res = await fetch(url.toString(), {cache:"no-store"});
+    const res = await fetch(`${BASE}?mode=clasif&page=${page}&pageSize=${PAGE_SIZE}`, {cache:"no-store"});
     const j = await res.json();
-
     const d = j && j.data ? j.data : null;
     if (!d){
       $("list").innerHTML = "";
@@ -536,7 +451,6 @@ async function load(){
 
     const iF = idxOf(headers, "folio");
     const iN = idxOf(headers, "nombre");
-    const iT = idxOf(headers, "telefono_envio"); // para buscar aunque no se muestre
     const iA = idxOf(headers, "aciertos");
 
     if (iF < 0 || iN < 0 || iA < 0){
@@ -546,22 +460,12 @@ async function load(){
       return;
     }
 
+    // 9 selecciones después de nombre
     const startSel = iN + 1;
 
-    // ✅ si hay búsqueda, backend puede ya venir filtrado; si no, filtramos local con teléfono si existe
-    let rowsUse = rows;
-    if (query && iT >= 0){
-      const ql = query.toLowerCase();
-      rowsUse = rows.filter(r=>{
-        return String(r[iF] ?? "").toLowerCase().includes(ql) ||
-               String(r[iN] ?? "").toLowerCase().includes(ql) ||
-               String(r[iT] ?? "").toLowerCase().includes(ql);
-      });
-    }
+    computeGlobalPlacesFromSorted(rows, iA);
 
-    computeGlobalPlacesFromSorted(rowsUse, iA);
-
-    render(rowsUse, iF, iN, iA, startSel);
+    render(rows, iF, iN, iA, startSel);
     renderNav();
 
   }catch(e){
@@ -603,7 +507,13 @@ function render(rows, iF, iN, iA, startSel){
         </div>`;
     }
 
-    const aHtml = `<div class="aCell"><div class="aVal">${r[iA] ?? ""}</div></div>`;
+    const aHtml = `
+      <div class="aCell">
+        <div class="aBox">
+          <div class="aLab">A</div>
+          <div class="aVal">${r[iA] ?? ""}</div>
+        </div>
+      </div>`;
 
     const div = document.createElement("div");
     div.className = cls;
@@ -639,29 +549,63 @@ function renderFallback(rows){
       ${Array.from({length:9}).map((_,k)=>`
         <div class="selCell"><span class="selPill">${(r[2+k] ?? "-")}</span></div>
       `).join("")}
-      <div class="aCell"><div class="aVal">${(r[11] ?? "")}</div></div>
+      <div class="aCell">
+        <div class="aBox"><div class="aLab">A</div><div class="aVal">${(r[11] ?? "")}</div></div>
+      </div>
     `;
     list.appendChild(div);
   }
 }
 
+function makePageButtons(current, total){
+  const out = [];
+  const add = (x) => out.push({t:String(x), p:x, type:"page"});
+  const dots = () => out.push({t:"…", type:"dots"});
+
+  if (total <= 10){
+    for (let i=1; i<=total; i++) add(i);
+    return out;
+  }
+
+  add(1);
+  if (current > 4) dots();
+
+  const start = Math.max(2, current - 2);
+  const end = Math.min(total - 1, current + 2);
+
+  for (let i=start; i<=end; i++) add(i);
+
+  if (current < total - 3) dots();
+  add(total);
+
+  return out;
+}
+
 function renderNav(){
-  const infoTxt = `${page} / ${totalPages}`;
-  $("topInfo").textContent = infoTxt;
-  $("botInfo").textContent = infoTxt;
+  $("btnFirst").disabled = (page <= 1);
+  $("btnPrev").disabled  = (page <= 1);
+  $("btnNext").disabled  = (page >= totalPages);
+  $("btnLast").disabled  = (page >= totalPages);
 
-  const disFirst = (page <= 1);
-  const disLast  = (page >= totalPages);
+  const box = $("pages");
+  box.innerHTML = "";
 
-  $("topFirst").disabled = disFirst;
-  $("topPrev").disabled  = disFirst;
-  $("topNext").disabled  = disLast;
-  $("topLast").disabled  = disLast;
+  const items = makePageButtons(page, totalPages);
 
-  $("botFirst").disabled = disFirst;
-  $("botPrev").disabled  = disFirst;
-  $("botNext").disabled  = disLast;
-  $("botLast").disabled  = disLast;
+  for (const it of items){
+    if (it.type === "dots"){
+      const s = document.createElement("span");
+      s.className = "dots";
+      s.textContent = it.t;
+      box.appendChild(s);
+      continue;
+    }
+    const b = document.createElement("button");
+    b.className = "pg" + (it.p === page ? " active" : "");
+    b.textContent = it.t;
+    b.onclick = () => go(it.p);
+    box.appendChild(b);
+  }
 }
 
 function go(p){
@@ -673,31 +617,8 @@ function go(p){
   load();
 }
 
-/* ✅ ENTER => oculta teclado */
-const searchInput = $("searchInput");
-searchInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
-    e.preventDefault();
-    searchInput.blur();
-  }
-});
-
-/* ✅ búsqueda con debounce */
-let searchTO = null;
-searchInput.addEventListener("input", () => {
-  if (searchTO) clearTimeout(searchTO);
-  searchTO = setTimeout(() => {
-    query = searchInput.value.trim();
-    page = 1;            // al buscar, regresar a página 1
-    globalMax = null;    // recalcular marcas
-    globalSecond = null;
-    load();
-  }, 120);
-});
-
 (async function init(){
   await loadConfigOnce();
-  syncHeaderHeight();
   await load();
 })();
 </script>
