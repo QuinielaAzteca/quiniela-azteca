@@ -13,16 +13,16 @@
     --txt:#0f172a;
     --muted:#475569;
 
-    /* ✅ NUEVOS COLORES GANADORES (más claros y distintos) */
-    --win1Bg:#e0f2fe;   /* azul claro */
-    --win2Bg:#f3e8ff;   /* morado claro */
+    /* ✅ Ganadores en NARANJA (dos tonos distintos) */
+    --win1Bg:#ffedd5;   /* naranja claro */
+    --win2Bg:#ffe4e6;   /* coral/rosa-naranja claro */
 
-    --win1A:#2563eb;    /* azul para aciertos */
-    --win2A:#7c3aed;    /* morado para aciertos */
+    --win1A:#c2410c;    /* naranja fuerte (texto aciertos) */
+    --win2A:#be123c;    /* coral fuerte (texto aciertos) */
 
     /* ✅ Verde semáforo para aciertos */
     --hitBg:#dcfce7;
-    --hitBd:#22c55e;
+    --hitBd:#16a34a;
     --hitTx:#064e3b;
 
     --wSel: 22px;
@@ -140,7 +140,7 @@
   }
   .search input:focus{ border-color:#94a3b8; }
 
-  /* ✅ NAV SIMPLE ARRIBA (pocos botones) */
+  /* ✅ NAV SIMPLE ARRIBA */
   .navTop{
     margin-top:8px;
     display:flex;
@@ -174,7 +174,7 @@
 
   .wrap{ padding:8px; }
 
-  /* ✅ Encabezado fijo REAL: pegado bajo .header */
+  /* ✅ Encabezado fijo REAL */
   .headRow{
     position:sticky;
     top: var(--headerH);
@@ -278,29 +278,22 @@
     color:var(--hitTx);
   }
 
-  /* ✅ Aciertos: mismo color que el lugar */
+  /* ✅ ACiertos SIN CÍRCULO (solo número, para no desalinear) */
   .aVal{
     font-size:var(--fsSmall);
     font-weight:1000;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    min-width:20px;
-    padding:2px 6px;
-    border-radius:10px;
-    border:1px solid rgba(203,213,225,.95);
-    background:#fff;
+    line-height:1;
+    display:inline-block;
+    padding:0;           /* ✅ sin “pill” */
+    border:none;
+    background:transparent;
   }
-  .row.win1 .aVal{
-    background:#dbeafe;
-    border-color:#93c5fd;
-    color:var(--win1A);
-  }
-  .row.win2 .aVal{
-    background:#ede9fe;
-    border-color:#c4b5fd;
-    color:var(--win2A);
-  }
+  .row.win1 .aVal{ color:var(--win1A); }
+  .row.win2 .aVal{ color:var(--win2A); }
+
+  /* ✅ también colorea “Aciertos” de ese renglón de forma sutil */
+  .row.win1 .aCell{ color:var(--win1A); }
+  .row.win2 .aCell{ color:var(--win2A); }
 
   .loading, .noMatch{
     margin-top:8px;
@@ -314,7 +307,6 @@
   }
   .loading[hidden], .noMatch[hidden]{ display:none; }
 
-  /* ✅ NAV abajo se queda como “seguro”, pero simple también */
   .navBottom{
     display:flex;
     gap:8px;
@@ -353,14 +345,12 @@
 
   <div class="partidos" id="partidos"></div>
 
-  <!-- ✅ BUSCADOR -->
   <div class="searchRow">
     <div class="search">
       <input id="searchInput" placeholder="Busca por teléfono, nombre o folio" autocomplete="off">
     </div>
   </div>
 
-  <!-- ✅ NAV SIMPLE ARRIBA -->
   <div class="navTop">
     <div class="btns">
       <button class="navBtn" id="topFirst" onclick="go(1)">«</button>
@@ -376,7 +366,6 @@
 
 <div class="wrap">
 
-  <!-- ✅ Fila fija 1..9 A -->
   <div class="headRow" id="headRow" aria-hidden="true">
     <div class="headGrid">
       <div class="hCell">Folio / Nombre</div>
@@ -392,7 +381,6 @@
 
   <div id="list"></div>
 
-  <!-- ✅ NAV SIMPLE ABAJO (igual que arriba) -->
   <div class="navBottom">
     <button class="navBtn" id="botFirst" onclick="go(1)">Primera</button>
     <button class="navBtn" id="botPrev"  onclick="go(page-1)">‹</button>
@@ -409,15 +397,19 @@ const PAGE_SIZE = 500;
 
 let page = 1, totalPages = 1;
 
-// Para pintar 1º/2º lugar consistente
+// marcas 1º/2º (por página, consistente)
 let globalMax = null;
 let globalSecond = null;
 
-// Para pintar aciertos
+// para pintar aciertos
 let resultadosCfg = []; // 9
 
-// Búsqueda
+// búsqueda
 let query = "";
+
+// cache local de la página actual (para filtrar SIEMPRE aunque backend no filtre)
+let lastPageHeaders = [];
+let lastPageRows = [];
 
 const $ = (id) => document.getElementById(id);
 
@@ -494,17 +486,28 @@ function idxOf(headers, name){
   return -1;
 }
 
-function computeGlobalPlacesFromSorted(rows, iA){
-  if (!rows || !rows.length) return;
+function computePlaces(rows, iA){
+  if (!rows || !rows.length) { globalMax=null; globalSecond=null; return; }
   const first = Number(rows[0][iA] || 0);
-  if (globalMax == null) globalMax = first;
+  globalMax = first;
 
-  if (globalSecond == null){
-    for (let i=0; i<rows.length; i++){
-      const v = Number(rows[i][iA] || 0);
-      if (v < globalMax){ globalSecond = v; break; }
-    }
+  globalSecond = null;
+  for (let i=0; i<rows.length; i++){
+    const v = Number(rows[i][iA] || 0);
+    if (v < globalMax){ globalSecond = v; break; }
   }
+}
+
+function filterRowsLocal(rows, iF, iN, iT, q){
+  if (!q) return rows;
+  const ql = q.toLowerCase();
+
+  return rows.filter(r=>{
+    const fol = String(r[iF] ?? "").toLowerCase();
+    const nom = String(r[iN] ?? "").toLowerCase();
+    const tel = (iT>=0) ? String(r[iT] ?? "").toLowerCase() : "";
+    return fol.includes(ql) || nom.includes(ql) || (tel && tel.includes(ql));
+  });
 }
 
 async function load(){
@@ -516,11 +519,14 @@ async function load(){
     url.searchParams.set("mode","clasif");
     url.searchParams.set("page", String(page));
     url.searchParams.set("pageSize", String(PAGE_SIZE));
+
+    // ✅ si el backend lo soporta, ayuda; si no, no estorba
     if (query) url.searchParams.set("q", query);
 
     const res = await fetch(url.toString(), {cache:"no-store"});
     const j = await res.json();
 
+    // ✅ soporta respuesta {data:{...}} (tu caso)
     const d = j && j.data ? j.data : null;
     if (!d){
       $("list").innerHTML = "";
@@ -534,9 +540,12 @@ async function load(){
     const headers = d.headers || [];
     const rows = d.rows || [];
 
+    lastPageHeaders = headers;
+    lastPageRows = rows;
+
     const iF = idxOf(headers, "folio");
     const iN = idxOf(headers, "nombre");
-    const iT = idxOf(headers, "telefono_envio"); // para buscar aunque no se muestre
+    const iT = idxOf(headers, "telefono_envio"); // puede existir para búsqueda aunque no se muestre
     const iA = idxOf(headers, "aciertos");
 
     if (iF < 0 || iN < 0 || iA < 0){
@@ -548,18 +557,13 @@ async function load(){
 
     const startSel = iN + 1;
 
-    // ✅ si hay búsqueda, backend puede ya venir filtrado; si no, filtramos local con teléfono si existe
-    let rowsUse = rows;
-    if (query && iT >= 0){
-      const ql = query.toLowerCase();
-      rowsUse = rows.filter(r=>{
-        return String(r[iF] ?? "").toLowerCase().includes(ql) ||
-               String(r[iN] ?? "").toLowerCase().includes(ql) ||
-               String(r[iT] ?? "").toLowerCase().includes(ql);
-      });
-    }
+    // ✅ FILTRO LOCAL SIEMPRE (folio/nombre y tel si existe)
+    const rowsUse = filterRowsLocal(rows, iF, iN, iT, query);
 
-    computeGlobalPlacesFromSorted(rowsUse, iA);
+    // ✅ lugares por lo que se está mostrando
+    // (si filtras, gana el que tenga max en el filtro)
+    const sorted = rowsUse.slice().sort((a,b)=>Number(b[iA]||0)-Number(a[iA]||0));
+    computePlaces(sorted, iA);
 
     render(rowsUse, iF, iN, iA, startSel);
     renderNav();
@@ -603,7 +607,7 @@ function render(rows, iF, iN, iA, startSel){
         </div>`;
     }
 
-    const aHtml = `<div class="aCell"><div class="aVal">${r[iA] ?? ""}</div></div>`;
+    const aHtml = `<div class="aCell"><span class="aVal">${r[iA] ?? ""}</span></div>`;
 
     const div = document.createElement("div");
     div.className = cls;
@@ -639,7 +643,7 @@ function renderFallback(rows){
       ${Array.from({length:9}).map((_,k)=>`
         <div class="selCell"><span class="selPill">${(r[2+k] ?? "-")}</span></div>
       `).join("")}
-      <div class="aCell"><div class="aVal">${(r[11] ?? "")}</div></div>
+      <div class="aCell"><span class="aVal">${(r[11] ?? "")}</span></div>
     `;
     list.appendChild(div);
   }
@@ -682,15 +686,13 @@ searchInput.addEventListener("keydown", (e) => {
   }
 });
 
-/* ✅ búsqueda con debounce */
+/* ✅ búsqueda: filtra en la página actual */
 let searchTO = null;
 searchInput.addEventListener("input", () => {
   if (searchTO) clearTimeout(searchTO);
   searchTO = setTimeout(() => {
     query = searchInput.value.trim();
-    page = 1;            // al buscar, regresar a página 1
-    globalMax = null;    // recalcular marcas
-    globalSecond = null;
+    // NO forzamos page=1 para que puedas buscar dentro de la página donde estás
     load();
   }, 120);
 });
