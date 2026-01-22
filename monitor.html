@@ -6,110 +6,700 @@
 <title>Quiniela Azteca – Clasificación</title>
 
 <style>
-html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
-body{ margin:0; font-family:system-ui; background:#eef6f1; }
+  :root{
+    --bg:#eef6f1;
+    --line:#cfe5da;
+    --line2:#e2eee8;
+    --txt:#0f172a;
+    --muted:#475569;
 
-.header{
-  position:sticky; top:0; z-index:10;
-  background:#fff; border-bottom:1px solid #cfe5da;
-  padding:8px;
-}
-.partidos{ font-size:11px; }
-.p{ display:flex; justify-content:space-between; padding:4px 6px; }
+    /* ✅ NUEVOS COLORES GANADORES (más claros y distintos) */
+    --win1Bg:#e0f2fe;   /* azul claro */
+    --win2Bg:#f3e8ff;   /* morado claro */
 
-.wrap{ padding:8px; }
+    --win1A:#2563eb;    /* azul para aciertos */
+    --win2A:#7c3aed;    /* morado para aciertos */
 
-.row{
-  display:grid;
-  grid-template-columns: 28px 1fr repeat(9,20px) 22px;
-  align-items:center;
-  gap:2px;
-  padding:4px 2px;
-  border-bottom:1px solid #e2eee8;
-  font-size:11px;
-}
-.row.win1{ background:#dcfce7; }
-.row.win2{ background:#fef9c3; }
+    /* ✅ Verde semáforo para aciertos */
+    --hitBg:#dcfce7;
+    --hitBd:#22c55e;
+    --hitTx:#064e3b;
 
-.sel{ text-align:center; font-weight:900; }
-.ac{ text-align:center; font-weight:900; }
+    --wSel: 22px;
+    --wA: 24px;
 
-.nav{
-  display:flex; gap:6px; justify-content:center;
-  margin:10px 0;
-}
-.nav button{
-  padding:4px 8px;
-  border-radius:6px;
-  border:1px solid #cbd5e1;
-  background:#fff;
-  font-weight:700;
-}
+    --fsRow: 11px;
+    --fsSmall: 10px;
+    --fsTiny: 9px;
+
+    --headerH: 0px; /* ✅ se calcula por JS */
+  }
+
+  html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+  body{
+    margin:0;
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--txt);
+  }
+
+  /* ✅ quitar subrayados raros / auto-links */
+  a, a:visited { color:inherit; text-decoration:none; }
+  * { text-decoration:none; }
+  .partidos, .p, .p * { text-decoration:none !important; }
+  .p .left { text-decoration:none !important; }
+
+  .header{
+    position:sticky; top:0; z-index:50;
+    background:#fff;
+    border-bottom:1px solid var(--line);
+    padding:8px 10px 10px;
+  }
+
+  .brandRow{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:6px;
+  }
+  .title{
+    margin:0;
+    font-weight:1000;
+    letter-spacing:.04em;
+    line-height:1.05;
+    font-size:18px;
+  }
+  .title .mxg{ color:#0a6b3a; }
+  .title .mxr{ color:#c62828; }
+
+  .week{
+    font-size:12px;
+    font-weight:900;
+    color:var(--muted);
+    margin-top:2px;
+  }
+
+  .partidos{ font-size:11px; line-height:1.15; }
+  .p{
+    display:flex; justify-content:space-between; gap:8px;
+    padding:3px 6px;
+    border-radius:10px;
+    background:rgba(238,246,241,.6);
+    border:1px solid rgba(207,229,218,.65);
+    margin-bottom:4px;
+  }
+  .p .left{
+    flex:1;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    font-weight:800;
+  }
+  .p .right{
+    flex-shrink:0;
+    display:flex; gap:6px; align-items:center;
+    white-space:nowrap;
+    color:var(--muted);
+    font-weight:900;
+    font-size:10px;
+  }
+  .chip{
+    padding:2px 6px;
+    border-radius:999px;
+    border:1px solid rgba(203,213,225,.9);
+    background:#f8fafc;
+    color:var(--txt);
+  }
+  .chip.pick{
+    background:#ecfdf5;
+    border-color:#bbf7d0;
+    color:#065f46;
+  }
+
+  /* ✅ BUSCADOR */
+  .searchRow{ margin-top:6px; display:flex; gap:8px; align-items:stretch; }
+  .search{ position:relative; flex:1; }
+  .search::before{
+    content:"🔍";
+    position:absolute;
+    left:10px;
+    top:50%;
+    transform:translateY(-50%);
+    font-size:14px;
+    opacity:.75;
+  }
+  .search input{
+    width:100%;
+    padding:8px 10px 8px 36px;
+    font-size:14px;
+    font-weight:900;
+    border:2px solid #cbd5e1;
+    border-radius:14px;
+    outline:none;
+    background:#fff;
+  }
+  .search input:focus{ border-color:#94a3b8; }
+
+  /* ✅ NAV SIMPLE ARRIBA (pocos botones) */
+  .navTop{
+    margin-top:8px;
+    display:flex;
+    gap:8px;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .navTop .btns{
+    display:flex;
+    gap:6px;
+    align-items:center;
+  }
+  .navBtn{
+    padding:6px 10px;
+    border-radius:12px;
+    border:1px solid #cbd5e1;
+    background:#fff;
+    font-weight:1000;
+    font-size:12px;
+    min-width:44px;
+  }
+  .navBtn[disabled]{ opacity:.45; }
+  .navInfo{
+    flex:1;
+    text-align:center;
+    font-weight:1000;
+    color:var(--muted);
+    font-size:12px;
+    white-space:nowrap;
+  }
+
+  .wrap{ padding:8px; }
+
+  /* ✅ Encabezado fijo REAL: pegado bajo .header */
+  .headRow{
+    position:sticky;
+    top: var(--headerH);
+    z-index:45;
+    margin-top:8px;
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow: 0 6px 18px rgba(2,6,23,.06);
+  }
+
+  .headGrid{
+    display:grid;
+    grid-template-columns: 1fr repeat(9, var(--wSel)) var(--wA);
+    align-items:stretch;
+  }
+  .hCell{
+    padding:6px 2px;
+    border-right:1px solid rgba(207,229,218,.7);
+    text-align:center;
+    font-weight:1000;
+    font-size:10px;
+    letter-spacing:.02em;
+    background:#f8fafc;
+    white-space:nowrap;
+  }
+  .hCell:first-child{
+    text-align:left;
+    padding-left:8px;
+    font-size:10px;
+    color:var(--muted);
+    background:#fff;
+  }
+  .hCell:last-child{ border-right:none; }
+
+  #list{
+    margin-top:6px;
+    border:1px solid var(--line);
+    border-radius:14px;
+    overflow:hidden;
+    background:#fff;
+  }
+
+  .row{
+    display:grid;
+    grid-template-columns: 1fr repeat(9, var(--wSel)) var(--wA);
+    align-items:center;
+    border-bottom:1px solid var(--line2);
+    font-size:var(--fsRow);
+    padding:4px 0;
+  }
+  .row:last-child{ border-bottom:none; }
+
+  .row.win1{ background:var(--win1Bg); }
+  .row.win2{ background:var(--win2Bg); }
+
+  .fn{
+    padding-left:8px;
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+    min-width:0;
+  }
+  .folio{
+    font-size:var(--fsTiny);
+    font-weight:900;
+    color:var(--muted);
+    flex:0 0 auto;
+  }
+  .nombre{
+    font-size:var(--fsRow);
+    font-weight:1000;
+    min-width:0;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  .selCell, .aCell{
+    text-align:center;
+    padding:0 1px;
+  }
+
+  .selPill{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:18px;
+    height:20px;
+    border-radius:12px;
+    border:1px solid rgba(203,213,225,.95);
+    background:#fff;
+    font-weight:1000;
+    font-size:var(--fsSmall);
+    line-height:1;
+  }
+  .selPill.hit{
+    background:var(--hitBg);
+    border-color:var(--hitBd);
+    color:var(--hitTx);
+  }
+
+  /* ✅ Aciertos: mismo color que el lugar */
+  .aVal{
+    font-size:var(--fsSmall);
+    font-weight:1000;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:20px;
+    padding:2px 6px;
+    border-radius:10px;
+    border:1px solid rgba(203,213,225,.95);
+    background:#fff;
+  }
+  .row.win1 .aVal{
+    background:#dbeafe;
+    border-color:#93c5fd;
+    color:var(--win1A);
+  }
+  .row.win2 .aVal{
+    background:#ede9fe;
+    border-color:#c4b5fd;
+    color:var(--win2A);
+  }
+
+  .loading, .noMatch{
+    margin-top:8px;
+    padding:10px 12px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:#fff;
+    color:var(--muted);
+    font-weight:900;
+    text-align:center;
+  }
+  .loading[hidden], .noMatch[hidden]{ display:none; }
+
+  /* ✅ NAV abajo se queda como “seguro”, pero simple también */
+  .navBottom{
+    display:flex;
+    gap:8px;
+    justify-content:center;
+    align-items:center;
+    margin:10px 0 6px;
+    flex-wrap:wrap;
+  }
+  .navBottom .navBtn{ padding:6px 10px; }
+
+  @media (max-width:420px){
+    :root{
+      --wSel: 20px;
+      --wA: 22px;
+      --fsRow: 10px;
+      --fsSmall: 9px;
+      --fsTiny: 8px;
+    }
+    .title{ font-size:16px; }
+    .selPill{ width:16px; height:18px; }
+    .navBtn{ font-size:11px; }
+    .search input{ font-size:13px; }
+  }
 </style>
 </head>
 
 <body>
 
-<div class="header">
+<div class="header" id="header">
+  <div class="brandRow">
+    <div>
+      <div class="title"><span class="mxg">QUINIELA</span> <span class="mxr">AZTECA</span></div>
+      <div class="week" id="weekTxt"></div>
+    </div>
+  </div>
+
   <div class="partidos" id="partidos"></div>
+
+  <!-- ✅ BUSCADOR -->
+  <div class="searchRow">
+    <div class="search">
+      <input id="searchInput" placeholder="Busca por teléfono, nombre o folio" autocomplete="off">
+    </div>
+  </div>
+
+  <!-- ✅ NAV SIMPLE ARRIBA -->
+  <div class="navTop">
+    <div class="btns">
+      <button class="navBtn" id="topFirst" onclick="go(1)">«</button>
+      <button class="navBtn" id="topPrev"  onclick="go(page-1)">‹</button>
+    </div>
+    <div class="navInfo" id="topInfo">1 / 1</div>
+    <div class="btns">
+      <button class="navBtn" id="topNext" onclick="go(page+1)">›</button>
+      <button class="navBtn" id="topLast" onclick="go(totalPages)">»</button>
+    </div>
+  </div>
 </div>
 
 <div class="wrap">
+
+  <!-- ✅ Fila fija 1..9 A -->
+  <div class="headRow" id="headRow" aria-hidden="true">
+    <div class="headGrid">
+      <div class="hCell">Folio / Nombre</div>
+      <div class="hCell">1</div><div class="hCell">2</div><div class="hCell">3</div>
+      <div class="hCell">4</div><div class="hCell">5</div><div class="hCell">6</div>
+      <div class="hCell">7</div><div class="hCell">8</div><div class="hCell">9</div>
+      <div class="hCell">A</div>
+    </div>
+  </div>
+
+  <div class="loading" id="loading" hidden>Cargando…</div>
+  <div class="noMatch" id="noMatch" hidden>Sin coincidencias</div>
+
   <div id="list"></div>
 
-  <div class="nav">
-    <button onclick="go(1)">Primera</button>
-    <button onclick="go(page-1)">‹</button>
-    <span id="pages"></span>
-    <button onclick="go(page+1)">›</button>
-    <button onclick="go(totalPages)">Última</button>
+  <!-- ✅ NAV SIMPLE ABAJO (igual que arriba) -->
+  <div class="navBottom">
+    <button class="navBtn" id="botFirst" onclick="go(1)">Primera</button>
+    <button class="navBtn" id="botPrev"  onclick="go(page-1)">‹</button>
+    <span class="navInfo" id="botInfo" style="min-width:90px;">1 / 1</span>
+    <button class="navBtn" id="botNext" onclick="go(page+1)">›</button>
+    <button class="navBtn" id="botLast" onclick="go(totalPages)">Última</button>
   </div>
+
 </div>
 
 <script>
 const BASE = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec";
 const PAGE_SIZE = 500;
 
-let page=1, totalPages=1;
+let page = 1, totalPages = 1;
 
-async function load(){
-  const res = await fetch(`${BASE}?mode=clasif&page=${page}&pageSize=${PAGE_SIZE}`);
-  const j = await res.json();
+// Para pintar 1º/2º lugar consistente
+let globalMax = null;
+let globalSecond = null;
 
-  totalPages = j.totalPages;
-  render(j.rows, j.headers);
-  renderNav();
+// Para pintar aciertos
+let resultadosCfg = []; // 9
+
+// Búsqueda
+let query = "";
+
+const $ = (id) => document.getElementById(id);
+
+function setLoading(on, txt="Cargando…"){
+  const el = $("loading");
+  el.textContent = txt;
+  el.hidden = !on;
+}
+function setNoMatch(on){ $("noMatch").hidden = !on; }
+
+function norm(v){ return String(v ?? "").trim().toUpperCase(); }
+
+function syncHeaderHeight(){
+  const h = $("header");
+  if (!h) return;
+  const px = h.getBoundingClientRect().height;
+  document.documentElement.style.setProperty("--headerH", px + "px");
+}
+window.addEventListener("resize", syncHeaderHeight, {passive:true});
+
+async function loadConfigOnce(){
+  try{
+    const r = await fetch(`${BASE}?mode=config`, {cache:"no-store"});
+    const j = await r.json();
+    const cfg = (j && j.cfg) ? j.cfg : {};
+
+    $("weekTxt").textContent = cfg.subtitulo || "";
+
+    const partidos = (cfg.partidos || []).slice(0,9);
+    const resultados = (cfg.resultados || []).slice(0,9);
+    const marcadores = (cfg.marcadores || []).slice(0,9);
+
+    resultadosCfg = resultados.map(norm);
+    renderPartidos(partidos, resultados, marcadores);
+
+    syncHeaderHeight();
+  }catch(e){
+    $("weekTxt").textContent = "";
+    $("partidos").textContent = "";
+    resultadosCfg = [];
+    syncHeaderHeight();
+  }
 }
 
-function render(rows, headers){
-  const list = document.getElementById("list");
+function renderPartidos(partidos, resultados, marcadores){
+  const box = $("partidos");
+  box.innerHTML = "";
+
+  for (let i=0; i<9; i++){
+    const p = partidos[i] || {local:"", visita:""};
+    if (!p.local && !p.visita) continue;
+
+    const m = (marcadores[i] && String(marcadores[i]).trim()) ? String(marcadores[i]).trim() : "-";
+    const r = (resultados[i] && String(resultados[i]).trim()) ? String(resultados[i]).trim().toUpperCase() : "-";
+
+    const div = document.createElement("div");
+    div.className = "p";
+    div.innerHTML = `
+      <span class="left">${i+1} ${p.local} vs ${p.visita}</span>
+      <span class="right">
+        <span class="chip">${m}</span>
+        <span class="chip pick">${r}</span>
+      </span>
+    `;
+    box.appendChild(div);
+  }
+}
+
+function idxOf(headers, name){
+  const n = String(name||"").toLowerCase();
+  for (let i=0;i<headers.length;i++){
+    if (String(headers[i]||"").trim().toLowerCase() === n) return i;
+  }
+  return -1;
+}
+
+function computeGlobalPlacesFromSorted(rows, iA){
+  if (!rows || !rows.length) return;
+  const first = Number(rows[0][iA] || 0);
+  if (globalMax == null) globalMax = first;
+
+  if (globalSecond == null){
+    for (let i=0; i<rows.length; i++){
+      const v = Number(rows[i][iA] || 0);
+      if (v < globalMax){ globalSecond = v; break; }
+    }
+  }
+}
+
+async function load(){
+  setLoading(true, "Cargando…");
+  setNoMatch(false);
+
+  try{
+    const url = new URL(BASE);
+    url.searchParams.set("mode","clasif");
+    url.searchParams.set("page", String(page));
+    url.searchParams.set("pageSize", String(PAGE_SIZE));
+    if (query) url.searchParams.set("q", query);
+
+    const res = await fetch(url.toString(), {cache:"no-store"});
+    const j = await res.json();
+
+    const d = j && j.data ? j.data : null;
+    if (!d){
+      $("list").innerHTML = "";
+      setLoading(false);
+      return;
+    }
+
+    totalPages = Number(d.totalPages || 1);
+    page = Number(d.page || page);
+
+    const headers = d.headers || [];
+    const rows = d.rows || [];
+
+    const iF = idxOf(headers, "folio");
+    const iN = idxOf(headers, "nombre");
+    const iT = idxOf(headers, "telefono_envio"); // para buscar aunque no se muestre
+    const iA = idxOf(headers, "aciertos");
+
+    if (iF < 0 || iN < 0 || iA < 0){
+      renderFallback(rows);
+      renderNav();
+      setLoading(false);
+      return;
+    }
+
+    const startSel = iN + 1;
+
+    // ✅ si hay búsqueda, backend puede ya venir filtrado; si no, filtramos local con teléfono si existe
+    let rowsUse = rows;
+    if (query && iT >= 0){
+      const ql = query.toLowerCase();
+      rowsUse = rows.filter(r=>{
+        return String(r[iF] ?? "").toLowerCase().includes(ql) ||
+               String(r[iN] ?? "").toLowerCase().includes(ql) ||
+               String(r[iT] ?? "").toLowerCase().includes(ql);
+      });
+    }
+
+    computeGlobalPlacesFromSorted(rowsUse, iA);
+
+    render(rowsUse, iF, iN, iA, startSel);
+    renderNav();
+
+  }catch(e){
+    $("list").innerHTML = "";
+  } finally {
+    setLoading(false);
+  }
+}
+
+function render(rows, iF, iN, iA, startSel){
+  const list = $("list");
   list.innerHTML = "";
 
-  const iF=0,iN=1,iA=headers.length-1;
+  if (!rows || rows.length === 0){
+    setNoMatch(true);
+    return;
+  }
 
-  rows.forEach(r=>{
-    const div=document.createElement("div");
-    div.className="row";
-    div.innerHTML =
-      `<div>${r[iF]}</div>
-       <div>${r[iN]}</div>` +
-      r.slice(2,iA).map(s=>`<div class="sel">${s||'-'}</div>`).join("") +
-      `<div class="ac">${r[iA]}</div>`;
+  for (let idx=0; idx<rows.length; idx++){
+    const r = rows[idx] || [];
+
+    const folio = r[iF] ?? "";
+    const nombre = r[iN] ?? "";
+    const ac = Number(r[iA] ?? 0);
+
+    let cls = "row";
+    if (globalMax != null && ac === globalMax) cls += " win1";
+    else if (globalSecond != null && ac === globalSecond) cls += " win2";
+
+    let selsHtml = "";
+    for (let k=0; k<9; k++){
+      const v = r[startSel + k] ?? "";
+      const vN = norm(v);
+      const ok = resultadosCfg[k] && vN === resultadosCfg[k];
+
+      selsHtml += `
+        <div class="selCell">
+          <span class="selPill ${ok ? "hit" : ""}">${v ? String(v) : "-"}</span>
+        </div>`;
+    }
+
+    const aHtml = `<div class="aCell"><div class="aVal">${r[iA] ?? ""}</div></div>`;
+
+    const div = document.createElement("div");
+    div.className = cls;
+    div.innerHTML = `
+      <div class="fn">
+        <span class="folio">${folio}</span>
+        <span class="nombre">${nombre}</span>
+      </div>
+      ${selsHtml}
+      ${aHtml}
+    `;
     list.appendChild(div);
-  });
+  }
+}
+
+function renderFallback(rows){
+  const list = $("list");
+  list.innerHTML = "";
+
+  if (!rows || rows.length === 0){
+    setNoMatch(true);
+    return;
+  }
+
+  for (const r of rows){
+    const div = document.createElement("div");
+    div.className = "row";
+    div.innerHTML = `
+      <div class="fn">
+        <span class="folio">${(r[0] ?? "")}</span>
+        <span class="nombre">${(r[1] ?? "")}</span>
+      </div>
+      ${Array.from({length:9}).map((_,k)=>`
+        <div class="selCell"><span class="selPill">${(r[2+k] ?? "-")}</span></div>
+      `).join("")}
+      <div class="aCell"><div class="aVal">${(r[11] ?? "")}</div></div>
+    `;
+    list.appendChild(div);
+  }
 }
 
 function renderNav(){
-  const p=document.getElementById("pages");
-  p.textContent = `${page} / ${totalPages}`;
+  const infoTxt = `${page} / ${totalPages}`;
+  $("topInfo").textContent = infoTxt;
+  $("botInfo").textContent = infoTxt;
+
+  const disFirst = (page <= 1);
+  const disLast  = (page >= totalPages);
+
+  $("topFirst").disabled = disFirst;
+  $("topPrev").disabled  = disFirst;
+  $("topNext").disabled  = disLast;
+  $("topLast").disabled  = disLast;
+
+  $("botFirst").disabled = disFirst;
+  $("botPrev").disabled  = disFirst;
+  $("botNext").disabled  = disLast;
+  $("botLast").disabled  = disLast;
 }
 
 function go(p){
-  if (p<1||p>totalPages) return;
-  page=p; load();
+  p = Number(p);
+  if (!isFinite(p)) return;
+  if (p < 1 || p > totalPages) return;
+  page = p;
+  window.scrollTo({top: 0, behavior: "auto"});
+  load();
 }
 
-load();
+/* ✅ ENTER => oculta teclado */
+const searchInput = $("searchInput");
+searchInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    searchInput.blur();
+  }
+});
+
+/* ✅ búsqueda con debounce */
+let searchTO = null;
+searchInput.addEventListener("input", () => {
+  if (searchTO) clearTimeout(searchTO);
+  searchTO = setTimeout(() => {
+    query = searchInput.value.trim();
+    page = 1;            // al buscar, regresar a página 1
+    globalMax = null;    // recalcular marcas
+    globalSecond = null;
+    load();
+  }, 120);
+});
+
+(async function init(){
+  await loadConfigOnce();
+  syncHeaderHeight();
+  await load();
+})();
 </script>
 </body>
 </html>
