@@ -3,465 +3,461 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Quiniela Azteca – Clasificación</title>
+<title>Quiniela Azteca – Monitor</title>
 
 <style>
-  :root{
-    --bg:#eef6f1;
-    --line:#cfe5da;
-    --line2:#e2eee8;
-    --txt:#0f172a;
-    --muted:#475569;
+:root{
+  --fg:#0f172a;
+  --muted:#475569;
 
-    /* ✅ Ganadores en NARANJA (dos tonos distintos) */
-    --win1Bg:#ffedd5;   /* naranja claro */
-    --win2Bg:#ffe4e6;   /* coral/rosa-naranja claro */
+  --bg:#eaf3ee;
+  --bg2:#dfeee7;
+  --card:#ffffff;
+  --line:#d7e6dc;
 
-    --win1A:#c2410c;    /* naranja fuerte (texto aciertos) */
-    --win2A:#be123c;    /* coral fuerte (texto aciertos) */
+  --rowA:#f6fbf8;
+  --rowB:#eff7f2;
 
-    /* ✅ Verde semáforo para aciertos */
-    --hitBg:#dcfce7;
-    --hitBd:#16a34a;
-    --hitTx:#064e3b;
+  --shadow: 0 10px 24px rgba(2,44,20,.10);
 
-    --wSel: 22px;
-    --wA: 24px;
+  /* ✅ columnas */
+  --wFolio: 56px;
+  --wNombre: 1fr;
+  --wSel: 28px;
+  --wA: 28px;
 
-    --fsRow: 11px;
-    --fsSmall: 10px;
-    --fsTiny: 9px;
+  /* ✅ colores */
+  --hitBg:#22c55e;      /* “semaforo” */
+  --hitTx:#062a16;
 
-    --headerH: 0px; /* ✅ se calcula por JS */
-  }
+  /* 1° / 2° en grises */
+  --win1Bg:#e5e7eb;
+  --win2Bg:#f3f4f6;
+  --winTx:#0f172a;
 
-  html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
-  body{
-    margin:0;
-    font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
-    background:var(--bg);
-    color:var(--txt);
-  }
+  --pillBd:#cbd5e1;
+  --pillBg:#ffffff;
+}
 
-  /* ✅ quitar subrayados raros / auto-links */
-  a, a:visited { color:inherit; text-decoration:none; }
-  * { text-decoration:none; }
-  .partidos, .p, .p * { text-decoration:none !important; }
-  .p .left { text-decoration:none !important; }
+*{box-sizing:border-box}
+html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+  color:var(--fg);
+  background: radial-gradient(1200px 520px at 50% -140px, #ffffff 0%, var(--bg) 55%, var(--bg2) 100%);
+  overflow-x:hidden; /* ✅ evita el “espacio raro” a la derecha */
+}
+a, a:visited{ color:inherit; text-decoration:none; } /* ✅ quita subrayados raros */
 
-  .header{
-    position:sticky; top:0; z-index:50;
-    background:#fff;
-    border-bottom:1px solid var(--line);
-    padding:8px 10px 10px;
-  }
+/* ===== HEADER STICKY (todo lo de arriba fijo) ===== */
+.header{
+  position:sticky;
+  top:0;
+  z-index:50;
+  background:#fff;
+  border-bottom:1px solid rgba(215,230,220,.85);
+  box-shadow: 0 10px 24px rgba(2,6,23,.05);
+}
+.header-inner{
+  max-width:1100px;
+  margin:auto;
+  padding:10px 12px 10px;
+}
+.card{
+  border:1px solid var(--line);
+  border-radius:16px;
+  overflow:hidden;
+  background:linear-gradient(180deg, #ffffff 0%, #fbfdfc 100%);
+  box-shadow:var(--shadow);
+}
+.bar{
+  height:6px;
+  background:linear-gradient(90deg,#0a6b3a 0%, #0a6b3a 33%, #ffffff 33%, #ffffff 66%, #c62828 66%, #c62828 100%);
+}
+.cardPad{ padding:10px 10px 8px; }
 
-  .brandRow{
-    display:flex;
-    align-items:flex-end;
-    justify-content:space-between;
-    gap:10px;
-    flex-wrap:wrap;
-    margin-bottom:6px;
-  }
-  .title{
-    margin:0;
-    font-weight:1000;
-    letter-spacing:.04em;
-    line-height:1.05;
-    font-size:18px;
-  }
-  .title .mxg{ color:#0a6b3a; }
-  .title .mxr{ color:#c62828; }
+.brandRow{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:8px;
+}
+.title{
+  margin:0;
+  font-weight:1000;
+  letter-spacing:.04em;
+  line-height:1.05;
+  font-size:18px;
+}
+.title .g{ color:#0a6b3a; }
+.title .r{ color:#c62828; }
+.week{
+  margin-top:2px;
+  font-size:12px;
+  font-weight:900;
+  color:var(--muted);
+}
 
-  .week{
-    font-size:12px;
-    font-weight:900;
-    color:var(--muted);
-    margin-top:2px;
-  }
+/* ===== PARTIDOS ===== */
+.partidos{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  margin-top:6px;
+}
+.p{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:6px 10px;
+  border-radius:14px;
+  background: var(--rowA);
+  border:1px solid rgba(215,230,220,.55);
+}
+.p:nth-child(even){ background: var(--rowB); }
+.p .left{
+  flex:1;
+  min-width:0;
+  font-size:12px;
+  font-weight:900;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.p .right{
+  flex-shrink:0;
+  display:flex;
+  gap:8px;
+  align-items:center;
+  white-space:nowrap;
+}
+.chip{
+  padding:4px 10px;
+  border-radius:999px;
+  border:1px solid #e5e7eb;
+  background:#f8fafc;
+  font-size:12px;
+  font-weight:1000;
+  line-height:1;
+}
+.chip.pick{
+  background:#ecfdf5;
+  border-color:#bbf7d0;
+  color:#065f46;
+}
 
-  .partidos{ font-size:11px; line-height:1.15; }
-  .p{
-    display:flex; justify-content:space-between; gap:8px;
-    padding:3px 6px;
-    border-radius:10px;
-    background:rgba(238,246,241,.6);
-    border:1px solid rgba(207,229,218,.65);
-    margin-bottom:4px;
-  }
-  .p .left{
-    flex:1;
-    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-    font-weight:800;
-  }
-  .p .right{
-    flex-shrink:0;
-    display:flex; gap:6px; align-items:center;
-    white-space:nowrap;
-    color:var(--muted);
-    font-weight:900;
-    font-size:10px;
-  }
-  .chip{
-    padding:2px 6px;
-    border-radius:999px;
-    border:1px solid rgba(203,213,225,.9);
-    background:#f8fafc;
-    color:var(--txt);
-  }
-  .chip.pick{
-    background:#ecfdf5;
-    border-color:#bbf7d0;
-    color:#065f46;
-  }
+/* ===== BUSCADOR ===== */
+.searchRow{
+  margin-top:10px;
+  display:flex;
+  gap:10px;
+  align-items:stretch;
+}
+.search{
+  position:relative;
+  flex:1;
+}
+.search::before{
+  content:"🔍";
+  position:absolute;
+  left:12px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:16px;
+  opacity:.7;
+}
+.search input{
+  width:100%;
+  padding:12px 12px 12px 40px;
+  font-size:16px;
+  font-weight:900;
+  border:2px solid #cbd5e1;
+  border-radius:16px;
+  outline:none;
+  background:#fff;
+}
+.search input:focus{ border-color:#94a3b8; }
 
-  /* ✅ BUSCADOR */
-  .searchRow{ margin-top:6px; display:flex; gap:8px; align-items:stretch; }
-  .search{ position:relative; flex:1; }
-  .search::before{
-    content:"🔍";
-    position:absolute;
-    left:10px;
-    top:50%;
-    transform:translateY(-50%);
-    font-size:14px;
-    opacity:.75;
-  }
-  .search input{
-    width:100%;
-    padding:8px 10px 8px 36px;
-    font-size:14px;
-    font-weight:900;
-    border:2px solid #cbd5e1;
-    border-radius:14px;
-    outline:none;
-    background:#fff;
-  }
-  .search input:focus{ border-color:#94a3b8; }
+/* ===== NAV SIMPLE (arriba) ===== */
+.navTop{
+  margin-top:10px;
+  display:grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items:center;
+  gap:10px;
+  padding:10px;
+  border:1px solid rgba(215,230,220,.8);
+  border-radius:16px;
+  background: rgba(248,250,252,.95);
+}
+.navBtn{
+  justify-self:start;
+  width:64px;
+  height:54px;
+  border-radius:18px;
+  border:2px solid #cbd5e1;
+  background:#fff;
+  font-weight:1000;
+  font-size:22px;
+  line-height:1;
+}
+.navBtn.right{ justify-self:end; }
+.navBtn:active{ transform:scale(.98); }
+.navCenter{
+  text-align:center;
+  font-weight:1000;
+  color:var(--fg);
+}
+.navCenter .pnum{ font-size:26px; letter-spacing:.02em; }
+.navCenter .tot{ font-size:14px; color:var(--muted); margin-top:2px; }
 
-  /* ✅ NAV SIMPLE ARRIBA */
-  .navTop{
-    margin-top:8px;
-    display:flex;
-    gap:8px;
-    align-items:center;
-    justify-content:space-between;
-  }
-  .navTop .btns{
-    display:flex;
-    gap:6px;
-    align-items:center;
-  }
-  .navBtn{
-    padding:6px 10px;
-    border-radius:12px;
-    border:1px solid #cbd5e1;
-    background:#fff;
-    font-weight:1000;
-    font-size:12px;
-    min-width:44px;
-  }
-  .navBtn[disabled]{ opacity:.45; }
-  .navInfo{
-    flex:1;
-    text-align:center;
-    font-weight:1000;
-    color:var(--muted);
-    font-size:12px;
-    white-space:nowrap;
-  }
+/* ===== HEAD FIJO DEL LISTADO ===== */
+.headRow{
+  margin-top:10px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  overflow:hidden;
+  background:#f8fafc;
+}
+.headGrid{
+  display:grid;
+  grid-template-columns: var(--wFolio) var(--wNombre) repeat(9, var(--wSel)) var(--wA);
+  align-items:center;
+  padding-right: var(--sbw, 0px); /* ✅ compensa scrollbar si aparece */
+}
+.hc{
+  padding:10px 8px;
+  border-right:1px solid rgba(215,230,220,.8);
+  font-size:14px;
+  font-weight:1000;
+  text-align:center;
+}
+.hc:last-child{ border-right:none; }
+.hc.left{ text-align:left; }
+.hc.fn{ font-size:14px; }
 
-  .wrap{ padding:8px; }
+/* ===== CONTENEDOR LISTA ===== */
+.wrap{
+  max-width:1100px;
+  margin:0 auto;
+  padding:12px 12px 18px;
+}
+.listBox{
+  border:1px solid var(--line);
+  border-radius:16px;
+  overflow:auto;
+  background:#fff;
+  box-shadow:var(--shadow);
+  height: calc(100vh - 420px); /* ✅ ajusta “automático” debajo del header */
+  min-height:240px;
+  overscroll-behavior: contain;
+}
+.listBox::after{
+  content:"";
+  display:block;
+  height: calc(84px + env(safe-area-inset-bottom));
+}
 
-  /* ✅ Encabezado fijo REAL */
-  .headRow{
-    position:sticky;
-    top: var(--headerH);
-    z-index:45;
-    margin-top:8px;
-    background:#fff;
-    border:1px solid var(--line);
-    border-radius:12px;
-    overflow:hidden;
-    box-shadow: 0 6px 18px rgba(2,6,23,.06);
-  }
+/* filas */
+.row{
+  display:grid;
+  grid-template-columns: var(--wFolio) var(--wNombre) repeat(9, var(--wSel)) var(--wA);
+  align-items:center;
+  gap:0;
+  border-bottom:1px solid #e2eee8;
+  padding-right: var(--sbw, 0px); /* ✅ mismo padding que el head */
+}
+.row:nth-child(even){ background:#fbfdff; }
 
-  .headGrid{
-    display:grid;
-    grid-template-columns: 1fr repeat(9, var(--wSel)) var(--wA);
-    align-items:stretch;
-  }
-  .hCell{
-    padding:6px 2px;
-    border-right:1px solid rgba(207,229,218,.7);
-    text-align:center;
-    font-weight:1000;
-    font-size:10px;
-    letter-spacing:.02em;
-    background:#f8fafc;
-    white-space:nowrap;
-  }
-  .hCell:first-child{
-    text-align:left;
-    padding-left:8px;
-    font-size:10px;
-    color:var(--muted);
-    background:#fff;
-  }
-  .hCell:last-child{ border-right:none; }
+.row.win1{ background:var(--win1Bg); color:var(--winTx); }
+.row.win2{ background:var(--win2Bg); color:var(--winTx); }
 
-  #list{
-    margin-top:6px;
-    border:1px solid var(--line);
-    border-radius:14px;
-    overflow:hidden;
-    background:#fff;
-  }
+.cell{
+  padding:10px 8px;
+  font-size:14px;
+  font-weight:900;
+  text-align:center;
+}
+.cell.folio{
+  text-align:right;
+  color:#334155;
+  font-weight:800;
+}
+.cell.name{
+  text-align:left;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.cell.ac{
+  font-weight:1000;
+}
 
-  .row{
-    display:grid;
-    grid-template-columns: 1fr repeat(9, var(--wSel)) var(--wA);
-    align-items:center;
-    border-bottom:1px solid var(--line2);
-    font-size:var(--fsRow);
-    padding:4px 0;
-  }
-  .row:last-child{ border-bottom:none; }
+/* selecciones */
+.pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:26px;
+  height:26px;
+  border-radius:999px;
+  border:1px solid var(--pillBd);
+  background:var(--pillBg);
+  font-size:14px;
+  font-weight:1000;
+  line-height:1;
+}
+.pill.hit{
+  background: color-mix(in srgb, var(--hitBg) 25%, #ffffff 75%);
+  border-color: color-mix(in srgb, var(--hitBg) 55%, #ffffff 45%);
+  color: var(--hitTx);
+}
 
-  .row.win1{ background:var(--win1Bg); }
-  .row.win2{ background:var(--win2Bg); }
+/* cargando / sin coincidencias */
+.msg{
+  margin:10px 0 0;
+  padding:10px 12px;
+  border:1px solid rgba(215,230,220,.85);
+  border-radius:14px;
+  background: rgba(248,250,252,.95);
+  color:var(--muted);
+  font-size:13px;
+  font-weight:900;
+  text-align:center;
+}
+.msg[hidden]{ display:none; }
 
-  .fn{
-    padding-left:8px;
-    display:flex;
-    align-items:baseline;
-    gap:8px;
-    min-width:0;
-  }
-  .folio{
-    font-size:var(--fsTiny);
-    font-weight:900;
-    color:var(--muted);
-    flex:0 0 auto;
-  }
-  .nombre{
-    font-size:var(--fsRow);
-    font-weight:1000;
-    min-width:0;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-  }
-
-  .selCell, .aCell{
-    text-align:center;
-    padding:0 1px;
-  }
-
-  .selPill{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    width:18px;
-    height:20px;
-    border-radius:12px;
-    border:1px solid rgba(203,213,225,.95);
-    background:#fff;
-    font-weight:1000;
-    font-size:var(--fsSmall);
-    line-height:1;
-  }
-  .selPill.hit{
-    background:var(--hitBg);
-    border-color:var(--hitBd);
-    color:var(--hitTx);
-  }
-
-  /* ✅ ACiertos SIN CÍRCULO (solo número, para no desalinear) */
-  .aVal{
-    font-size:var(--fsSmall);
-    font-weight:1000;
-    line-height:1;
-    display:inline-block;
-    padding:0;           /* ✅ sin “pill” */
-    border:none;
-    background:transparent;
-  }
-  .row.win1 .aVal{ color:var(--win1A); }
-  .row.win2 .aVal{ color:var(--win2A); }
-
-  /* ✅ también colorea “Aciertos” de ese renglón de forma sutil */
-  .row.win1 .aCell{ color:var(--win1A); }
-  .row.win2 .aCell{ color:var(--win2A); }
-
-  .loading, .noMatch{
-    margin-top:8px;
-    padding:10px 12px;
-    border:1px solid var(--line);
-    border-radius:12px;
-    background:#fff;
-    color:var(--muted);
-    font-weight:900;
-    text-align:center;
-  }
-  .loading[hidden], .noMatch[hidden]{ display:none; }
-
-  .navBottom{
-    display:flex;
-    gap:8px;
-    justify-content:center;
-    align-items:center;
-    margin:10px 0 6px;
-    flex-wrap:wrap;
-  }
-  .navBottom .navBtn{ padding:6px 10px; }
-
-  @media (max-width:420px){
-    :root{
-      --wSel: 20px;
-      --wA: 22px;
-      --fsRow: 10px;
-      --fsSmall: 9px;
-      --fsTiny: 8px;
-    }
-    .title{ font-size:16px; }
-    .selPill{ width:16px; height:18px; }
-    .navBtn{ font-size:11px; }
-    .search input{ font-size:13px; }
-  }
+/* responsive */
+@media (max-width:520px){
+  :root{ --wFolio: 52px; --wSel: 26px; --wA: 26px; }
+  .title{ font-size:16px; }
+  .p .left{ font-size:11px; }
+  .chip{ font-size:11px; padding:3px 8px; }
+  .search input{ font-size:15px; padding:11px 12px 11px 40px; }
+  .hc{ font-size:13px; padding:9px 6px; }
+  .cell{ font-size:13px; padding:9px 6px; }
+  .pill{ width:24px; height:24px; font-size:13px; }
+  .navBtn{ width:60px; height:52px; border-radius:18px; }
+}
+@media (max-width:420px){
+  :root{ --wFolio: 50px; --wSel: 24px; --wA: 24px; }
+  .hc.fn{ font-size:13px; }
+  .pill{ width:22px; height:22px; font-size:12px; }
+}
 </style>
 </head>
 
 <body>
 
 <div class="header" id="header">
-  <div class="brandRow">
-    <div>
-      <div class="title"><span class="mxg">QUINIELA</span> <span class="mxr">AZTECA</span></div>
-      <div class="week" id="weekTxt"></div>
-    </div>
-  </div>
+  <div class="header-inner">
+    <div class="card">
+      <div class="bar"></div>
+      <div class="cardPad">
 
-  <div class="partidos" id="partidos"></div>
+        <div class="brandRow">
+          <div>
+            <div class="title"><span class="g">QUINIELA</span> <span class="r">AZTECA</span></div>
+            <div class="week" id="weekTxt"></div>
+          </div>
+        </div>
 
-  <div class="searchRow">
-    <div class="search">
-      <input id="searchInput" placeholder="Busca por teléfono, nombre o folio" autocomplete="off">
-    </div>
-  </div>
+        <div class="partidos" id="partidosTxt"></div>
 
-  <div class="navTop">
-    <div class="btns">
-      <button class="navBtn" id="topFirst" onclick="go(1)">«</button>
-      <button class="navBtn" id="topPrev"  onclick="go(page-1)">‹</button>
-    </div>
-    <div class="navInfo" id="topInfo">1 / 1</div>
-    <div class="btns">
-      <button class="navBtn" id="topNext" onclick="go(page+1)">›</button>
-      <button class="navBtn" id="topLast" onclick="go(totalPages)">»</button>
+        <div class="searchRow">
+          <div class="search">
+            <input id="searchInput" placeholder="Busca aquí por teléfono, nombre o folio" autocomplete="off" inputmode="search">
+          </div>
+        </div>
+
+        <!-- NAV ARRIBA (simple como tu captura) -->
+        <div class="navTop">
+          <button class="navBtn" id="btnPrev" aria-label="Anterior">◀</button>
+          <div class="navCenter">
+            <div class="pnum" id="pageTxt">1 / 1</div>
+            <div class="tot" id="totalTxt">0 registros</div>
+          </div>
+          <button class="navBtn right" id="btnNext" aria-label="Siguiente">▶</button>
+        </div>
+
+        <div class="msg" id="loadingMsg" hidden>Cargando…</div>
+        <div class="msg" id="noMatchMsg" hidden>Sin coincidencias</div>
+
+        <!-- ✅ ESTA FILA QUEDA FIJA (está dentro del header sticky) -->
+        <div class="headRow" aria-hidden="true">
+          <div class="headGrid" id="headGrid">
+            <div class="hc fn">Folio / Nombre</div>
+            <div class="hc left" style="display:none"></div><!-- placeholder (no se usa) -->
+            <div class="hc">1</div><div class="hc">2</div><div class="hc">3</div><div class="hc">4</div><div class="hc">5</div>
+            <div class="hc">6</div><div class="hc">7</div><div class="hc">8</div><div class="hc">9</div>
+            <div class="hc">A</div>
+          </div>
+        </div>
+
+      </div>
     </div>
   </div>
 </div>
 
 <div class="wrap">
-
-  <div class="headRow" id="headRow" aria-hidden="true">
-    <div class="headGrid">
-      <div class="hCell">Folio / Nombre</div>
-      <div class="hCell">1</div><div class="hCell">2</div><div class="hCell">3</div>
-      <div class="hCell">4</div><div class="hCell">5</div><div class="hCell">6</div>
-      <div class="hCell">7</div><div class="hCell">8</div><div class="hCell">9</div>
-      <div class="hCell">A</div>
-    </div>
+  <div class="listBox" id="listBox">
+    <div id="list"></div>
   </div>
-
-  <div class="loading" id="loading" hidden>Cargando…</div>
-  <div class="noMatch" id="noMatch" hidden>Sin coincidencias</div>
-
-  <div id="list"></div>
-
-  <div class="navBottom">
-    <button class="navBtn" id="botFirst" onclick="go(1)">Primera</button>
-    <button class="navBtn" id="botPrev"  onclick="go(page-1)">‹</button>
-    <span class="navInfo" id="botInfo" style="min-width:90px;">1 / 1</span>
-    <button class="navBtn" id="botNext" onclick="go(page+1)">›</button>
-    <button class="navBtn" id="botLast" onclick="go(totalPages)">Última</button>
-  </div>
-
 </div>
 
 <script>
 const BASE = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec";
 const PAGE_SIZE = 500;
 
-let page = 1, totalPages = 1;
+let page = 1;
+let totalPages = 1;
+let totalRows = 0;
 
-// marcas 1º/2º (por página, consistente)
-let globalMax = null;
-let globalSecond = null;
-
-// para pintar aciertos
-let resultadosCfg = []; // 9
-
-// búsqueda
-let query = "";
-
-// cache local de la página actual (para filtrar SIEMPRE aunque backend no filtre)
-let lastPageHeaders = [];
-let lastPageRows = [];
+let resultados = Array(9).fill(""); // L/E/V (para colorear aciertos)
+let marcadores = Array(9).fill("");
 
 const $ = (id) => document.getElementById(id);
 
-function setLoading(on, txt="Cargando…"){
-  const el = $("loading");
-  el.textContent = txt;
-  el.hidden = !on;
+function showLoading(on){
+  $("loadingMsg").hidden = !on;
 }
-function setNoMatch(on){ $("noMatch").hidden = !on; }
+function showNoMatch(on){
+  $("noMatchMsg").hidden = !on;
+}
 
 function norm(v){ return String(v ?? "").trim().toUpperCase(); }
 
-function syncHeaderHeight(){
-  const h = $("header");
-  if (!h) return;
-  const px = h.getBoundingClientRect().height;
-  document.documentElement.style.setProperty("--headerH", px + "px");
+function syncScrollbarWidth(){
+  const box = $("listBox");
+  if (!box) return;
+  const sbw = box.offsetWidth - box.clientWidth;
+  document.documentElement.style.setProperty("--sbw", sbw + "px");
 }
-window.addEventListener("resize", syncHeaderHeight, {passive:true});
+window.addEventListener("resize", syncScrollbarWidth, {passive:true});
 
-async function loadConfigOnce(){
-  try{
-    const r = await fetch(`${BASE}?mode=config`, {cache:"no-store"});
-    const j = await r.json();
-    const cfg = (j && j.cfg) ? j.cfg : {};
+function setPageText(){
+  $("pageTxt").textContent = `${page} / ${totalPages}`;
+  $("totalTxt").textContent = `${Number(totalRows||0).toLocaleString("es-MX")} registros`;
 
-    $("weekTxt").textContent = cfg.subtitulo || "";
+  // botones
+  $("btnPrev").disabled = (page <= 1);
+  $("btnNext").disabled = (page >= totalPages);
 
-    const partidos = (cfg.partidos || []).slice(0,9);
-    const resultados = (cfg.resultados || []).slice(0,9);
-    const marcadores = (cfg.marcadores || []).slice(0,9);
-
-    resultadosCfg = resultados.map(norm);
-    renderPartidos(partidos, resultados, marcadores);
-
-    syncHeaderHeight();
-  }catch(e){
-    $("weekTxt").textContent = "";
-    $("partidos").textContent = "";
-    resultadosCfg = [];
-    syncHeaderHeight();
-  }
+  $("btnPrev").style.opacity = $("btnPrev").disabled ? .4 : 1;
+  $("btnNext").style.opacity = $("btnNext").disabled ? .4 : 1;
 }
 
-function renderPartidos(partidos, resultados, marcadores){
-  const box = $("partidos");
+function renderPartidos(cfg){
+  const partidos = (cfg.partidos || []).slice(0,9);
+  const box = $("partidosTxt");
   box.innerHTML = "";
 
-  for (let i=0; i<9; i++){
-    const p = partidos[i] || {local:"", visita:""};
-    if (!p.local && !p.visita) continue;
-
+  partidos.forEach((p,i)=>{
     const m = (marcadores[i] && String(marcadores[i]).trim()) ? String(marcadores[i]).trim() : "-";
     const r = (resultados[i] && String(resultados[i]).trim()) ? String(resultados[i]).trim().toUpperCase() : "-";
 
@@ -475,233 +471,164 @@ function renderPartidos(partidos, resultados, marcadores){
       </span>
     `;
     box.appendChild(div);
-  }
-}
-
-function idxOf(headers, name){
-  const n = String(name||"").toLowerCase();
-  for (let i=0;i<headers.length;i++){
-    if (String(headers[i]||"").trim().toLowerCase() === n) return i;
-  }
-  return -1;
-}
-
-function computePlaces(rows, iA){
-  if (!rows || !rows.length) { globalMax=null; globalSecond=null; return; }
-  const first = Number(rows[0][iA] || 0);
-  globalMax = first;
-
-  globalSecond = null;
-  for (let i=0; i<rows.length; i++){
-    const v = Number(rows[i][iA] || 0);
-    if (v < globalMax){ globalSecond = v; break; }
-  }
-}
-
-function filterRowsLocal(rows, iF, iN, iT, q){
-  if (!q) return rows;
-  const ql = q.toLowerCase();
-
-  return rows.filter(r=>{
-    const fol = String(r[iF] ?? "").toLowerCase();
-    const nom = String(r[iN] ?? "").toLowerCase();
-    const tel = (iT>=0) ? String(r[iT] ?? "").toLowerCase() : "";
-    return fol.includes(ql) || nom.includes(ql) || (tel && tel.includes(ql));
   });
 }
 
-async function load(){
-  setLoading(true, "Cargando…");
-  setNoMatch(false);
-
+async function loadConfig(){
   try{
-    const url = new URL(BASE);
-    url.searchParams.set("mode","clasif");
-    url.searchParams.set("page", String(page));
-    url.searchParams.set("pageSize", String(PAGE_SIZE));
-
-    // ✅ si el backend lo soporta, ayuda; si no, no estorba
-    if (query) url.searchParams.set("q", query);
-
-    const res = await fetch(url.toString(), {cache:"no-store"});
+    const res = await fetch(`${BASE}?mode=config`, {cache:"no-store"});
     const j = await res.json();
+    const cfg = (j && j.cfg) ? j.cfg : {};
 
-    // ✅ soporta respuesta {data:{...}} (tu caso)
-    const d = j && j.data ? j.data : null;
-    if (!d){
-      $("list").innerHTML = "";
-      setLoading(false);
-      return;
-    }
+    $("weekTxt").textContent = cfg.subtitulo || "";
 
-    totalPages = Number(d.totalPages || 1);
-    page = Number(d.page || page);
+    resultados = (cfg.resultados || []).slice(0,9).map(norm);
+    marcadores = (cfg.marcadores || []).slice(0,9);
 
-    const headers = d.headers || [];
-    const rows = d.rows || [];
-
-    lastPageHeaders = headers;
-    lastPageRows = rows;
-
-    const iF = idxOf(headers, "folio");
-    const iN = idxOf(headers, "nombre");
-    const iT = idxOf(headers, "telefono_envio"); // puede existir para búsqueda aunque no se muestre
-    const iA = idxOf(headers, "aciertos");
-
-    if (iF < 0 || iN < 0 || iA < 0){
-      renderFallback(rows);
-      renderNav();
-      setLoading(false);
-      return;
-    }
-
-    const startSel = iN + 1;
-
-    // ✅ FILTRO LOCAL SIEMPRE (folio/nombre y tel si existe)
-    const rowsUse = filterRowsLocal(rows, iF, iN, iT, query);
-
-    // ✅ lugares por lo que se está mostrando
-    // (si filtras, gana el que tenga max en el filtro)
-    const sorted = rowsUse.slice().sort((a,b)=>Number(b[iA]||0)-Number(a[iA]||0));
-    computePlaces(sorted, iA);
-
-    render(rowsUse, iF, iN, iA, startSel);
-    renderNav();
-
+    renderPartidos(cfg);
   }catch(e){
-    $("list").innerHTML = "";
-  } finally {
-    setLoading(false);
+    // si falla config, igual dejamos la UI viva
   }
 }
 
-function render(rows, iF, iN, iA, startSel){
+function rowClassByPlace(r){
+  // Soporta cualquiera de estas formas:
+  // - r._lugar (1/2/0)
+  // - r.place  (1/2/0)
+  // - r[??] no (mejor no asumir)
+  const lugar = (typeof r === "object" && r) ? (r._lugar ?? r.place) : null;
+  if (lugar === 1) return "row win1";
+  if (lugar === 2) return "row win2";
+  return "row";
+}
+
+function renderRows(payload){
   const list = $("list");
   list.innerHTML = "";
 
-  if (!rows || rows.length === 0){
-    setNoMatch(true);
-    return;
-  }
+  const headers = payload.headers || [];
+  const rows = payload.rows || [];
 
-  for (let idx=0; idx<rows.length; idx++){
-    const r = rows[idx] || [];
+  // Estructura esperada del backend paginado:
+  // [folio, telefono_envio, nombre, sel1..sel9, aciertos, (opcional: lugar)]
+  // Nosotros NO mostramos teléfono, pero sí se usa para buscar.
+  const idxFolio = 0;
+  const idxTel   = 1;
+  const idxNom   = 2;
+  const idxAci   = headers.length - 1; // aciertos
 
-    const folio = r[iF] ?? "";
-    const nombre = r[iN] ?? "";
-    const ac = Number(r[iA] ?? 0);
+  // si el backend manda lugar separado como último, ajustar:
+  // (si detecta "lugar" en headers, lo saca)
+  let idxLugar = -1;
+  const hLow = headers.map(h=>String(h||"").toLowerCase());
+  idxLugar = hLow.indexOf("lugar");
+  const hasLugar = idxLugar >= 0;
 
-    let cls = "row";
-    if (globalMax != null && ac === globalMax) cls += " win1";
-    else if (globalSecond != null && ac === globalSecond) cls += " win2";
+  const parts = [];
+  for (let i=0; i<rows.length; i++){
+    const r = rows[i] || [];
+    const folio = r[idxFolio] ?? "";
+    const nombre = r[idxNom] ?? "";
+    const aciertos = hasLugar ? (r[idxAci-1] ?? "") : (r[idxAci] ?? "");
+    const lugar = hasLugar ? (r[idxLugar] ?? 0) : (r._lugar ?? r.place ?? 0);
+
+    const cls = (lugar===1) ? "row win1" : (lugar===2) ? "row win2" : "row";
+
+    // sels: desde idxNom+1 hasta antes de aciertos (y antes de lugar si existe)
+    const end = hasLugar ? (idxAci-1) : idxAci;
+    const sels = r.slice(idxNom+1, end).slice(0,9);
 
     let selsHtml = "";
     for (let k=0; k<9; k++){
-      const v = r[startSel + k] ?? "";
-      const vN = norm(v);
-      const ok = resultadosCfg[k] && vN === resultadosCfg[k];
-
-      selsHtml += `
-        <div class="selCell">
-          <span class="selPill ${ok ? "hit" : ""}">${v ? String(v) : "-"}</span>
-        </div>`;
+      const s = sels[k] ?? "";
+      const ok = resultados[k] && norm(s) === resultados[k];
+      selsHtml += `<div class="cell"><span class="pill ${ok?'hit':''}">${(s||'-')}</span></div>`;
     }
 
-    const aHtml = `<div class="aCell"><span class="aVal">${r[iA] ?? ""}</span></div>`;
-
-    const div = document.createElement("div");
-    div.className = cls;
-    div.innerHTML = `
-      <div class="fn">
-        <span class="folio">${folio}</span>
-        <span class="nombre">${nombre}</span>
+    parts.push(`
+      <div class="${cls}">
+        <div class="cell folio">${folio}</div>
+        <div class="cell name">${nombre}</div>
+        ${selsHtml}
+        <div class="cell ac">${aciertos}</div>
       </div>
-      ${selsHtml}
-      ${aHtml}
-    `;
-    list.appendChild(div);
+    `);
+  }
+
+  list.innerHTML = parts.join("");
+  syncScrollbarWidth();
+}
+
+function currentQuery(){
+  return $("searchInput").value.trim();
+}
+
+async function loadPage(){
+  showLoading(true);
+  showNoMatch(false);
+
+  try{
+    const q = currentQuery();
+    const url =
+      `${BASE}?mode=clasif&page=${encodeURIComponent(page)}&pageSize=${encodeURIComponent(PAGE_SIZE)}`
+      + (q ? `&q=${encodeURIComponent(q)}` : "");
+
+    const res = await fetch(url, {cache:"no-store"});
+    const j = await res.json();
+
+    // esperamos: totalPages, totalRows (o totalRecords), headers, rows
+    totalPages = Number(j.totalPages || 1);
+    totalRows  = Number(j.totalRows ?? j.totalRecords ?? 0);
+
+    // si filtras y no hay filas:
+    const rows = j.rows || [];
+    showNoMatch(!!currentQuery() && rows.length === 0);
+
+    renderRows(j);
+    setPageText();
+  }catch(e){
+    // si falla, mostramos “sin coincidencias” sólo si había búsqueda
+    showNoMatch(!!currentQuery());
+  }finally{
+    showLoading(false);
   }
 }
 
-function renderFallback(rows){
-  const list = $("list");
-  list.innerHTML = "";
+/* navegación */
+$("btnPrev").addEventListener("click", ()=>{
+  if (page<=1) return;
+  page--; loadPage();
+});
+$("btnNext").addEventListener("click", ()=>{
+  if (page>=totalPages) return;
+  page++; loadPage();
+});
 
-  if (!rows || rows.length === 0){
-    setNoMatch(true);
-    return;
-  }
-
-  for (const r of rows){
-    const div = document.createElement("div");
-    div.className = "row";
-    div.innerHTML = `
-      <div class="fn">
-        <span class="folio">${(r[0] ?? "")}</span>
-        <span class="nombre">${(r[1] ?? "")}</span>
-      </div>
-      ${Array.from({length:9}).map((_,k)=>`
-        <div class="selCell"><span class="selPill">${(r[2+k] ?? "-")}</span></div>
-      `).join("")}
-      <div class="aCell"><span class="aVal">${(r[11] ?? "")}</span></div>
-    `;
-    list.appendChild(div);
-  }
-}
-
-function renderNav(){
-  const infoTxt = `${page} / ${totalPages}`;
-  $("topInfo").textContent = infoTxt;
-  $("botInfo").textContent = infoTxt;
-
-  const disFirst = (page <= 1);
-  const disLast  = (page >= totalPages);
-
-  $("topFirst").disabled = disFirst;
-  $("topPrev").disabled  = disFirst;
-  $("topNext").disabled  = disLast;
-  $("topLast").disabled  = disLast;
-
-  $("botFirst").disabled = disFirst;
-  $("botPrev").disabled  = disFirst;
-  $("botNext").disabled  = disLast;
-  $("botLast").disabled  = disLast;
-}
-
-function go(p){
-  p = Number(p);
-  if (!isFinite(p)) return;
-  if (p < 1 || p > totalPages) return;
-  page = p;
-  window.scrollTo({top: 0, behavior: "auto"});
-  load();
-}
-
-/* ✅ ENTER => oculta teclado */
-const searchInput = $("searchInput");
-searchInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
+/* Enter oculta teclado */
+$("searchInput").addEventListener("keydown", (e)=>{
+  if (e.key === "Enter"){
     e.preventDefault();
-    searchInput.blur();
+    e.target.blur();
   }
 });
 
-/* ✅ búsqueda: filtra en la página actual */
+/* búsqueda (con debounce) */
 let searchTO = null;
-searchInput.addEventListener("input", () => {
+$("searchInput").addEventListener("input", ()=>{
   if (searchTO) clearTimeout(searchTO);
-  searchTO = setTimeout(() => {
-    query = searchInput.value.trim();
-    // NO forzamos page=1 para que puedas buscar dentro de la página donde estás
-    load();
-  }, 120);
+  searchTO = setTimeout(()=>{
+    page = 1;
+    loadPage();
+  }, 180);
 });
 
-(async function init(){
-  await loadConfigOnce();
-  syncHeaderHeight();
-  await load();
+/* init */
+(async ()=>{
+  await loadConfig();
+  await loadPage();
+  setTimeout(syncScrollbarWidth, 0);
 })();
 </script>
+
 </body>
 </html>
