@@ -11,18 +11,20 @@
     --bg:#eef6f1;
     --card:#ffffff;
     --line:#cfe5da;
-    --line2:#e2eee8;
     --text:#0f172a;
     --muted:#64748b;
 
-    --hit:#16a34a; /* verde semáforo */
+    --hit:#16a34a;      /* verde semáforo */
     --hitBorder:#0f7a36;
 
-    /* columnas (ajustables sin romper alineación) */
-    --wFolio: 64px;
-    --wAci:   40px;
-    --wSel:   32px; /* cada partido */
-    --sbw: 0px; /* scrollbar width (sync JS) */
+    /* tamaños base */
+    --wFolio: 60px;
+    --wAci:   34px;
+    --wSel:   28px;
+    --pill:   26px;
+    --pillFs: 13px;
+
+    --sbw: 0px; /* scrollbar width */
   }
 
   *{ box-sizing:border-box; }
@@ -32,55 +34,26 @@
     font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
     background:var(--bg);
     color:var(--text);
-    overflow-x:hidden; /* evita “hueco” lateral */
-  }
-  a, a:visited{ color:inherit; text-decoration:none; }
-
-  /* Layout general */
-  .app{
-    min-height:100vh;
-    display:flex;
-    flex-direction:column;
+    overflow-x:hidden;
   }
 
-  /* Header sticky superior (título + partidos + buscador + nav + encabezado 1..9) */
+  .app{ min-height:100vh; display:flex; flex-direction:column; }
+
   .top{
-    position:sticky;
-    top:0;
-    z-index:50;
+    position:sticky; top:0; z-index:50;
     background:rgba(238,246,241,.92);
     backdrop-filter: blur(8px);
     border-bottom:1px solid var(--line);
   }
-
   .topInner{
     padding:10px 10px 8px;
     max-width: 980px;
     margin:0 auto;
   }
 
-  .titleRow{
-    display:flex;
-    align-items:flex-end;
-    justify-content:space-between;
-    gap:10px;
-    margin-bottom:6px;
-  }
+  .title{ font-weight:900; font-size:18px; line-height:1.1; }
+  .week{ font-weight:800; color:var(--muted); font-size:13px; margin-top:2px; }
 
-  .title{
-    font-weight:900;
-    letter-spacing:.2px;
-    font-size:18px;
-    line-height:1.1;
-  }
-  .week{
-    font-weight:800;
-    color:var(--muted);
-    font-size:13px;
-    line-height:1.1;
-  }
-
-  /* Partidos */
   .partidosCard{
     background:var(--card);
     border:1px solid var(--line);
@@ -90,27 +63,22 @@
     margin:8px 0 10px;
   }
   .p{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
     padding:7px 10px;
     border-bottom:1px solid rgba(207,229,218,.65);
-    font-size:12px;
-    line-height:1.15;
+    font-size:12px; line-height:1.15;
+    text-decoration:none !important;
   }
   .p:last-child{ border-bottom:none; }
+  .p *{ text-decoration:none !important; }
 
   .p .left{
     font-weight:800;
-    color:#0b1220;
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
-    text-decoration:none !important; /* por si algún navegador insiste */
   }
   .p .right{ display:flex; gap:6px; align-items:center; flex:0 0 auto; }
-
   .chip{
     padding:4px 9px;
     border-radius:999px;
@@ -128,89 +96,48 @@
     min-width:38px;
   }
 
-  /* Buscador + nav */
-  .controls{
-    display:flex;
-    flex-direction:column;
-    gap:8px;
-  }
+  .controls{ display:flex; flex-direction:column; gap:8px; }
+
   .search{
     background:var(--card);
     border:1px solid var(--line);
     border-radius:22px;
     padding:10px 12px;
-    display:flex;
-    align-items:center;
-    gap:10px;
+    display:flex; align-items:center; gap:10px;
     box-shadow:0 10px 24px rgba(2,6,23,.04);
   }
-  .search .icon{
-    font-size:18px;
-    opacity:.65;
-  }
+  .search .icon{ font-size:18px; opacity:.65; }
   .search input{
-    border:none;
-    outline:none;
-    width:100%;
-    font-size:16px;
-    font-weight:800;
+    border:none; outline:none; width:100%;
+    font-size:16px; font-weight:800;
     background:transparent;
-    color:var(--text);
   }
-  .search input::placeholder{
-    color:#6b7280;
-    font-weight:800;
-  }
+  .search input::placeholder{ color:#6b7280; font-weight:800; }
 
   .navCard{
     background:var(--card);
     border:1px solid var(--line);
     border-radius:22px;
     padding:10px 12px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
     box-shadow:0 10px 24px rgba(2,6,23,.04);
   }
-  .navText{
-    font-weight:900;
-    font-size:18px;
-    color:#0f172a;
-    line-height:1.05;
-  }
-  .navText small{
-    display:block;
-    font-size:12px;
-    font-weight:800;
-    color:var(--muted);
-    margin-top:2px;
-  }
-  .navBtns{
-    display:flex;
-    gap:10px;
-    align-items:center;
-  }
+  .navText{ font-weight:900; font-size:18px; line-height:1.05; }
+  .navText small{ display:block; font-size:12px; font-weight:800; color:var(--muted); margin-top:2px; }
+  .navBtns{ display:flex; gap:10px; align-items:center; }
   .btn{
-    width:58px;
-    height:48px;
+    width:58px; height:48px;
     border-radius:18px;
     border:2px solid rgba(148,163,184,.35);
     background:#fff;
     font-size:26px;
     font-weight:900;
-    line-height:1;
-    display:flex;
-    align-items:center;
-    justify-content:center;
+    display:flex; align-items:center; justify-content:center;
     padding:0;
-    user-select:none;
   }
-  .btn:disabled{
-    opacity:.35;
-  }
+  .btn:disabled{ opacity:.35; }
 
-  /* Encabezado de tabla fijo (Folio/Nombre + 1..9 + Ac) */
+  /* HEADER FIJO: usa minmax para que el nombre nunca muera */
   .tableHead{
     margin-top:10px;
     background:var(--card);
@@ -221,30 +148,20 @@
   }
   .tableHeadGrid{
     display:grid;
-    grid-template-columns: var(--wFolio) 1fr repeat(9, var(--wSel)) var(--wAci);
-    gap:0;
-    padding-right: var(--sbw); /* compensa scrollbar del listado */
-    align-items:stretch;
+    grid-template-columns: var(--wFolio) minmax(130px,1fr) repeat(9, var(--wSel)) var(--wAci);
+    padding-right: var(--sbw);
   }
   .th{
-    padding:10px 8px;
+    padding:10px 6px;
     border-right:1px solid rgba(207,229,218,.7);
     font-weight:900;
     font-size:12px;
-    color:#0b1220;
-    display:flex;
-    align-items:center;
-    justify-content:center;
+    display:flex; align-items:center; justify-content:center;
     background:#f6fbf8;
   }
-  .th.left{
-    justify-content:flex-start;
-    padding-left:12px;
-    font-size:13px;
-  }
+  .th.left{ justify-content:flex-start; padding-left:12px; font-size:13px; }
   .th:last-child{ border-right:none; }
 
-  /* Contenedor del listado (scroll) */
   .listWrap{
     flex:1 1 auto;
     max-width:980px;
@@ -254,8 +171,6 @@
     overflow:hidden;
   }
   .listBox{
-    height:calc(100vh - 520px); /* fallback; JS ajusta si hace falta */
-    max-height:calc(100vh - 520px);
     overflow:auto;
     border-radius:22px;
     background:var(--card);
@@ -263,15 +178,12 @@
     box-shadow:0 10px 24px rgba(2,6,23,.05);
   }
 
-  /* Filas */
   .row{
     display:grid;
-    grid-template-columns: var(--wFolio) 1fr repeat(9, var(--wSel)) var(--wAci);
+    grid-template-columns: var(--wFolio) minmax(130px,1fr) repeat(9, var(--wSel)) var(--wAci);
     align-items:center;
-    gap:0;
     border-bottom:1px solid rgba(226,238,232,.9);
     min-height:54px;
-    padding-right:0;
   }
   .row:last-child{ border-bottom:none; }
 
@@ -280,42 +192,29 @@
   .row.win2{ background:#e5e7eb; }
 
   .cell{
-    padding:10px 8px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-weight:900;
-    font-size:14px;
-    color:#0b1220;
-  }
-  .cell.folio{
-    justify-content:flex-start;
-    padding-left:12px;
-    color:#334155;
-    font-size:13px;
+    padding:10px 6px;
+    display:flex; align-items:center; justify-content:center;
     font-weight:900;
   }
+  .cell.folio{ justify-content:flex-start; padding-left:12px; color:#334155; font-size:13px; }
   .cell.name{
     justify-content:flex-start;
-    font-size:18px;
+    font-size:16px;
     font-weight:1000;
-    letter-spacing:.2px;
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
+    letter-spacing:.2px;
   }
 
-  /* Selecciones como “pastilla” compacta */
   .pill{
-    width:30px;
-    height:30px;
+    width:var(--pill);
+    height:var(--pill);
     border-radius:999px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
+    display:flex; align-items:center; justify-content:center;
     border:2px solid rgba(148,163,184,.35);
     background:#fff;
-    font-size:15px;
+    font-size:var(--pillFs);
     font-weight:1000;
   }
   .pill.hit{
@@ -324,39 +223,24 @@
     color:#fff;
   }
 
-  /* Aciertos: número simple (sin círculo) */
-  .cell.ac{
-    justify-content:center;
-    font-size:18px;
-    font-weight:1000;
-    color:#0f172a;
-  }
-  .cell.ac.good{
-    color:var(--hit); /* verde semáforo */
-  }
+  /* aciertos sin círculo */
+  .cell.ac{ font-size:18px; font-weight:1000; }
+  .cell.ac.good{ color:var(--hit); }
 
-  /* Mensajes */
-  .msg{
-    padding:14px 12px;
-    color:#475569;
-    font-weight:800;
-    font-size:14px;
-  }
+  .msg{ padding:14px 12px; color:#475569; font-weight:800; font-size:14px; }
   .msg.center{ text-align:center; }
 
-  /* Quita subrayados “raros” (Android a veces subraya texto clicable) */
-  .p, .p *{ text-decoration:none !important; }
-
-  /* Responsivo: en pantallas muy angostas compactamos sin romper */
-  @media (max-width:420px){
+  /* teléfonos MUY angostos */
+  @media (max-width:380px){
     :root{
-      --wFolio: 58px;
-      --wSel: 30px;
-      --wAci: 36px;
+      --wFolio: 54px;
+      --wAci:   32px;
+      --wSel:   26px;
+      --pill:   24px;
+      --pillFs: 12px;
     }
-    .cell.name{ font-size:17px; }
-    .pill{ width:28px; height:28px; font-size:14px; }
-    .btn{ width:54px; height:46px; border-radius:18px; }
+    .cell.name{ font-size:15px; }
+    .btn{ width:54px; height:46px; }
     .navText{ font-size:17px; }
   }
 </style>
@@ -368,14 +252,10 @@
   <div class="top" id="topBar">
     <div class="topInner">
 
-      <div class="titleRow">
-        <div>
-          <div class="title">QUINIELA AZTECA</div>
-          <div class="week" id="weekTxt">—</div>
-        </div>
-      </div>
+      <div class="title">QUINIELA AZTECA</div>
+      <div class="week" id="weekTxt">—</div>
 
-      <div class="partidosCard" id="partidosCard">
+      <div class="partidosCard">
         <div id="partidosTxt"></div>
       </div>
 
@@ -406,8 +286,8 @@
             <div class="th">Ac</div>
           </div>
         </div>
-
       </div>
+
     </div>
   </div>
 
@@ -429,22 +309,13 @@ let page = 1;
 let totalPages = 1;
 let totalRows = 0;
 
-let resultados = Array(9).fill(""); // L/E/V para colorear aciertos
+let resultados = Array(9).fill("");
 let marcadores = Array(9).fill("");
 
 const $ = (id) => document.getElementById(id);
-
 function showLoading(on){ $("loadingMsg").hidden = !on; }
 function showNoMatch(on){ $("noMatchMsg").hidden = !on; }
 function norm(v){ return String(v ?? "").trim().toUpperCase(); }
-
-function setNavText(){
-  $("navText").firstChild.nodeValue = `Página ${page} / ${totalPages}`;
-  $("totalTxt").textContent = `${Number(totalRows||0).toLocaleString("es-MX")} registros`;
-
-  $("btnPrev").disabled = (page <= 1);
-  $("btnNext").disabled = (page >= totalPages);
-}
 
 function syncScrollbarWidth(){
   const box = $("listBox");
@@ -452,9 +323,7 @@ function syncScrollbarWidth(){
   const sbw = box.offsetWidth - box.clientWidth;
   document.documentElement.style.setProperty("--sbw", sbw + "px");
 }
-
 function fitListHeight(){
-  // Ajusta el alto del listado para que no haya “huecos raros”
   const top = $("topBar");
   const list = $("listBox");
   if (!top || !list) return;
@@ -464,18 +333,22 @@ function fitListHeight(){
   list.style.maxHeight = h + "px";
   syncScrollbarWidth();
 }
-
 window.addEventListener("resize", ()=>{ fitListHeight(); }, {passive:true});
+
+function setNavText(){
+  $("navText").firstChild.nodeValue = `Página ${page} / ${totalPages}`;
+  $("totalTxt").textContent = `${Number(totalRows||0).toLocaleString("es-MX")} registros`;
+  $("btnPrev").disabled = (page <= 1);
+  $("btnNext").disabled = (page >= totalPages);
+}
 
 function renderPartidos(cfg){
   const partidos = (cfg.partidos || []).slice(0,9);
   const box = $("partidosTxt");
   box.innerHTML = "";
-
   partidos.forEach((p,i)=>{
     const m = (marcadores[i] && String(marcadores[i]).trim()) ? String(marcadores[i]).trim() : "-";
     const r = (resultados[i] && String(resultados[i]).trim()) ? String(resultados[i]).trim().toUpperCase() : "-";
-
     const div = document.createElement("div");
     div.className = "p";
     div.innerHTML = `
@@ -494,21 +367,14 @@ async function loadConfig(){
     const res = await fetch(`${BASE}?mode=config`, {cache:"no-store"});
     const j = await res.json();
     const cfg = (j && j.cfg) ? j.cfg : {};
-
     $("weekTxt").textContent = cfg.subtitulo || "";
-
     resultados = (cfg.resultados || []).slice(0,9).map(norm);
     marcadores = (cfg.marcadores || []).slice(0,9);
-
     renderPartidos(cfg);
-  }catch(e){
-    // si falla, no rompemos UI
-  }
+  }catch(e){}
 }
 
-function currentQuery(){
-  return $("searchInput").value.trim();
-}
+function currentQuery(){ return $("searchInput").value.trim(); }
 
 function renderRows(data){
   const list = $("list");
@@ -517,42 +383,33 @@ function renderRows(data){
   const headers = data.headers || [];
   const rows = data.rows || [];
 
-  // Estructura backend:
-  // [folio, telefono_envio, nombre, 1..9, aciertos, lugar]
-  const idxFolio = 0;
-  const idxTel   = 1; // no se muestra, pero sirve para buscar desde backend
-  const idxNom   = 2;
-
   const hLow = headers.map(h=>String(h||"").toLowerCase());
-  const idxAci = hLow.indexOf("aciertos"); // debería existir
-  const idxLugar = hLow.indexOf("lugar");  // debería existir
+  const idxFolio = hLow.indexOf("folio");
+  const idxNom   = hLow.indexOf("nombre");
+  const idxAci   = hLow.indexOf("aciertos");
+  const idxLugar = hLow.indexOf("lugar"); // puede venir o no
 
   rows.forEach(r=>{
-    const folio = r[idxFolio] ?? "";
-    const nombre = r[idxNom] ?? "";
-    const aciertos = (idxAci>=0 ? r[idxAci] : r[r.length-2]) ?? 0;
+    const folio = (idxFolio>=0 ? r[idxFolio] : r[0]) ?? "";
+    const nombre = (idxNom>=0 ? r[idxNom] : r[2]) ?? "";
+    const aciertos = (idxAci>=0 ? r[idxAci] : r[12]) ?? 0;
     const lugar = (idxLugar>=0 ? r[idxLugar] : r[r.length-1]) ?? 0;
 
     const cls = (lugar===1) ? "row win1" : (lugar===2) ? "row win2" : "row";
-
-    // selecciones: 9 después de nombre
     const sels = r.slice(idxNom+1, idxNom+1+9);
 
     const rowDiv = document.createElement("div");
     rowDiv.className = cls;
-
-    // folio, nombre
     rowDiv.innerHTML = `
       <div class="cell folio">${folio}</div>
       <div class="cell name">${String(nombre).toUpperCase()}</div>
-      ${sels.map((s, i)=>{
+      ${sels.map((s,i)=>{
         const v = norm(s || "-");
         const ok = resultados[i] && v === resultados[i];
-        return `<div class="cell"><span class="pill ${ok?'hit':''}">${v||"-"}</span></div>`;
+        return `<div class="cell"><span class="pill ${ok?'hit':''}">${v}</span></div>`;
       }).join("")}
       <div class="cell ac ${Number(aciertos)>0?'good':''}">${aciertos}</div>
     `;
-
     list.appendChild(rowDiv);
   });
 
@@ -572,57 +429,38 @@ async function loadPage(){
     const res = await fetch(url, {cache:"no-store"});
     const j = await res.json();
 
-    // ✅ IMPORTANTE: el backend manda los datos dentro de j.data
+    // backend actual: j.data contiene todo
     const data = j && j.data ? j.data : null;
-    if (!data) throw new Error("Respuesta sin data");
+    if (!data) throw new Error("Sin data");
 
     totalPages = Number(data.totalPages || 1);
     totalRows  = Number(data.totalRows ?? 0);
 
-    // filas
-    const rows = data.rows || [];
-    showNoMatch(!!currentQuery() && rows.length === 0);
+    showNoMatch(!!q && (data.rows || []).length === 0);
 
     renderRows(data);
     setNavText();
     fitListHeight();
   }catch(e){
-    // si falla, mostramos sin coincidencias si había búsqueda
     showNoMatch(!!currentQuery());
   }finally{
     showLoading(false);
   }
 }
 
-/* navegación */
-$("btnPrev").addEventListener("click", ()=>{
-  if (page<=1) return;
-  page--; loadPage();
-});
-$("btnNext").addEventListener("click", ()=>{
-  if (page>=totalPages) return;
-  page++; loadPage();
-});
+$("btnPrev").addEventListener("click", ()=>{ if (page>1){ page--; loadPage(); }});
+$("btnNext").addEventListener("click", ()=>{ if (page<totalPages){ page++; loadPage(); }});
 
-/* Enter oculta teclado */
 $("searchInput").addEventListener("keydown", (e)=>{
-  if (e.key === "Enter"){
-    e.preventDefault();
-    e.target.blur();
-  }
+  if (e.key === "Enter"){ e.preventDefault(); e.target.blur(); }
 });
 
-/* búsqueda con debounce */
-let searchTO = null;
+let searchTO=null;
 $("searchInput").addEventListener("input", ()=>{
   if (searchTO) clearTimeout(searchTO);
-  searchTO = setTimeout(()=>{
-    page = 1;
-    loadPage();
-  }, 200);
+  searchTO = setTimeout(()=>{ page=1; loadPage(); }, 220);
 });
 
-/* init */
 (async ()=>{
   await loadConfig();
   await loadPage();
