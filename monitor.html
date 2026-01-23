@@ -1,8 +1,9 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="format-detection" content="telephone=no,date=no,email=no,address=no" />
 <title>Quiniela Azteca – Clasificación</title>
 
 <style>
@@ -10,318 +11,414 @@
     --bg:#eef6f1;
     --card:#ffffff;
     --line:#cfe5da;
-    --muted:#6b7280;
+    --line2:#e2eee8;
+    --text:#0f172a;
+    --muted:#64748b;
 
-    --hit:#22c55e;         /* verde semáforo */
-    --hitText:#ffffff;
+    --hit:#16a34a; /* verde semáforo */
+    --hitBorder:#0f7a36;
 
-    --win1:#f3f4f6;        /* grises */
-    --win2:#e5e7eb;
-
-    --wFolio:56px;
-    --wNombre:220px;
-    --wSel:34px;
-    --wA:40px;
-
-    --sbw:0px; /* scrollbar width compensation */
+    /* columnas (ajustables sin romper alineación) */
+    --wFolio: 64px;
+    --wAci:   40px;
+    --wSel:   32px; /* cada partido */
+    --sbw: 0px; /* scrollbar width (sync JS) */
   }
 
   *{ box-sizing:border-box; }
   html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
   body{
     margin:0;
-    font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
     background:var(--bg);
-    color:#0f172a;
-    overflow-x:hidden;
+    color:var(--text);
+    overflow-x:hidden; /* evita “hueco” lateral */
   }
-  a{ color:inherit; text-decoration:none; }
+  a, a:visited{ color:inherit; text-decoration:none; }
 
+  /* Layout general */
+  .app{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+
+  /* Header sticky superior (título + partidos + buscador + nav + encabezado 1..9) */
   .top{
-    position:sticky; top:0; z-index:50;
+    position:sticky;
+    top:0;
+    z-index:50;
     background:rgba(238,246,241,.92);
     backdrop-filter: blur(8px);
     border-bottom:1px solid var(--line);
   }
 
-  .headCard{
-    margin:10px 10px 8px;
-    background:var(--card);
-    border:1px solid var(--line);
-    border-radius:16px;
-    overflow:hidden;
+  .topInner{
+    padding:10px 10px 8px;
+    max-width: 980px;
+    margin:0 auto;
   }
 
   .titleRow{
-    padding:10px 12px 0;
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:6px;
   }
+
   .title{
     font-weight:900;
-    letter-spacing:.5px;
+    letter-spacing:.2px;
     font-size:18px;
     line-height:1.1;
   }
-  .subtitle{
-    margin-top:2px;
+  .week{
     font-weight:800;
     color:var(--muted);
     font-size:13px;
+    line-height:1.1;
   }
 
-  .partidos{
-    padding:8px 10px 10px;
+  /* Partidos */
+  .partidosCard{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:18px;
+    overflow:hidden;
+    box-shadow:0 10px 24px rgba(2,6,23,.05);
+    margin:8px 0 10px;
   }
   .p{
     display:flex;
+    align-items:center;
     justify-content:space-between;
     gap:10px;
-    padding:5px 6px;
-    border-top:1px solid #edf6ef;
+    padding:7px 10px;
+    border-bottom:1px solid rgba(207,229,218,.65);
     font-size:12px;
+    line-height:1.15;
   }
-  .p:first-child{ border-top:none; }
+  .p:last-child{ border-bottom:none; }
+
   .p .left{
     font-weight:800;
+    color:#0b1220;
+    white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
-    white-space:nowrap;
+    text-decoration:none !important; /* por si algún navegador insiste */
   }
-  .p .right{ display:flex; gap:6px; align-items:center; }
+  .p .right{ display:flex; gap:6px; align-items:center; flex:0 0 auto; }
+
   .chip{
-    min-width:52px;
-    text-align:center;
-    padding:4px 8px;
+    padding:4px 9px;
     border-radius:999px;
-    border:1px solid #d7e5dc;
-    background:#f6fbf8;
+    border:2px solid rgba(148,163,184,.35);
+    background:#f8fafc;
     font-weight:900;
+    font-size:12px;
+    min-width:44px;
+    text-align:center;
   }
   .chip.pick{
-    min-width:40px;
-    background:#e9fbf1;
-    border-color:#bfead0;
+    border-color:rgba(34,197,94,.25);
+    background:rgba(34,197,94,.10);
     color:#065f46;
+    min-width:38px;
   }
 
-  .searchCard{
-    margin:0 10px 10px;
-    background:var(--card);
-    border:1px solid var(--line);
-    border-radius:16px;
-    padding:10px;
+  /* Buscador + nav */
+  .controls{
     display:flex;
     flex-direction:column;
+    gap:8px;
+  }
+  .search{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:22px;
+    padding:10px 12px;
+    display:flex;
+    align-items:center;
     gap:10px;
+    box-shadow:0 10px 24px rgba(2,6,23,.04);
   }
-
-  .searchBox{
-    position:relative;
+  .search .icon{
+    font-size:18px;
+    opacity:.65;
   }
-  .searchBox input{
+  .search input{
+    border:none;
+    outline:none;
     width:100%;
-    padding:14px 14px 14px 50px;
     font-size:16px;
     font-weight:800;
-    border-radius:16px;
-    border:2px solid #c9d7cf;
-    outline:none;
-    background:#fff;
+    background:transparent;
+    color:var(--text);
   }
-  .searchBox .icon{
-    position:absolute;
-    left:14px; top:50%;
-    transform:translateY(-50%);
-    font-size:22px;
-    opacity:.7;
+  .search input::placeholder{
+    color:#6b7280;
+    font-weight:800;
   }
 
-  .pagerRow{
+  .navCard{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:22px;
+    padding:10px 12px;
     display:flex;
     align-items:center;
     justify-content:space-between;
-    gap:8px;
+    gap:10px;
+    box-shadow:0 10px 24px rgba(2,6,23,.04);
   }
-  .pagerText{
+  .navText{
     font-weight:900;
-    color:#334155;
-    font-size:16px;
+    font-size:18px;
+    color:#0f172a;
+    line-height:1.05;
   }
-  .pagerBtns{
+  .navText small{
+    display:block;
+    font-size:12px;
+    font-weight:800;
+    color:var(--muted);
+    margin-top:2px;
+  }
+  .navBtns{
     display:flex;
     gap:10px;
+    align-items:center;
   }
   .btn{
-    width:54px; height:44px;
-    border-radius:14px;
-    border:2px solid #c9d7cf;
+    width:58px;
+    height:48px;
+    border-radius:18px;
+    border:2px solid rgba(148,163,184,.35);
     background:#fff;
+    font-size:26px;
     font-weight:900;
-    font-size:20px;
-    cursor:pointer;
+    line-height:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:0;
+    user-select:none;
   }
   .btn:disabled{
     opacity:.35;
-    cursor:default;
   }
 
-  .tableWrap{
-    margin:0 10px 16px;
+  /* Encabezado de tabla fijo (Folio/Nombre + 1..9 + Ac) */
+  .tableHead{
+    margin-top:10px;
     background:var(--card);
     border:1px solid var(--line);
-    border-radius:16px;
+    border-radius:22px;
     overflow:hidden;
+    box-shadow:0 10px 24px rgba(2,6,23,.04);
   }
-
-  /* Header de columnas fijo */
-  .gridHead{
-    position:sticky;
-    top: calc(0px + 0px); /* se queda pegado dentro del scroll principal */
-    z-index:40;
-    background:rgba(255,255,255,.96);
-    border-bottom:1px solid #e6f2ea;
-    padding-right:var(--sbw);
-  }
-  .gridRow{
+  .tableHeadGrid{
     display:grid;
-    grid-template-columns: var(--wFolio) var(--wNombre) repeat(9, var(--wSel)) var(--wA);
-    align-items:center;
-    column-gap:6px;
-    padding:10px 10px;
+    grid-template-columns: var(--wFolio) 1fr repeat(9, var(--wSel)) var(--wAci);
+    gap:0;
+    padding-right: var(--sbw); /* compensa scrollbar del listado */
+    align-items:stretch;
   }
-  .hcell{
+  .th{
+    padding:10px 8px;
+    border-right:1px solid rgba(207,229,218,.7);
     font-weight:900;
-    color:#0f172a;
-    font-size:14px;
-  }
-  .hnum{
-    text-align:center;
-  }
-
-  /* Lista */
-  #listBox{
-    max-height: calc(100vh - 390px);
-    overflow:auto;
-    -webkit-overflow-scrolling:touch;
-  }
-
-  .row{
-    border-bottom:1px solid #edf6ef;
-  }
-  .row.win1{ background:var(--win1); }
-  .row.win2{ background:var(--win2); }
-
-  .folio{
-    font-weight:900;
-    color:#334155;
-    font-size:16px;
-  }
-  .name{
-    font-weight:1000;
-    font-size:18px;
-    letter-spacing:.2px;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-  }
-
-  .pill{
-    display:inline-flex;
-    width:32px;
-    height:32px;
-    border-radius:999px;
+    font-size:12px;
+    color:#0b1220;
+    display:flex;
     align-items:center;
     justify-content:center;
-    font-weight:1000;
-    border:2px solid #cbd5e1;
-    background:#fff;
-    color:#0f172a;
+    background:#f6fbf8;
+  }
+  .th.left{
+    justify-content:flex-start;
+    padding-left:12px;
+    font-size:13px;
+  }
+  .th:last-child{ border-right:none; }
+
+  /* Contenedor del listado (scroll) */
+  .listWrap{
+    flex:1 1 auto;
+    max-width:980px;
+    width:100%;
     margin:0 auto;
+    padding:10px 10px 18px;
+    overflow:hidden;
+  }
+  .listBox{
+    height:calc(100vh - 520px); /* fallback; JS ajusta si hace falta */
+    max-height:calc(100vh - 520px);
+    overflow:auto;
+    border-radius:22px;
+    background:var(--card);
+    border:1px solid var(--line);
+    box-shadow:0 10px 24px rgba(2,6,23,.05);
+  }
+
+  /* Filas */
+  .row{
+    display:grid;
+    grid-template-columns: var(--wFolio) 1fr repeat(9, var(--wSel)) var(--wAci);
+    align-items:center;
+    gap:0;
+    border-bottom:1px solid rgba(226,238,232,.9);
+    min-height:54px;
+    padding-right:0;
+  }
+  .row:last-child{ border-bottom:none; }
+
+  /* 1° y 2° en grises */
+  .row.win1{ background:#f3f4f6; }
+  .row.win2{ background:#e5e7eb; }
+
+  .cell{
+    padding:10px 8px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:900;
+    font-size:14px;
+    color:#0b1220;
+  }
+  .cell.folio{
+    justify-content:flex-start;
+    padding-left:12px;
+    color:#334155;
+    font-size:13px;
+    font-weight:900;
+  }
+  .cell.name{
+    justify-content:flex-start;
+    font-size:18px;
+    font-weight:1000;
+    letter-spacing:.2px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  /* Selecciones como “pastilla” compacta */
+  .pill{
+    width:30px;
+    height:30px;
+    border-radius:999px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border:2px solid rgba(148,163,184,.35);
+    background:#fff;
+    font-size:15px;
+    font-weight:1000;
   }
   .pill.hit{
     background:var(--hit);
-    border-color:#16a34a;
-    color:var(--hitText);
+    border-color:var(--hitBorder);
+    color:#fff;
   }
 
-  .ac{
-    text-align:center;
-    font-weight:1000;
+  /* Aciertos: número simple (sin círculo) */
+  .cell.ac{
+    justify-content:center;
     font-size:18px;
+    font-weight:1000;
     color:#0f172a;
   }
-  .row.win1 .ac, .row.win2 .ac{
-    color:#111827;
+  .cell.ac.good{
+    color:var(--hit); /* verde semáforo */
   }
 
-  /* mensajes */
+  /* Mensajes */
   .msg{
-    padding:12px 10px;
-    text-align:center;
-    color:#64748b;
+    padding:14px 12px;
+    color:#475569;
     font-weight:800;
+    font-size:14px;
   }
+  .msg.center{ text-align:center; }
 
-  /* quitar “subrayados raros” del navegador */
-  .p, .gridRow, .row, .name, .folio { text-decoration:none !important; }
+  /* Quita subrayados “raros” (Android a veces subraya texto clicable) */
+  .p, .p *{ text-decoration:none !important; }
+
+  /* Responsivo: en pantallas muy angostas compactamos sin romper */
+  @media (max-width:420px){
+    :root{
+      --wFolio: 58px;
+      --wSel: 30px;
+      --wAci: 36px;
+    }
+    .cell.name{ font-size:17px; }
+    .pill{ width:28px; height:28px; font-size:14px; }
+    .btn{ width:54px; height:46px; border-radius:18px; }
+    .navText{ font-size:17px; }
+  }
 </style>
 </head>
 
 <body>
+<div class="app">
 
-<div class="top">
-  <div class="headCard">
-    <div class="titleRow">
-      <div class="title">QUINIELA AZTECA</div>
-      <div class="subtitle" id="weekTxt"></div>
+  <div class="top" id="topBar">
+    <div class="topInner">
+
+      <div class="titleRow">
+        <div>
+          <div class="title">QUINIELA AZTECA</div>
+          <div class="week" id="weekTxt">—</div>
+        </div>
+      </div>
+
+      <div class="partidosCard" id="partidosCard">
+        <div id="partidosTxt"></div>
+      </div>
+
+      <div class="controls">
+        <div class="search">
+          <div class="icon">🔎</div>
+          <input id="searchInput" type="text" inputmode="search"
+                 placeholder="Busca aquí por teléfono, nombre o folio" autocomplete="off" />
+        </div>
+
+        <div class="navCard">
+          <div class="navText" id="navText">
+            Página 1 / 1
+            <small id="totalTxt">0 registros</small>
+          </div>
+          <div class="navBtns">
+            <button class="btn" id="btnPrev" aria-label="Anterior">‹</button>
+            <button class="btn" id="btnNext" aria-label="Siguiente">›</button>
+          </div>
+        </div>
+
+        <div class="tableHead">
+          <div class="tableHeadGrid" id="headGrid">
+            <div class="th left">#</div>
+            <div class="th left">Nombre</div>
+            <div class="th">1</div><div class="th">2</div><div class="th">3</div><div class="th">4</div><div class="th">5</div>
+            <div class="th">6</div><div class="th">7</div><div class="th">8</div><div class="th">9</div>
+            <div class="th">Ac</div>
+          </div>
+        </div>
+
+      </div>
     </div>
-
-    <div class="partidos" id="partidosTxt"></div>
   </div>
 
-  <div class="searchCard">
-    <div class="searchBox">
-      <div class="icon">🔎</div>
-      <input id="searchInput" placeholder="Busca aquí por teléfono, nombre o folio" autocomplete="off" inputmode="search">
-    </div>
-
-    <div class="pagerRow">
-      <div class="pagerText">
-        <span id="pageTxt">Página 1 / 1</span>
-        <span style="opacity:.6">·</span>
-        <span id="totalTxt">0 registros</span>
-      </div>
-      <div class="pagerBtns">
-        <button class="btn" id="btnPrev" aria-label="Anterior">‹</button>
-        <button class="btn" id="btnNext" aria-label="Siguiente">›</button>
-      </div>
-    </div>
-
-    <div id="loadingMsg" class="msg" hidden>Cargando…</div>
-    <div id="noMatchMsg" class="msg" hidden>Sin coincidencias.</div>
-  </div>
-
-  <div class="tableWrap">
-    <div class="gridHead">
-      <div class="gridRow">
-        <div class="hcell">#</div>
-        <div class="hcell">Nombre</div>
-        <div class="hcell hnum">1</div>
-        <div class="hcell hnum">2</div>
-        <div class="hcell hnum">3</div>
-        <div class="hcell hnum">4</div>
-        <div class="hcell hnum">5</div>
-        <div class="hcell hnum">6</div>
-        <div class="hcell hnum">7</div>
-        <div class="hcell hnum">8</div>
-        <div class="hcell hnum">9</div>
-        <div class="hcell hnum">Ac</div>
-      </div>
-    </div>
-
-    <div id="listBox">
+  <div class="listWrap">
+    <div class="listBox" id="listBox">
+      <div class="msg center" id="loadingMsg">Cargando…</div>
       <div id="list"></div>
+      <div class="msg center" id="noMatchMsg" hidden>No hay coincidencias.</div>
     </div>
   </div>
+
 </div>
 
 <script>
@@ -332,14 +429,22 @@ let page = 1;
 let totalPages = 1;
 let totalRows = 0;
 
-let resultados = Array(9).fill("");
+let resultados = Array(9).fill(""); // L/E/V para colorear aciertos
 let marcadores = Array(9).fill("");
 
 const $ = (id) => document.getElementById(id);
-function norm(v){ return String(v ?? "").trim().toUpperCase(); }
 
 function showLoading(on){ $("loadingMsg").hidden = !on; }
 function showNoMatch(on){ $("noMatchMsg").hidden = !on; }
+function norm(v){ return String(v ?? "").trim().toUpperCase(); }
+
+function setNavText(){
+  $("navText").firstChild.nodeValue = `Página ${page} / ${totalPages}`;
+  $("totalTxt").textContent = `${Number(totalRows||0).toLocaleString("es-MX")} registros`;
+
+  $("btnPrev").disabled = (page <= 1);
+  $("btnNext").disabled = (page >= totalPages);
+}
 
 function syncScrollbarWidth(){
   const box = $("listBox");
@@ -347,15 +452,20 @@ function syncScrollbarWidth(){
   const sbw = box.offsetWidth - box.clientWidth;
   document.documentElement.style.setProperty("--sbw", sbw + "px");
 }
-window.addEventListener("resize", syncScrollbarWidth, {passive:true});
 
-function setPageText(){
-  $("pageTxt").textContent = `Página ${page} / ${totalPages}`;
-  $("totalTxt").textContent = `${Number(totalRows||0).toLocaleString("es-MX")} registros`;
-
-  $("btnPrev").disabled = (page <= 1);
-  $("btnNext").disabled = (page >= totalPages);
+function fitListHeight(){
+  // Ajusta el alto del listado para que no haya “huecos raros”
+  const top = $("topBar");
+  const list = $("listBox");
+  if (!top || !list) return;
+  const topH = top.getBoundingClientRect().height;
+  const h = Math.max(220, window.innerHeight - topH - 18);
+  list.style.height = h + "px";
+  list.style.maxHeight = h + "px";
+  syncScrollbarWidth();
 }
+
+window.addEventListener("resize", ()=>{ fitListHeight(); }, {passive:true});
 
 function renderPartidos(cfg){
   const partidos = (cfg.partidos || []).slice(0,9);
@@ -391,77 +501,61 @@ async function loadConfig(){
     marcadores = (cfg.marcadores || []).slice(0,9);
 
     renderPartidos(cfg);
-  }catch(e){}
+  }catch(e){
+    // si falla, no rompemos UI
+  }
 }
 
 function currentQuery(){
   return $("searchInput").value.trim();
 }
 
-// Detecta columnas reales del backend (para no volver a “correr” datos)
-function computeIndexes(headers){
-  const h = (headers || []).map(x => String(x||"").toLowerCase());
-  const iF = h.indexOf("folio");
-  const iT = h.indexOf("telefono_envio"); // puede existir o no
-  const iN = h.indexOf("nombre");
-  const iA = h.indexOf("aciertos");
-  const iL = h.indexOf("lugar"); // opcional
-  return {iF,iT,iN,iA,iL,h};
-}
-
-function renderRows(dataObj){
+function renderRows(data){
   const list = $("list");
   list.innerHTML = "";
 
-  const headers = (dataObj && dataObj.headers) ? dataObj.headers : [];
-  const rows = (dataObj && dataObj.rows) ? dataObj.rows : [];
-  const {iF,iT,iN,iA,iL} = computeIndexes(headers);
+  const headers = data.headers || [];
+  const rows = data.rows || [];
 
-  if (rows.length === 0){
-    syncScrollbarWidth();
-    return;
-  }
+  // Estructura backend:
+  // [folio, telefono_envio, nombre, 1..9, aciertos, lugar]
+  const idxFolio = 0;
+  const idxTel   = 1; // no se muestra, pero sirve para buscar desde backend
+  const idxNom   = 2;
 
-  const parts = [];
-  for (let i=0; i<rows.length; i++){
-    const r = rows[i] || [];
+  const hLow = headers.map(h=>String(h||"").toLowerCase());
+  const idxAci = hLow.indexOf("aciertos"); // debería existir
+  const idxLugar = hLow.indexOf("lugar");  // debería existir
 
-    const folio = (iF>=0 ? r[iF] : r[0]) ?? "";
-    const nombre = (iN>=0 ? r[iN] : r[1]) ?? "";
-    const aciertos = (iA>=0 ? r[iA] : r[r.length-1]) ?? "";
+  rows.forEach(r=>{
+    const folio = r[idxFolio] ?? "";
+    const nombre = r[idxNom] ?? "";
+    const aciertos = (idxAci>=0 ? r[idxAci] : r[r.length-2]) ?? 0;
+    const lugar = (idxLugar>=0 ? r[idxLugar] : r[r.length-1]) ?? 0;
 
-    // lugar (si viene)
-    const lugar = (iL>=0 ? Number(r[iL]||0) : 0);
     const cls = (lugar===1) ? "row win1" : (lugar===2) ? "row win2" : "row";
 
-    // selecciones: tomamos 9 después de nombre, ignorando tel si existe
-    // buscamos el primer índice después de nombre:
-    const startSel = iN >= 0 ? (iN + 1) : 2;
+    // selecciones: 9 después de nombre
+    const sels = r.slice(idxNom+1, idxNom+1+9);
 
-    // el final es antes de aciertos/lugar
-    const endSel = (iA >= 0 ? iA : (r.length-1));
-    const sels = r.slice(startSel, endSel).slice(0,9);
+    const rowDiv = document.createElement("div");
+    rowDiv.className = cls;
 
-    let selsHtml = "";
-    for (let k=0; k<9; k++){
-      const s = sels[k] ?? "";
-      const ok = resultados[k] && norm(s) === resultados[k];
-      selsHtml += `<div style="text-align:center"><span class="pill ${ok?'hit':''}">${(s||'-')}</span></div>`;
-    }
+    // folio, nombre
+    rowDiv.innerHTML = `
+      <div class="cell folio">${folio}</div>
+      <div class="cell name">${String(nombre).toUpperCase()}</div>
+      ${sels.map((s, i)=>{
+        const v = norm(s || "-");
+        const ok = resultados[i] && v === resultados[i];
+        return `<div class="cell"><span class="pill ${ok?'hit':''}">${v||"-"}</span></div>`;
+      }).join("")}
+      <div class="cell ac ${Number(aciertos)>0?'good':''}">${aciertos}</div>
+    `;
 
-    parts.push(`
-      <div class="${cls}">
-        <div class="gridRow">
-          <div class="folio">${folio}</div>
-          <div class="name">${nombre}</div>
-          ${selsHtml}
-          <div class="ac">${aciertos}</div>
-        </div>
-      </div>
-    `);
-  }
+    list.appendChild(rowDiv);
+  });
 
-  list.innerHTML = parts.join("");
   syncScrollbarWidth();
 }
 
@@ -478,17 +572,22 @@ async function loadPage(){
     const res = await fetch(url, {cache:"no-store"});
     const j = await res.json();
 
-    const data = j.data || {};
-    totalPages = Number(data.totalPages || 1);
-    totalRows  = Number(data.totalRows || 0);
-    page = Number(data.page || page);
+    // ✅ IMPORTANTE: el backend manda los datos dentro de j.data
+    const data = j && j.data ? j.data : null;
+    if (!data) throw new Error("Respuesta sin data");
 
+    totalPages = Number(data.totalPages || 1);
+    totalRows  = Number(data.totalRows ?? 0);
+
+    // filas
     const rows = data.rows || [];
-    showNoMatch(!!q && rows.length === 0);
+    showNoMatch(!!currentQuery() && rows.length === 0);
 
     renderRows(data);
-    setPageText();
+    setNavText();
+    fitListHeight();
   }catch(e){
+    // si falla, mostramos sin coincidencias si había búsqueda
     showNoMatch(!!currentQuery());
   }finally{
     showLoading(false);
@@ -513,23 +612,22 @@ $("searchInput").addEventListener("keydown", (e)=>{
   }
 });
 
-/* búsqueda (debounce) */
+/* búsqueda con debounce */
 let searchTO = null;
 $("searchInput").addEventListener("input", ()=>{
   if (searchTO) clearTimeout(searchTO);
   searchTO = setTimeout(()=>{
     page = 1;
     loadPage();
-  }, 180);
+  }, 200);
 });
 
 /* init */
 (async ()=>{
   await loadConfig();
   await loadPage();
-  setTimeout(syncScrollbarWidth, 0);
+  setTimeout(()=>{ fitListHeight(); syncScrollbarWidth(); }, 0);
 })();
 </script>
-
 </body>
 </html>
