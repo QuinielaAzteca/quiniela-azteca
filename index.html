@@ -1227,14 +1227,14 @@ function wrapTextLines(ctx, text, maxWidth) {
 
 function estimateProofHeight(itemsToSend) {
   const groups = groupItemsByName(itemsToSend);
-  let h = 220;
+  let h = 260;
   groups.forEach(group => {
-    h += 48;
-    group.items.forEach(() => { h += 66; });
-    h += 8;
+    h += 58;          // encabezado de nombre
+    group.items.forEach(() => { h += 74; }); // cada quiniela con más aire
+    h += 14;          // separación entre grupos
   });
-  h += 90;
-  return Math.max(420, h);
+  h += 150;           // footer total + margen inferior generoso
+  return Math.max(500, h);
 }
 
 function renderProofCanvas(itemsToSend, tel, titulo, subtitulo) {
@@ -1251,10 +1251,17 @@ function renderProofCanvas(itemsToSend, tel, titulo, subtitulo) {
 
   drawRoundRect(ctx, 40, 40, width - 80, height - 80, 28, '#ffffff', '#d7e6dc');
 
+  const ribbonW = width - 80;
+  const stripeW = ribbonW / 3;
   ctx.fillStyle = '#0a6b3a';
-  ctx.fillRect(40, 40, (width - 80) / 2, 14);
+  ctx.fillRect(40, 40, stripeW, 14);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(40 + stripeW, 40, stripeW, 14);
+  ctx.strokeStyle = '#d7e6dc';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(40 + stripeW, 40, stripeW, 14);
   ctx.fillStyle = '#c62828';
-  ctx.fillRect(40 + (width - 80) / 2, 40, (width - 80) / 2, 14);
+  ctx.fillRect(40 + stripeW * 2, 40, stripeW, 14);
 
   let y = 88;
   ctx.fillStyle = '#0f172a';
@@ -1284,7 +1291,7 @@ function renderProofCanvas(itemsToSend, tel, titulo, subtitulo) {
     y += 58;
 
     group.items.forEach((q, idx) => {
-      drawRoundRect(ctx, 82, y, width - 164, 52, 14, '#ffffff', '#e8efe9');
+      drawRoundRect(ctx, 82, y, width - 164, 56, 14, '#ffffff', '#e8efe9');
       ctx.fillStyle = '#0f172a';
       ctx.font = '800 22px Arial';
       const left = `${idx + 1}. ${formatWhatsSelections(q.sels)}`;
@@ -1292,11 +1299,11 @@ function renderProofCanvas(itemsToSend, tel, titulo, subtitulo) {
 
       ctx.fillStyle = '#475569';
       ctx.font = '700 19px Arial';
-      ctx.fillText(`Comb: ${q.combos} · ${fmtMoney(q.combos * BASE_PRICE)}`, 104, y + 44);
-      y += 62;
+      ctx.fillText(`Comb: ${q.combos} · ${fmtMoney(q.combos * BASE_PRICE)}`, 104, y + 46);
+      y += 70;
     });
 
-    y += 8;
+    y += 12;
   });
 
   const totalGlobalCombos = itemsToSend.reduce((a,q)=>a+q.combos,0);
@@ -1304,12 +1311,13 @@ function renderProofCanvas(itemsToSend, tel, titulo, subtitulo) {
   const totalQuinielas    = itemsToSend.length;
   const labelLista        = totalQuinielas === 1 ? 'Quiniela' : 'Quinielas';
 
-  drawRoundRect(ctx, 70, height - 130, width - 140, 70, 18, '#0f172a', '#0f172a');
+  const footerY = y + 8;
+  drawRoundRect(ctx, 70, footerY, width - 140, 84, 18, '#0f172a', '#0f172a');
   ctx.fillStyle = '#ffffff';
   ctx.font = '900 24px Arial';
-  ctx.fillText(`TOTAL LISTA: ${totalQuinielas} ${labelLista} · ${totalGlobalCombos} combinaciones`, 92, height - 88);
+  ctx.fillText(`TOTAL LISTA: ${totalQuinielas} ${labelLista} · ${totalGlobalCombos} combinaciones`, 92, footerY + 36);
   ctx.font = '900 30px Arial';
-  ctx.fillText(`TOTAL A PAGAR: ${fmtMoney(totalGlobalMoney)}`, 92, height - 52);
+  ctx.fillText(`TOTAL A PAGAR: ${fmtMoney(totalGlobalMoney)}`, 92, footerY + 72);
 
   return canvas;
 }
