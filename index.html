@@ -620,12 +620,12 @@
         <canvas id="proofCanvas" hidden></canvas>
         <div style="background:#fff;border:1px solid #d7e6dc;border-radius:14px;padding:14px;text-align:center;font-weight:800;color:#334155;">
           El comprobante ya fue generado.
-          <div style="font-size:12px;color:#64748b;margin-top:6px;">Usa los botones de abajo para compartirlo o abrir WhatsApp.</div>
+          <div style="font-size:12px;color:#64748b;margin-top:6px;">Usa los botones de abajo. En algunos iPhone, WhatsApp puede abrirse en modo texto como respaldo.</div>
         </div>
       </div>
       <div class="shareActions">
         <button class="btn alt" id="btnDescargarProof" type="button">Descargar imagen</button>
-        <button class="btn" id="btnWhatsText" type="button">Abrir WhatsApp</button>
+        <button class="btn" id="btnWhatsText" type="button">Abrir WhatsApp con texto</button>
       </div>
     </div>
   </div>
@@ -1241,66 +1241,69 @@ function renderProofCanvas(itemsToSend, tel, titulo, subtitulo) {
   const canvas = $('#proofCanvas');
   const ctx = canvas.getContext('2d');
 
-  const width = 1080;
-  const height = estimateProofHeight(itemsToSend);
+  const width = 900; // más angosto para que WhatsApp lo muestre más grande en vista previa
+  const height = estimateProofHeight(itemsToSend) + 120;
   canvas.width = width;
   canvas.height = height;
 
   ctx.fillStyle = '#eaf3ee';
   ctx.fillRect(0, 0, width, height);
 
-  drawRoundRect(ctx, 40, 40, width - 80, height - 80, 28, '#ffffff', '#d7e6dc');
+  drawRoundRect(ctx, 32, 32, width - 64, height - 64, 28, '#ffffff', '#d7e6dc');
 
-  const ribbonW = width - 80;
+  const ribbonW = width - 64;
   const stripeW = ribbonW / 3;
   ctx.fillStyle = '#0a6b3a';
-  ctx.fillRect(40, 40, stripeW, 14);
+  ctx.fillRect(32, 32, stripeW, 14);
   ctx.fillStyle = '#ffffff';
-  ctx.fillRect(40 + stripeW, 40, stripeW, 14);
+  ctx.fillRect(32 + stripeW, 32, stripeW, 14);
   ctx.strokeStyle = '#d7e6dc';
   ctx.lineWidth = 1;
-  ctx.strokeRect(40 + stripeW, 40, stripeW, 14);
+  ctx.strokeRect(32 + stripeW, 32, stripeW, 14);
   ctx.fillStyle = '#c62828';
-  ctx.fillRect(40 + stripeW * 2, 40, stripeW, 14);
+  ctx.fillRect(32 + stripeW * 2, 32, stripeW, 14);
 
-  let y = 88;
-  ctx.fillStyle = '#0f172a';
-  ctx.font = '900 42px Arial';
-  ctx.fillText(titulo || 'QUINIELA AZTECA', 76, y);
-
-  y += 42;
-  ctx.fillStyle = '#475569';
-  ctx.font = '700 24px Arial';
-  if (subtitulo) ctx.fillText(subtitulo, 76, y);
+  let y = 110; // más separación respecto al listón
+  ctx.font = '900 34px Arial';
+  ctx.fillStyle = '#0a6b3a';
+  ctx.fillText('QUINIELA', 66, y);
+  const qWidth = ctx.measureText('QUINIELA').width;
+  ctx.fillStyle = '#c62828';
+  ctx.fillText('AZTECA', 66 + qWidth + 14, y);
 
   y += 40;
   ctx.fillStyle = '#334155';
-  ctx.font = '700 22px Arial';
-  ctx.fillText(`Teléfono: ${tel}`, 76, y);
-  y += 30;
-  ctx.fillText(`Fecha: ${getComprobanteStamp()}`, 76, y);
+  ctx.font = '900 22px Arial';
+  if (subtitulo) ctx.fillText(subtitulo, 66, y);
+
+  y += 38;
+  ctx.fillStyle = '#334155';
+  ctx.font = '700 20px Arial';
+  ctx.fillText(`Teléfono: ${tel}`, 66, y);
+  y += 28;
+  ctx.fillText(`Fecha: ${getComprobanteStamp()}`, 66, y);
 
   const groups = groupItemsByName(itemsToSend);
-  y += 28;
+  y += 26;
 
   groups.forEach(group => {
-    drawRoundRect(ctx, 70, y, width - 140, 42, 16, '#f6fbf8', '#d7e6dc');
+    drawRoundRect(ctx, 58, y, width - 116, 42, 16, '#f6fbf8', '#d7e6dc');
     ctx.fillStyle = '#0f172a';
-    ctx.font = '900 26px Arial';
-    ctx.fillText(group.nombre, 92, y + 28);
-    y += 58;
+    ctx.font = '900 24px Arial';
+    ctx.fillText(group.nombre, 78, y + 28);
+    y += 56;
 
     group.items.forEach((q, idx) => {
-      drawRoundRect(ctx, 82, y, width - 164, 56, 14, '#ffffff', '#e8efe9');
+      drawRoundRect(ctx, 70, y, width - 140, 60, 14, '#ffffff', '#e8efe9');
       ctx.fillStyle = '#0f172a';
-      ctx.font = '800 22px Arial';
+      ctx.font = '800 20px Arial';
       const left = `${idx + 1}. ${formatWhatsSelections(q.sels)}`;
-      ctx.fillText(left, 104, y + 24);
+      ctx.fillText(left, 90, y + 24);
 
       ctx.fillStyle = '#475569';
-      ctx.font = '700 19px Arial';
-      ctx.fillText(`Comb: ${q.combos} · ${fmtMoney(q.combos * BASE_PRICE)}`, 104, y + 46);
-      y += 70;
+      ctx.font = '700 18px Arial';
+      ctx.fillText(`Comb: ${q.combos} · ${fmtMoney(q.combos * BASE_PRICE)}`, 90, y + 48);
+      y += 72;
     });
 
     y += 12;
@@ -1311,13 +1314,13 @@ function renderProofCanvas(itemsToSend, tel, titulo, subtitulo) {
   const totalQuinielas    = itemsToSend.length;
   const labelLista        = totalQuinielas === 1 ? 'Quiniela' : 'Quinielas';
 
-  const footerY = y + 8;
-  drawRoundRect(ctx, 70, footerY, width - 140, 84, 18, '#0f172a', '#0f172a');
+  const footerY = y + 14;
+  drawRoundRect(ctx, 58, footerY, width - 116, 92, 18, '#0f172a', '#0f172a');
   ctx.fillStyle = '#ffffff';
-  ctx.font = '900 24px Arial';
-  ctx.fillText(`TOTAL LISTA: ${totalQuinielas} ${labelLista} · ${totalGlobalCombos} combinaciones`, 92, footerY + 36);
+  ctx.font = '900 22px Arial';
+  ctx.fillText(`TOTAL LISTA: ${totalQuinielas} ${labelLista} · ${totalGlobalCombos} combinaciones`, 80, footerY + 36);
   ctx.font = '900 30px Arial';
-  ctx.fillText(`TOTAL A PAGAR: ${fmtMoney(totalGlobalMoney)}`, 92, footerY + 72);
+  ctx.fillText(`TOTAL A PAGAR: ${fmtMoney(totalGlobalMoney)}`, 80, footerY + 74);
 
   return canvas;
 }
@@ -1539,18 +1542,4 @@ function loadConfig() {
     .catch(() => {
       if (!stored) {
         applyConfig({
-          titulo:'QUINIELA AZTECA',
-          subtitulo:'Jornada',
-          cierre:'',
-          precio:25,
-          dias_partido:'',
-          partidos:[]
-        });
-      }
-    });
-}
-
-document.addEventListener('DOMContentLoaded', loadConfig);
-</script>
-</body>
-</html>
+   
