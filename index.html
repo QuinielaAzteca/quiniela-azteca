@@ -15,6 +15,7 @@
 
   <style>
     html, body { overflow-x: hidden; }
+    [hidden]{ display:none !important; }
 
     :root{
       /* ======= TEMA VERDE (discreto/elegante) ======= */
@@ -468,7 +469,6 @@
       inset:0;
       background:rgba(15,23,42,.45);
       z-index:10000;
-      display:flex;
       align-items:center;
       justify-content:center;
       padding:14px;
@@ -511,14 +511,6 @@
     .shareBody{
       padding:12px;
       background:#f8fbf9;
-    }
-    #proofPreview{
-      width:100%;
-      display:block;
-      border-radius:14px;
-      border:1px solid #d7e6dc;
-      background:#fff;
-      box-shadow:0 8px 20px rgba(2, 44, 20, .08);
     }
     .shareActions{
       display:flex;
@@ -626,7 +618,10 @@
       </div>
       <div class="shareBody">
         <canvas id="proofCanvas" hidden></canvas>
-        <img id="proofPreview" alt="Comprobante de quiniela" />
+        <div style="background:#fff;border:1px solid #d7e6dc;border-radius:14px;padding:14px;text-align:center;font-weight:800;color:#334155;">
+          El comprobante ya fue generado.
+          <div style="font-size:12px;color:#64748b;margin-top:6px;">Usa los botones de abajo para compartirlo o abrir WhatsApp.</div>
+        </div>
       </div>
       <div class="shareActions">
         <button class="btn alt" id="btnDescargarProof" type="button">Descargar imagen</button>
@@ -1330,8 +1325,11 @@ function dataUrlToFile(dataUrl, filename) {
 }
 
 function openShareModal(dataUrl, waUrl) {
-  $('#proofPreview').src = dataUrl;
-  $('#btnDescargarProof').onclick = () => {
+  const modal = document.getElementById('shareModal');
+  modal.hidden = false;
+  modal.style.display = 'flex';
+
+  document.getElementById('btnDescargarProof').onclick = () => {
     const a = document.createElement('a');
     a.href = dataUrl;
     a.download = 'comprobante-quiniela-azteca.png';
@@ -1339,12 +1337,14 @@ function openShareModal(dataUrl, waUrl) {
     a.click();
     a.remove();
   };
-  $('#btnWhatsText').onclick = () => window.open(waUrl, '_blank');
-  $('#shareModal').hidden = false;
+
+  document.getElementById('btnWhatsText').onclick = () => window.open(waUrl, '_blank');
 }
 
 function closeShareModal() {
-  $('#shareModal').hidden = true;
+  const modal = document.getElementById('shareModal');
+  modal.hidden = true;
+  modal.style.display = 'none';
 }
 
 $('#btnCerrarShare').addEventListener('click', closeShareModal);
