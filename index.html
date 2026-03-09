@@ -15,7 +15,6 @@
 
   <style>
     html, body { overflow-x: hidden; }
-    [hidden]{ display:none !important; }
 
     :root{
       /* ======= TEMA VERDE (discreto/elegante) ======= */
@@ -455,73 +454,6 @@
       opacity:0.25;
     }
 
-
-    .helperNote{
-      font-size:12px;
-      color:#334155;
-      font-weight:700;
-      text-align:center;
-      padding:8px 10px;
-    }
-
-    .shareModal{
-      position:fixed;
-      inset:0;
-      background:rgba(15,23,42,.45);
-      z-index:10000;
-      align-items:center;
-      justify-content:center;
-      padding:14px;
-    }
-    .shareCard{
-      width:min(100%, 430px);
-      max-height:90vh;
-      overflow:auto;
-      background:#fff;
-      border-radius:18px;
-      box-shadow:0 18px 40px rgba(2,6,23,.28);
-      border:1px solid #dbe6df;
-    }
-    .shareHead{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding:12px 14px;
-      border-bottom:1px solid #e8efe9;
-    }
-    .shareTitle{
-      font-size:16px;
-      font-weight:900;
-      color:#0f172a;
-    }
-    .shareClose{
-      appearance:none;
-      border:none;
-      background:#f1f5f9;
-      color:#0f172a;
-      width:34px;
-      height:34px;
-      border-radius:999px;
-      font-size:24px;
-      line-height:1;
-      cursor:pointer;
-      font-weight:700;
-    }
-    .shareBody{
-      padding:12px;
-      background:#f8fbf9;
-    }
-    .shareActions{
-      display:flex;
-      gap:8px;
-      padding:12px;
-      border-top:1px solid #e8efe9;
-    }
-    .shareActions .btn{
-      min-width:0;
-    }
-
     @media (max-width:520px){
       .namebox{grid-template-columns:1fr}
     }
@@ -585,13 +517,9 @@
         </div>
 
         <div class="controls">
-          <button class="btn alt" id="btnAgregar">Agregar a la lista</button>
+          <button class="btn alt" id="btnAgregar">Agregar</button>
           <button class="btn alt" id="btnLimpiar">Limpiar</button>
-          <button class="btn" id="btnEnviar">Finalizar y compartir</button>
-        </div>
-
-        <div class="section helperNote">
-          Si vas a mandar varias quinielas, agrégalas primero a la lista y al final toca <b>Finalizar y compartir</b>.
+          <button class="btn" id="btnEnviar">Enviar por WhatsApp</button>
         </div>
 
         <div class="section">
@@ -609,26 +537,6 @@
   </div>
 
   <div class="snack" id="snack"></div>
-
-  <div class="shareModal" id="shareModal" hidden>
-    <div class="shareCard">
-      <div class="shareHead">
-        <div class="shareTitle">Comprobante listo</div>
-        <button class="shareClose" id="btnCerrarShare" aria-label="Cerrar">×</button>
-      </div>
-      <div class="shareBody">
-        <canvas id="proofCanvas" hidden></canvas>
-        <div style="background:#fff;border:1px solid #d7e6dc;border-radius:14px;padding:14px;text-align:center;font-weight:800;color:#334155;">
-          El comprobante ya fue generado.
-          <div style="font-size:12px;color:#64748b;margin-top:6px;">Usa los botones de abajo para compartirlo o abrir WhatsApp.</div>
-        </div>
-      </div>
-      <div class="shareActions">
-        <button class="btn alt" id="btnDescargarProof" type="button">Descargar imagen</button>
-        <button class="btn" id="btnWhatsText" type="button">Abrir WhatsApp</button>
-      </div>
-    </div>
-  </div>
 
 <script>
 const SHEET_ENDPOINT_PUBLIC = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec";
@@ -1124,269 +1032,8 @@ function formatWhatsSelections(sels) {
   return parts.join(' ');
 }
 
-
-function escapeHtml(str) {
-  return String(str ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-function getComprobanteStamp() {
-  const d = new Date();
-  const f = d.toLocaleDateString('es-MX', { year:'numeric', month:'2-digit', day:'2-digit' });
-  const h = d.toLocaleTimeString('es-MX', { hour:'2-digit', minute:'2-digit' });
-  return `${f} ${h}`;
-}
-
-function groupItemsByName(items) {
-  const groups = [];
-  const indexByName = {};
-  items.forEach(q => {
-    const name = q.nombre;
-    let idx = indexByName[name];
-    if (idx === undefined) {
-      idx = groups.length;
-      indexByName[name] = idx;
-      groups.push({ nombre: name, items: [] });
-    }
-    groups[idx].items.push(q);
-  });
-  return groups;
-}
-
-function buildWhatsText(itemsToSend, titulo, subtitulo) {
-  const lines = [];
-  lines.push(`🏆 *${titulo}*`);
-  if (subtitulo) lines.push(`📆 ${subtitulo}`);
-  lines.push('');
-
-  const groups = groupItemsByName(itemsToSend);
-  groups.forEach(group => {
-    const count = group.items.length;
-    const label = count === 1 ? 'quiniela' : 'quinielas';
-    lines.push(`👤 *${group.nombre}* (${count} ${label})`);
-    group.items.forEach(q => {
-      const selLine = formatWhatsSelections(q.sels);
-      const comb    = q.combos;
-      const total   = comb * BASE_PRICE;
-      lines.push(`   • ${selLine}`);
-      lines.push(`     Comb: ${comb} · ${fmtMoney(total)}`);
-    });
-    lines.push('');
-  });
-
-  const totalGlobalCombos = itemsToSend.reduce((a,q)=>a+q.combos,0);
-  const totalGlobalMoney  = totalGlobalCombos * BASE_PRICE;
-  const totalQuinielas    = itemsToSend.length;
-  const labelLista        = totalQuinielas === 1 ? 'Quiniela' : 'Quinielas';
-
-  lines.push(`*TOTAL LISTA: ${totalQuinielas} ${labelLista} ${totalGlobalCombos} combinaciones.*`);
-  lines.push(`*TOTAL A PAGAR: ${fmtMoney(totalGlobalMoney)}.*`);
-
-  return lines.join('\n');
-}
-
-function drawRoundRect(ctx, x, y, w, h, r, fill, stroke) {
-  const rr = Math.min(r, w / 2, h / 2);
-  ctx.beginPath();
-  ctx.moveTo(x + rr, y);
-  ctx.arcTo(x + w, y, x + w, y + h, rr);
-  ctx.arcTo(x + w, y + h, x, y + h, rr);
-  ctx.arcTo(x, y + h, x, y, rr);
-  ctx.arcTo(x, y, x + w, y, rr);
-  ctx.closePath();
-  if (fill) {
-    ctx.fillStyle = fill;
-    ctx.fill();
-  }
-  if (stroke) {
-    ctx.strokeStyle = stroke;
-    ctx.stroke();
-  }
-}
-
-function wrapTextLines(ctx, text, maxWidth) {
-  const words = String(text || '').split(/\s+/);
-  const lines = [];
-  let line = '';
-  words.forEach(word => {
-    const test = line ? (line + ' ' + word) : word;
-    if (ctx.measureText(test).width <= maxWidth) {
-      line = test;
-    } else {
-      if (line) lines.push(line);
-      line = word;
-    }
-  });
-  if (line) lines.push(line);
-  return lines.length ? lines : [''];
-}
-
-function estimateProofHeight(itemsToSend) {
-  const groups = groupItemsByName(itemsToSend);
-  let h = 260;
-  groups.forEach(group => {
-    h += 58;          // encabezado de nombre
-    group.items.forEach(() => { h += 74; }); // cada quiniela con más aire
-    h += 14;          // separación entre grupos
-  });
-  h += 150;           // footer total + margen inferior generoso
-  return Math.max(500, h);
-}
-
-function renderProofCanvas(itemsToSend, tel, titulo, subtitulo) {
-  const canvas = $('#proofCanvas');
-  const ctx = canvas.getContext('2d');
-
-  const width = 1080;
-  const height = estimateProofHeight(itemsToSend);
-  canvas.width = width;
-  canvas.height = height;
-
-  ctx.fillStyle = '#eaf3ee';
-  ctx.fillRect(0, 0, width, height);
-
-  drawRoundRect(ctx, 40, 40, width - 80, height - 80, 28, '#ffffff', '#d7e6dc');
-
-  const ribbonW = width - 80;
-  const stripeW = ribbonW / 3;
-  ctx.fillStyle = '#0a6b3a';
-  ctx.fillRect(40, 40, stripeW, 14);
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(40 + stripeW, 40, stripeW, 14);
-  ctx.strokeStyle = '#d7e6dc';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(40 + stripeW, 40, stripeW, 14);
-  ctx.fillStyle = '#c62828';
-  ctx.fillRect(40 + stripeW * 2, 40, stripeW, 14);
-
-  let y = 88;
-  ctx.fillStyle = '#0f172a';
-  ctx.font = '900 42px Arial';
-  ctx.fillText(titulo || 'QUINIELA AZTECA', 76, y);
-
-  y += 42;
-  ctx.fillStyle = '#475569';
-  ctx.font = '700 24px Arial';
-  if (subtitulo) ctx.fillText(subtitulo, 76, y);
-
-  y += 40;
-  ctx.fillStyle = '#334155';
-  ctx.font = '700 22px Arial';
-  ctx.fillText(`Teléfono: ${tel}`, 76, y);
-  y += 30;
-  ctx.fillText(`Fecha: ${getComprobanteStamp()}`, 76, y);
-
-  const groups = groupItemsByName(itemsToSend);
-  y += 28;
-
-  groups.forEach(group => {
-    drawRoundRect(ctx, 70, y, width - 140, 42, 16, '#f6fbf8', '#d7e6dc');
-    ctx.fillStyle = '#0f172a';
-    ctx.font = '900 26px Arial';
-    ctx.fillText(group.nombre, 92, y + 28);
-    y += 58;
-
-    group.items.forEach((q, idx) => {
-      drawRoundRect(ctx, 82, y, width - 164, 56, 14, '#ffffff', '#e8efe9');
-      ctx.fillStyle = '#0f172a';
-      ctx.font = '800 22px Arial';
-      const left = `${idx + 1}. ${formatWhatsSelections(q.sels)}`;
-      ctx.fillText(left, 104, y + 24);
-
-      ctx.fillStyle = '#475569';
-      ctx.font = '700 19px Arial';
-      ctx.fillText(`Comb: ${q.combos} · ${fmtMoney(q.combos * BASE_PRICE)}`, 104, y + 46);
-      y += 70;
-    });
-
-    y += 12;
-  });
-
-  const totalGlobalCombos = itemsToSend.reduce((a,q)=>a+q.combos,0);
-  const totalGlobalMoney  = totalGlobalCombos * BASE_PRICE;
-  const totalQuinielas    = itemsToSend.length;
-  const labelLista        = totalQuinielas === 1 ? 'Quiniela' : 'Quinielas';
-
-  const footerY = y + 8;
-  drawRoundRect(ctx, 70, footerY, width - 140, 84, 18, '#0f172a', '#0f172a');
-  ctx.fillStyle = '#ffffff';
-  ctx.font = '900 24px Arial';
-  ctx.fillText(`TOTAL LISTA: ${totalQuinielas} ${labelLista} · ${totalGlobalCombos} combinaciones`, 92, footerY + 36);
-  ctx.font = '900 30px Arial';
-  ctx.fillText(`TOTAL A PAGAR: ${fmtMoney(totalGlobalMoney)}`, 92, footerY + 72);
-
-  return canvas;
-}
-
-function dataUrlToFile(dataUrl, filename) {
-  const arr = dataUrl.split(',');
-  const mime = arr[0].match(/:(.*?);/)[1];
-  const bstr = atob(arr[1]);
-  let n = bstr.length;
-  const u8arr = new Uint8Array(n);
-  while (n--) u8arr[n] = bstr.charCodeAt(n);
-  return new File([u8arr], filename, { type: mime });
-}
-
-function openShareModal(dataUrl, waUrl) {
-  const modal = document.getElementById('shareModal');
-  modal.hidden = false;
-  modal.style.display = 'flex';
-
-  document.getElementById('btnDescargarProof').onclick = () => {
-    const a = document.createElement('a');
-    a.href = dataUrl;
-    a.download = 'comprobante-quiniela-azteca.png';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-  };
-
-  document.getElementById('btnWhatsText').onclick = () => window.open(waUrl, '_blank');
-}
-
-function closeShareModal() {
-  const modal = document.getElementById('shareModal');
-  modal.hidden = true;
-  modal.style.display = 'none';
-}
-
-$('#btnCerrarShare').addEventListener('click', closeShareModal);
-$('#shareModal').addEventListener('click', e => {
-  if (e.target.id === 'shareModal') closeShareModal();
-});
-
-async function shareProofOrFallback(itemsToSend, tel, titulo, subtitulo) {
-  const canvas = renderProofCanvas(itemsToSend, tel, titulo, subtitulo);
-  const dataUrl = canvas.toDataURL('image/png');
-  const file = dataUrlToFile(dataUrl, 'comprobante-quiniela-azteca.png');
-  const waText = buildWhatsText(itemsToSend, titulo, subtitulo);
-  const waUrl = `https://wa.me/${PHONE_NUMBER}?text=${encodeURIComponent(waText)}`;
-
-  try {
-    if (navigator.canShare && navigator.canShare({ files: [file] }) && navigator.share) {
-      await navigator.share({
-        title: `${titulo} - comprobante`,
-        text: `${subtitulo || ''}`.trim(),
-        files: [file]
-      });
-      showSnack('Comprobante listo para compartir.');
-      return;
-    }
-  } catch (err) {
-    // si cancela o falla, abrimos fallback
-  }
-
-  openShareModal(dataUrl, waUrl);
-  showSnack('Tu teléfono abrió el comprobante.');
-}
-
-// enviar / compartir
-$('#btnEnviar').addEventListener('click', async () => {
+// enviar por WhatsApp
+$('#btnEnviar').addEventListener('click', () => {
   if (!CFG_ACEPTA) {
     showSnack('La quiniela ya no acepta registros.');
     return;
@@ -1435,8 +1082,54 @@ $('#btnEnviar').addEventListener('click', async () => {
 
   localStorage.setItem('quiniela_tel', tel);
 
-  const titulo    = $('#titleTxt').innerText.trim() || 'QUINIELA AZTECA';
-  const subtitulo = $('#subtitleTxt').textContent || '';
+  const lines = [];
+  const titulo   = $('#titleTxt').innerText.trim() || 'QUINIELA AZTECA';
+  const subtitulo= $('#subtitleTxt').textContent;
+
+  lines.push(`🏆 *${titulo}*`);
+  if (subtitulo) lines.push(`📆 ${subtitulo}`);
+  lines.push('');
+
+  const groups = [];
+  const indexByName = {};
+  itemsToSend.forEach(q => {
+    const name = q.nombre;
+    let idx = indexByName[name];
+    if (idx === undefined) {
+      idx = groups.length;
+      indexByName[name] = idx;
+      groups.push({ nombre: name, items: [] });
+    }
+    groups[idx].items.push(q);
+  });
+
+  groups.forEach(group => {
+    const count = group.items.length;
+    const label = count === 1 ? 'quiniela' : 'quinielas';
+    lines.push(`👤 *${group.nombre}* (${count} ${label})`);
+    group.items.forEach(q => {
+      const selLine = formatWhatsSelections(q.sels);
+      const comb    = q.combos;
+      const total   = comb * BASE_PRICE;
+      lines.push(`   • ${selLine}`);
+      lines.push(`     Comb: ${comb} · ${fmtMoney(total)}`);
+    });
+    lines.push('');
+  });
+
+  const totalGlobalCombos = itemsToSend.reduce((a,q)=>a+q.combos,0);
+  const totalGlobalMoney  = totalGlobalCombos * BASE_PRICE;
+  const totalQuinielas    = itemsToSend.length;
+  const labelLista        = totalQuinielas === 1 ? 'Quiniela' : 'Quinielas';
+
+  lines.push(`*TOTAL LISTA: ${totalQuinielas} ${labelLista} ${totalGlobalCombos} combinaciones.*`);
+  lines.push(`*TOTAL A PAGAR: ${fmtMoney(totalGlobalMoney)}.*`);
+
+  const text = lines.join('\n');
+  const waUrl = `https://wa.me/${PHONE_NUMBER}?text=${encodeURIComponent(text)}`;
+
+  window.open(waUrl,'_blank');
+  showSnack('Abriendo WhatsApp...');
 
   const payload = {
     tel,
@@ -1445,29 +1138,18 @@ $('#btnEnviar').addEventListener('click', async () => {
     items: itemsToSend.map(q => ({ nombre: q.nombre, sels: q.sels }))
   };
 
-  $('#btnEnviar').disabled = true;
-
-  try {
-    await fetch(SHEET_ENDPOINT_PUBLIC, {
-      method:'POST',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body: JSON.stringify(payload)
-    }).catch(()=>{});
-
-    await shareProofOrFallback(itemsToSend, tel, titulo, subtitulo);
-
+  fetch(SHEET_ENDPOINT_PUBLIC, {
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify(payload)
+  }).catch(()=>{}).finally(()=> {
     carrito = [];
     localStorage.setItem('quiniela_carrito_v4', JSON.stringify(carrito));
     renderCarrito();
-    setSelectionsFromArray(Array(9).fill(''));
-    updateCurrentTotals();
-  } finally {
-    $('#btnEnviar').disabled = false;
-  }
+  });
 });
 
 // aplicar cierre visual
-
 function aplicarCierreVisual(cerrar){
   const overlay = $('#registroCerrado');
   const cup = $('#cupon');
@@ -1519,22 +1201,35 @@ function applyConfig(cfg) {
 
 // carga de config
 function loadConfig() {
-  const stored = localStorage.getItem('quiniela_cfg_cache_v1');
+  const CACHE_KEY = 'quiniela_cfg_cache_v2';
+  const stored = localStorage.getItem(CACHE_KEY);
+
   if (stored) {
     try {
       const cfg = JSON.parse(stored);
-      applyConfig(cfg);
+      if (cfg && Array.isArray(cfg.partidos) && cfg.partidos.length) {
+        applyConfig(cfg);
+      }
     } catch(e){}
   }
 
-  fetch(SHEET_ENDPOINT_PUBLIC + '?mode=config')
+  fetch(`${SHEET_ENDPOINT_PUBLIC}?mode=config&t=${Date.now()}`, {
+    cache: 'no-store'
+  })
     .then(r => r.json())
     .then(data => {
-      if (!data.ok || !data.cfg) throw new Error('Config inválida');
-      applyConfig(data.cfg);
-      try{
-        localStorage.setItem('quiniela_cfg_cache_v1', JSON.stringify(data.cfg));
-      }catch(e){}
+      if (!data || !data.ok || !data.cfg) throw new Error('Config inválida');
+
+      const cfg = data.cfg;
+      if (!Array.isArray(cfg.partidos) || !cfg.partidos.length) {
+        throw new Error('Config sin partidos');
+      }
+
+      applyConfig(cfg);
+      try {
+        localStorage.removeItem('quiniela_cfg_cache_v1');
+        localStorage.setItem(CACHE_KEY, JSON.stringify(cfg));
+      } catch(e){}
     })
     .catch(() => {
       if (!stored) {
