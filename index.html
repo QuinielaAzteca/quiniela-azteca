@@ -454,24 +454,7 @@
       opacity:0.25;
     }
 
-    @media (max-width:520px){
-      .namebox{grid-template-columns:1fr}
-    }
 
-    /* AJUSTE PARA TELÉFONOS CHICOS (evita scroll horizontal) */
-    @media (max-width:420px){
-      :root{ --pick: 44px; }
-      .row{
-        grid-template-columns:22px var(--pick) minmax(0, 1fr) var(--pick) minmax(0, 1fr) var(--pick);
-        gap:3px;
-      }
-      .team{ font-size:11px; }
-      .team-logo{ height:28px; width:28px; }
-      .pick{ border-radius:12px; font-size:16px; }
-    }
-  
-
-    [hidden]{ display:none !important; }
     .helperNote{
       font-size:12px;
       color:#334155;
@@ -479,11 +462,13 @@
       text-align:center;
       padding:8px 10px;
     }
+
     .shareModal{
       position:fixed;
       inset:0;
       background:rgba(15,23,42,.45);
       z-index:10000;
+      display:flex;
       align-items:center;
       justify-content:center;
       padding:14px;
@@ -541,8 +526,25 @@
       padding:12px;
       border-top:1px solid #e8efe9;
     }
-    .shareActions .btn{ min-width:0; }
+    .shareActions .btn{
+      min-width:0;
+    }
 
+    @media (max-width:520px){
+      .namebox{grid-template-columns:1fr}
+    }
+
+    /* AJUSTE PARA TELÉFONOS CHICOS (evita scroll horizontal) */
+    @media (max-width:420px){
+      :root{ --pick: 44px; }
+      .row{
+        grid-template-columns:22px var(--pick) minmax(0, 1fr) var(--pick) minmax(0, 1fr) var(--pick);
+        gap:3px;
+      }
+      .team{ font-size:11px; }
+      .team-logo{ height:28px; width:28px; }
+      .pick{ border-radius:12px; font-size:16px; }
+    }
   </style>
 </head>
 
@@ -596,7 +598,9 @@
           <button class="btn" id="btnEnviar">Finalizar y compartir</button>
         </div>
 
-        <div class="section helperNote">Si vas a mandar varias quinielas, agrégalas primero a la lista y al final toca <b>Finalizar y compartir</b>.</div>
+        <div class="section helperNote">
+          Si vas a mandar varias quinielas, agrégalas primero a la lista y al final toca <b>Finalizar y compartir</b>.
+        </div>
 
         <div class="section">
           <div class="listHeader">
@@ -626,7 +630,7 @@
       </div>
       <div class="shareActions">
         <button class="btn alt" id="btnDescargarProof" type="button">Descargar imagen</button>
-        <button class="btn" id="btnWhatsText" type="button">Abrir WhatsApp con texto</button>
+        <button class="btn" id="btnWhatsText" type="button">Abrir WhatsApp</button>
       </div>
     </div>
   </div>
@@ -1125,7 +1129,23 @@ function formatWhatsSelections(sels) {
   return parts.join(' ');
 }
 
-// helpers comprobante
+
+function escapeHtml(str) {
+  return String(str ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function getComprobanteStamp() {
+  const d = new Date();
+  const f = d.toLocaleDateString('es-MX', { year:'numeric', month:'2-digit', day:'2-digit' });
+  const h = d.toLocaleTimeString('es-MX', { hour:'2-digit', minute:'2-digit' });
+  return `${f} ${h}`;
+}
+
 function groupItemsByName(items) {
   const groups = [];
   const indexByName = {};
@@ -1140,14 +1160,6 @@ function groupItemsByName(items) {
     groups[idx].items.push(q);
   });
   return groups;
-}
-
-function getComprobanteStamp(){
-  const d = new Date();
-  return d.toLocaleString('es-MX', {
-    year:'numeric', month:'2-digit', day:'2-digit',
-    hour:'2-digit', minute:'2-digit'
-  });
 }
 
 function buildWhatsText(itemsToSend, titulo, subtitulo) {
@@ -1191,27 +1203,50 @@ function drawRoundRect(ctx, x, y, w, h, r, fill, stroke) {
   ctx.arcTo(x, y + h, x, y, rr);
   ctx.arcTo(x, y, x + w, y, rr);
   ctx.closePath();
-  if (fill) { ctx.fillStyle = fill; ctx.fill(); }
-  if (stroke) { ctx.strokeStyle = stroke; ctx.stroke(); }
+  if (fill) {
+    ctx.fillStyle = fill;
+    ctx.fill();
+  }
+  if (stroke) {
+    ctx.strokeStyle = stroke;
+    ctx.stroke();
+  }
+}
+
+function wrapTextLines(ctx, text, maxWidth) {
+  const words = String(text || '').split(/\s+/);
+  const lines = [];
+  let line = '';
+  words.forEach(word => {
+    const test = line ? (line + ' ' + word) : word;
+    if (ctx.measureText(test).width <= maxWidth) {
+      line = test;
+    } else {
+      if (line) lines.push(line);
+      line = word;
+    }
+  });
+  if (line) lines.push(line);
+  return lines.length ? lines : [''];
 }
 
 function estimateProofHeight(itemsToSend) {
   const groups = groupItemsByName(itemsToSend);
-  let h = 260;
+  let h = 248;
   groups.forEach(group => {
     h += 56;
-    group.items.forEach(() => { h += 74; });
-    h += 14;
+    group.items.forEach(() => { h += 76; });
+    h += 10;
   });
-  h += 130;
-  return Math.max(560, h);
+  h += 116;
+  return Math.max(520, h);
 }
 
 function renderProofCanvas(itemsToSend, tel, titulo, subtitulo) {
   const canvas = $('#proofCanvas');
   const ctx = canvas.getContext('2d');
 
-  const width = 860;
+  const width = 1080;
   const height = estimateProofHeight(itemsToSend);
   canvas.width = width;
   canvas.height = height;
@@ -1219,58 +1254,54 @@ function renderProofCanvas(itemsToSend, tel, titulo, subtitulo) {
   ctx.fillStyle = '#eaf3ee';
   ctx.fillRect(0, 0, width, height);
 
-  drawRoundRect(ctx, 34, 28, width - 68, height - 56, 28, '#ffffff', '#d7e6dc');
+  drawRoundRect(ctx, 40, 40, width - 80, height - 80, 28, '#ffffff', '#d7e6dc');
 
-  const ribbonX = 34, ribbonY = 28, ribbonW = width - 68;
-  ctx.fillStyle = '#0b7a43';
-  ctx.fillRect(ribbonX, ribbonY, ribbonW / 3, 16);
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(ribbonX + ribbonW / 3, ribbonY, ribbonW / 3, 16);
+  ctx.fillStyle = '#0a6b3a';
+  ctx.fillRect(40, 40, (width - 80) / 2, 14);
   ctx.fillStyle = '#c62828';
-  ctx.fillRect(ribbonX + (ribbonW * 2 / 3), ribbonY, ribbonW / 3, 16);
+  ctx.fillRect(40 + (width - 80) / 2, 40, (width - 80) / 2, 14);
 
   let y = 94;
-  ctx.font = '900 34px Arial';
-  ctx.fillStyle = '#0b7a43';
-  ctx.fillText('QUINIELA', 68, y);
-  const qWidth = ctx.measureText('QUINIELA').width;
-  ctx.fillStyle = '#c62828';
-  ctx.fillText('AZTECA', 68 + qWidth + 16, y);
-
-  y += 46;
   ctx.fillStyle = '#0f172a';
-  ctx.font = '900 24px Arial';
-  if (subtitulo) ctx.fillText(subtitulo, 68, y);
+  ctx.font = '900 48px Arial';
+  ctx.fillText(titulo || 'QUINIELA AZTECA', 76, y);
 
-  y += 36;
+  y += 48;
+  ctx.fillStyle = '#475569';
+  ctx.font = '900 28px Arial';
+  if (subtitulo) ctx.fillText(subtitulo, 76, y);
+
+  y += 44;
   ctx.fillStyle = '#334155';
-  ctx.font = '700 18px Arial';
-  ctx.fillText(`Teléfono: ${tel}`, 68, y);
-  y += 24;
-  ctx.fillText(`Fecha: ${getComprobanteStamp()}`, 68, y);
+  ctx.font = '700 24px Arial';
+  ctx.fillText(`Teléfono: ${tel}`, 76, y);
+  y += 34;
+  ctx.fillText(`Fecha: ${getComprobanteStamp()}`, 76, y);
 
   const groups = groupItemsByName(itemsToSend);
-  y += 28;
+  y += 32;
 
   groups.forEach(group => {
-    drawRoundRect(ctx, 58, y, width - 116, 42, 16, '#f6fbf8', '#d7e6dc');
+    drawRoundRect(ctx, 70, y, width - 140, 48, 16, '#f6fbf8', '#d7e6dc');
     ctx.fillStyle = '#0f172a';
-    ctx.font = '900 22px Arial';
-    ctx.fillText(group.nombre, 76, y + 27);
-    y += 56;
+    ctx.font = '900 34px Arial';
+    ctx.fillText(group.nombre, 92, y + 32);
+    y += 64;
 
     group.items.forEach((q, idx) => {
-      drawRoundRect(ctx, 66, y, width - 132, 58, 14, '#ffffff', '#e8efe9');
+      drawRoundRect(ctx, 82, y, width - 164, 62, 14, '#ffffff', '#e8efe9');
       ctx.fillStyle = '#0f172a';
-      ctx.font = '800 19px Arial';
-      ctx.fillText(`${idx + 1}. ${formatWhatsSelections(q.sels)}`, 84, y + 23);
+      ctx.font = '800 25px Arial';
+      const left = `${idx + 1}. ${formatWhatsSelections(q.sels)}`;
+      ctx.fillText(left, 104, y + 28);
+
       ctx.fillStyle = '#475569';
-      ctx.font = '700 17px Arial';
-      ctx.fillText(`Comb: ${q.combos} · ${fmtMoney(q.combos * BASE_PRICE)}`, 84, y + 45);
-      y += 68;
+      ctx.font = '700 22px Arial';
+      ctx.fillText(`Comb: ${q.combos} · ${fmtMoney(q.combos * BASE_PRICE)}`, 104, y + 52);
+      y += 72;
     });
 
-    y += 10;
+    y += 8;
   });
 
   const totalGlobalCombos = itemsToSend.reduce((a,q)=>a+q.combos,0);
@@ -1278,13 +1309,12 @@ function renderProofCanvas(itemsToSend, tel, titulo, subtitulo) {
   const totalQuinielas    = itemsToSend.length;
   const labelLista        = totalQuinielas === 1 ? 'Quiniela' : 'Quinielas';
 
-  const totalY = height - 112;
-  drawRoundRect(ctx, 58, totalY, width - 116, 76, 18, '#0f172a', '#0f172a');
+  drawRoundRect(ctx, 70, height - 146, width - 140, 86, 18, '#0f172a', '#0f172a');
   ctx.fillStyle = '#ffffff';
-  ctx.font = '900 19px Arial';
-  ctx.fillText(`TOTAL LISTA: ${totalQuinielas} ${labelLista} · ${totalGlobalCombos} combinaciones`, 76, totalY + 30);
-  ctx.font = '900 25px Arial';
-  ctx.fillText(`TOTAL A PAGAR: ${fmtMoney(totalGlobalMoney)}`, 76, totalY + 58);
+  ctx.font = '900 27px Arial';
+  ctx.fillText(`TOTAL LISTA: ${totalQuinielas} ${labelLista} · ${totalGlobalCombos} combinaciones`, 92, height - 98);
+  ctx.font = '900 34px Arial';
+  ctx.fillText(`TOTAL A PAGAR: ${fmtMoney(totalGlobalMoney)}`, 92, height - 58);
 
   return canvas;
 }
@@ -1310,15 +1340,11 @@ function openShareModal(dataUrl, waUrl) {
     a.remove();
   };
   $('#btnWhatsText').onclick = () => window.open(waUrl, '_blank');
-  const m = $('#shareModal');
-  m.hidden = false;
-  m.style.display = 'flex';
+  $('#shareModal').hidden = false;
 }
 
 function closeShareModal() {
-  const m = $('#shareModal');
-  m.hidden = true;
-  m.style.display = 'none';
+  $('#shareModal').hidden = true;
 }
 
 $('#btnCerrarShare').addEventListener('click', closeShareModal);
@@ -1344,6 +1370,7 @@ async function shareProofOrFallback(itemsToSend, tel, titulo, subtitulo) {
       return;
     }
   } catch (err) {
+    // si cancela o falla, abrimos fallback
   }
 
   openShareModal(dataUrl, waUrl);
@@ -1400,10 +1427,8 @@ $('#btnEnviar').addEventListener('click', async () => {
 
   localStorage.setItem('quiniela_tel', tel);
 
-  const titulo   = ($('#titleTxt').innerText || 'QUINIELA AZTECA').trim();
-  const subtitulo= $('#subtitleTxt').textContent;
-
-  await shareProofOrFallback(itemsToSend, tel, titulo, subtitulo);
+  const titulo    = $('#titleTxt').innerText.trim() || 'QUINIELA AZTECA';
+  const subtitulo = $('#subtitleTxt').textContent || '';
 
   const payload = {
     tel,
@@ -1412,18 +1437,29 @@ $('#btnEnviar').addEventListener('click', async () => {
     items: itemsToSend.map(q => ({ nombre: q.nombre, sels: q.sels }))
   };
 
-  fetch(SHEET_ENDPOINT_PUBLIC, {
-    method:'POST',
-    headers:{'Content-Type':'text/plain;charset=utf-8'},
-    body: JSON.stringify(payload)
-  }).catch(()=>{}).finally(()=> {
+  $('#btnEnviar').disabled = true;
+
+  try {
+    await fetch(SHEET_ENDPOINT_PUBLIC, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify(payload)
+    }).catch(()=>{});
+
+    await shareProofOrFallback(itemsToSend, tel, titulo, subtitulo);
+
     carrito = [];
     localStorage.setItem('quiniela_carrito_v4', JSON.stringify(carrito));
     renderCarrito();
-  });
+    setSelectionsFromArray(Array(9).fill(''));
+    updateCurrentTotals();
+  } finally {
+    $('#btnEnviar').disabled = false;
+  }
 });
 
 // aplicar cierre visual
+
 function aplicarCierreVisual(cerrar){
   const overlay = $('#registroCerrado');
   const cup = $('#cupon');
@@ -1485,28 +1521,4 @@ function loadConfig() {
 
   fetch(SHEET_ENDPOINT_PUBLIC + '?mode=config')
     .then(r => r.json())
-    .then(data => {
-      if (!data.ok || !data.cfg) throw new Error('Config inválida');
-      applyConfig(data.cfg);
-      try{
-        localStorage.setItem('quiniela_cfg_cache_v1', JSON.stringify(data.cfg));
-      }catch(e){}
-    })
-    .catch(() => {
-      if (!stored) {
-        applyConfig({
-          titulo:'QUINIELA AZTECA',
-          subtitulo:'Jornada',
-          cierre:'',
-          precio:25,
-          dias_partido:'',
-          partidos:[]
-        });
-      }
-    });
-}
-
-document.addEventListener('DOMContentLoaded', loadConfig);
-</script>
-</body>
-</html>
+    .then(data =
