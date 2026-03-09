@@ -1522,24 +1522,22 @@ function applyConfig(cfg) {
 
 // carga de config
 function loadConfig() {
-  const stored = localStorage.getItem('quiniela_cfg_cache_v1');
+  const CACHE_KEY = 'quiniela_cfg_cache_v2';
+  const OLD_CACHE_KEY = 'quiniela_cfg_cache_v1';
+  const stored = localStorage.getItem(CACHE_KEY) || localStorage.getItem(OLD_CACHE_KEY);
+
   if (stored) {
     try {
       const cfg = JSON.parse(stored);
-      applyConfig(cfg);
+      if (cfg && Array.isArray(cfg.partidos) && cfg.partidos.length) {
+        applyConfig(cfg);
+      }
     } catch(e){}
   }
 
-  fetch(SHEET_ENDPOINT_PUBLIC + '?mode=config')
+  fetch(`${SHEET_ENDPOINT_PUBLIC}?mode=config&t=${Date.now()}`, {
+    cache: 'no-store'
+  })
     .then(r => r.json())
     .then(data => {
-      if (!data.ok || !data.cfg) throw new Error('Config inválida');
-      applyConfig(data.cfg);
-      try{
-        localStorage.setItem('quiniela_cfg_cache_v1', JSON.stringify(data.cfg));
-      }catch(e){}
-    })
-    .catch(() => {
-      if (!stored) {
-        applyConfig({
-   
+      if (!data || !data.ok || !da
