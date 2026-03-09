@@ -625,7 +625,7 @@
       </div>
       <div class="shareActions">
         <button class="btn alt" id="btnDescargarProof" type="button">Descargar imagen</button>
-        <button class="btn" id="btnWhatsText" type="button">Abrir WhatsApp con texto</button>
+        <button class="btn" id="btnWhatsText" type="button">Abrir WhatsApp</button>
       </div>
     </div>
   </div>
@@ -1227,21 +1227,21 @@ function wrapTextLines(ctx, text, maxWidth) {
 
 function estimateProofHeight(itemsToSend) {
   const groups = groupItemsByName(itemsToSend);
-  let h = 310;
+  let h = 260;
   groups.forEach(group => {
-    h += 66;
-    group.items.forEach(() => { h += 86; });
-    h += 18;
+    h += 58;          // encabezado de nombre
+    group.items.forEach(() => { h += 74; }); // cada quiniela con más aire
+    h += 14;          // separación entre grupos
   });
-  h += 190;
-  return Math.max(640, h);
+  h += 150;           // footer total + margen inferior generoso
+  return Math.max(500, h);
 }
 
 function renderProofCanvas(itemsToSend, tel, titulo, subtitulo) {
   const canvas = $('#proofCanvas');
   const ctx = canvas.getContext('2d');
 
-  const width = 900;
+  const width = 1080;
   const height = estimateProofHeight(itemsToSend);
   canvas.width = width;
   canvas.height = height;
@@ -1249,70 +1249,58 @@ function renderProofCanvas(itemsToSend, tel, titulo, subtitulo) {
   ctx.fillStyle = '#eaf3ee';
   ctx.fillRect(0, 0, width, height);
 
-  drawRoundRect(ctx, 34, 34, width - 68, height - 68, 30, '#ffffff', '#d7e6dc');
+  drawRoundRect(ctx, 40, 40, width - 80, height - 80, 28, '#ffffff', '#d7e6dc');
 
-  const ribbonX = 34;
-  const ribbonY = 34;
-  const ribbonW = width - 68;
+  const ribbonW = width - 80;
   const stripeW = ribbonW / 3;
   ctx.fillStyle = '#0a6b3a';
-  ctx.fillRect(ribbonX, ribbonY, stripeW, 16);
+  ctx.fillRect(40, 40, stripeW, 14);
   ctx.fillStyle = '#ffffff';
-  ctx.fillRect(ribbonX + stripeW, ribbonY, stripeW, 16);
+  ctx.fillRect(40 + stripeW, 40, stripeW, 14);
   ctx.strokeStyle = '#d7e6dc';
   ctx.lineWidth = 1;
-  ctx.strokeRect(ribbonX + stripeW, ribbonY, stripeW, 16);
+  ctx.strokeRect(40 + stripeW, 40, stripeW, 14);
   ctx.fillStyle = '#c62828';
-  ctx.fillRect(ribbonX + stripeW * 2, ribbonY, stripeW, 16);
+  ctx.fillRect(40 + stripeW * 2, 40, stripeW, 14);
 
-  let y = 126;
-  const leftX = 74;
-
-  const titleQ = 'QUINIELA';
-  const titleA = 'AZTECA';
-  ctx.font = '900 48px Arial';
-  ctx.fillStyle = '#0a6b3a';
-  ctx.fillText(titleQ, leftX, y);
-  const qWidth = ctx.measureText(titleQ).width;
-  ctx.fillStyle = '#c62828';
-  ctx.fillText(titleA, leftX + qWidth + 18, y);
-
-  y += 50;
-  ctx.fillStyle = '#334155';
-  ctx.font = '900 28px Arial';
-  if (subtitulo) ctx.fillText(subtitulo, leftX, y);
+  let y = 88;
+  ctx.fillStyle = '#0f172a';
+  ctx.font = '900 42px Arial';
+  ctx.fillText(titulo || 'QUINIELA AZTECA', 76, y);
 
   y += 42;
+  ctx.fillStyle = '#475569';
+  ctx.font = '700 24px Arial';
+  if (subtitulo) ctx.fillText(subtitulo, 76, y);
+
+  y += 40;
   ctx.fillStyle = '#334155';
   ctx.font = '700 22px Arial';
-  ctx.fillText(`Teléfono: ${tel}`, leftX, y);
+  ctx.fillText(`Teléfono: ${tel}`, 76, y);
   y += 30;
-  ctx.fillText(`Fecha: ${getComprobanteStamp()}`, leftX, y);
+  ctx.fillText(`Fecha: ${getComprobanteStamp()}`, 76, y);
 
   const groups = groupItemsByName(itemsToSend);
-  y += 34;
+  y += 28;
 
   groups.forEach(group => {
-    drawRoundRect(ctx, 66, y, width - 132, 46, 16, '#f6fbf8', '#d7e6dc');
+    drawRoundRect(ctx, 70, y, width - 140, 42, 16, '#f6fbf8', '#d7e6dc');
     ctx.fillStyle = '#0f172a';
     ctx.font = '900 26px Arial';
-    const nameLines = wrapTextLines(ctx, group.nombre, width - 200);
-    ctx.fillText(nameLines[0], 88, y + 30);
-    y += 64;
+    ctx.fillText(group.nombre, 92, y + 28);
+    y += 58;
 
     group.items.forEach((q, idx) => {
-      drawRoundRect(ctx, 78, y, width - 156, 64, 16, '#ffffff', '#e8efe9');
+      drawRoundRect(ctx, 82, y, width - 164, 56, 14, '#ffffff', '#e8efe9');
       ctx.fillStyle = '#0f172a';
       ctx.font = '800 22px Arial';
       const left = `${idx + 1}. ${formatWhatsSelections(q.sels)}`;
-      const lines = wrapTextLines(ctx, left, width - 220);
-      ctx.fillText(lines[0], 100, y + 24);
-      if (lines[1]) ctx.fillText(lines[1], 100, y + 45);
+      ctx.fillText(left, 104, y + 24);
 
       ctx.fillStyle = '#475569';
       ctx.font = '700 19px Arial';
-      ctx.fillText(`Comb: ${q.combos} · ${fmtMoney(q.combos * BASE_PRICE)}`, 100, y + 56);
-      y += 78;
+      ctx.fillText(`Comb: ${q.combos} · ${fmtMoney(q.combos * BASE_PRICE)}`, 104, y + 46);
+      y += 70;
     });
 
     y += 12;
@@ -1323,13 +1311,13 @@ function renderProofCanvas(itemsToSend, tel, titulo, subtitulo) {
   const totalQuinielas    = itemsToSend.length;
   const labelLista        = totalQuinielas === 1 ? 'Quiniela' : 'Quinielas';
 
-  const footerY = y + 12;
-  drawRoundRect(ctx, 66, footerY, width - 132, 98, 20, '#0f172a', '#0f172a');
+  const footerY = y + 8;
+  drawRoundRect(ctx, 70, footerY, width - 140, 84, 18, '#0f172a', '#0f172a');
   ctx.fillStyle = '#ffffff';
   ctx.font = '900 24px Arial';
-  ctx.fillText(`TOTAL LISTA: ${totalQuinielas} ${labelLista} · ${totalGlobalCombos} combinaciones`, 90, footerY + 40);
-  ctx.font = '900 32px Arial';
-  ctx.fillText(`TOTAL A PAGAR: ${fmtMoney(totalGlobalMoney)}`, 90, footerY + 80);
+  ctx.fillText(`TOTAL LISTA: ${totalQuinielas} ${labelLista} · ${totalGlobalCombos} combinaciones`, 92, footerY + 36);
+  ctx.font = '900 30px Arial';
+  ctx.fillText(`TOTAL A PAGAR: ${fmtMoney(totalGlobalMoney)}`, 92, footerY + 72);
 
   return canvas;
 }
@@ -1548,4 +1536,21 @@ function loadConfig() {
         localStorage.setItem('quiniela_cfg_cache_v1', JSON.stringify(data.cfg));
       }catch(e){}
     })
-    .catch(
+    .catch(() => {
+      if (!stored) {
+        applyConfig({
+          titulo:'QUINIELA AZTECA',
+          subtitulo:'Jornada',
+          cierre:'',
+          precio:25,
+          dias_partido:'',
+          partidos:[]
+        });
+      }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', loadConfig);
+</script>
+</body>
+</html>
