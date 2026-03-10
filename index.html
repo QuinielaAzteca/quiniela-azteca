@@ -618,7 +618,7 @@
 
   <div class="snack" id="snack"></div>
 
-  <div class="shareModal" id="shareModal" hidden>
+  <div class="shareModal" id="shareModal" hidden style="display:none;">
     <div class="shareCard">
       <div class="shareHead">
         <div class="shareTitle">Comprobante listo</div>
@@ -1330,8 +1330,18 @@ function dataUrlToFile(dataUrl, filename) {
 }
 
 function openShareModal(dataUrl, waUrl) {
-  $('#proofPreview').src = dataUrl;
-  $('#btnDescargarProof').onclick = () => {
+  const modal = document.getElementById('shareModal');
+  const img = document.getElementById('proofPreview');
+
+  if (img) {
+    if (dataUrl) img.src = dataUrl;
+    else img.removeAttribute('src');
+  }
+
+  modal.hidden = false;
+  modal.style.display = 'flex';
+
+  document.getElementById('btnDescargarProof').onclick = () => {
     const a = document.createElement('a');
     a.href = dataUrl;
     a.download = 'comprobante-quiniela-azteca.png';
@@ -1339,12 +1349,18 @@ function openShareModal(dataUrl, waUrl) {
     a.click();
     a.remove();
   };
-  $('#btnWhatsText').onclick = () => window.open(waUrl, '_blank');
-  $('#shareModal').hidden = false;
+
+  document.getElementById('btnWhatsText').onclick = () => {
+    window.location.href = waUrl;
+  };
 }
 
 function closeShareModal() {
-  $('#shareModal').hidden = true;
+  const modal = document.getElementById('shareModal');
+  const img = document.getElementById('proofPreview');
+  if (img) img.removeAttribute('src');
+  modal.hidden = true;
+  modal.style.display = 'none';
 }
 
 $('#btnCerrarShare').addEventListener('click', closeShareModal);
@@ -1501,24 +1517,4 @@ function applyConfig(cfg) {
   }
 
   const flag = String(cfg.aceptando_respuestas || '').trim().toUpperCase();
-  const cerrar = (flag === 'NO' || flag === 'FALSE' || flag === '0');
-  aplicarCierreVisual(cerrar);
-
-  renderRows();
-  updateCurrentTotals();
-  renderCarrito();
-}
-
-// carga de config
-function loadConfig() {
-  const stored = localStorage.getItem('quiniela_cfg_cache_v1');
-  if (stored) {
-    try {
-      const cfg = JSON.parse(stored);
-      applyConfig(cfg);
-    } catch(e){}
-  }
-
-  fetch(SHEET_ENDPOINT_PUBLIC + '?mode=config')
-    .then(r => r.json())
-    .then(data =
+  const cerrar = (flag === 'NO' || fl
