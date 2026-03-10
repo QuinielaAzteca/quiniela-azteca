@@ -965,27 +965,27 @@ function renderProofCanvas(itemsToSend, tel, titulo, subtitulo) {
   ctx.fillStyle = '#0b7a43'; ctx.fillRect(ribbonX, ribbonY, ribbonW / 3, 16);
   ctx.fillStyle = '#ffffff'; ctx.fillRect(ribbonX + ribbonW / 3, ribbonY, ribbonW / 3, 16);
   ctx.fillStyle = '#c62828'; ctx.fillRect(ribbonX + (ribbonW * 2 / 3), ribbonY, ribbonW / 3, 16);
-  let y = 94;
-  ctx.font = '900 34px Arial';
+  let y = 106;
+  ctx.font = '900 42px Arial';
   ctx.fillStyle = '#0b7a43'; ctx.fillText('QUINIELA', 68, y);
   const qWidth = ctx.measureText('QUINIELA').width;
   ctx.fillStyle = '#c62828'; ctx.fillText('AZTECA', 68 + qWidth + 16, y);
-  y += 46;
-  ctx.fillStyle = '#0f172a'; ctx.font = '900 24px Arial'; if (subtitulo) ctx.fillText(subtitulo, 68, y);
-  y += 36;
-  ctx.fillStyle = '#334155'; ctx.font = '700 18px Arial'; ctx.fillText(`Teléfono: ${tel}`, 68, y);
-  y += 24; ctx.fillText(`Fecha: ${getComprobanteStamp()}`, 68, y);
+  y += 56;
+  ctx.fillStyle = '#0f172a'; ctx.font = '900 30px Arial'; if (subtitulo) ctx.fillText(subtitulo, 68, y);
+  y += 42;
+  ctx.fillStyle = '#334155'; ctx.font = '700 22px Arial'; ctx.fillText(`Teléfono: ${tel}`, 68, y);
+  y += 28; ctx.fillText(`Fecha: ${getComprobanteStamp()}`, 68, y);
   const groups = groupItemsByName(itemsToSend);
-  y += 28;
+  y += 34;
   groups.forEach(group => {
-    drawRoundRect(ctx, 58, y, width - 116, 42, 16, '#f6fbf8', '#d7e6dc');
-    ctx.fillStyle = '#0f172a'; ctx.font = '900 22px Arial'; ctx.fillText(group.nombre, 76, y + 27);
-    y += 56;
+    drawRoundRect(ctx, 58, y, width - 116, 50, 16, '#f6fbf8', '#d7e6dc');
+    ctx.fillStyle = '#0f172a'; ctx.font = '900 28px Arial'; ctx.fillText(group.nombre, 76, y + 33);
+    y += 66;
     group.items.forEach((q, idx) => {
-      drawRoundRect(ctx, 66, y, width - 132, 58, 14, '#ffffff', '#e8efe9');
-      ctx.fillStyle = '#0f172a'; ctx.font = '800 19px Arial'; ctx.fillText(`${idx + 1}. ${formatWhatsSelections(q.sels)}`, 84, y + 23);
-      ctx.fillStyle = '#475569'; ctx.font = '700 17px Arial'; ctx.fillText(`Comb: ${q.combos} · ${fmtMoney(q.combos * BASE_PRICE)}`, 84, y + 45);
-      y += 68;
+      drawRoundRect(ctx, 66, y, width - 132, 68, 14, '#ffffff', '#e8efe9');
+      ctx.fillStyle = '#0f172a'; ctx.font = '800 24px Arial'; ctx.fillText(`${idx + 1}. ${formatWhatsSelections(q.sels)}`, 84, y + 28);
+      ctx.fillStyle = '#475569'; ctx.font = '700 21px Arial'; ctx.fillText(`Comb: ${q.combos} · ${fmtMoney(q.combos * BASE_PRICE)}`, 84, y + 54);
+      y += 80;
     });
     y += 10;
   });
@@ -994,8 +994,8 @@ function renderProofCanvas(itemsToSend, tel, titulo, subtitulo) {
   const totalQuinielas    = itemsToSend.length;
   const totalY = height - 112;
   drawRoundRect(ctx, 58, totalY, width - 116, 76, 18, '#0f172a', '#0f172a');
-  ctx.fillStyle = '#ffffff'; ctx.font = '900 19px Arial'; ctx.fillText(`TOTAL LISTA: ${totalQuinielas} ${totalQuinielas === 1 ? 'Quiniela' : 'Quinielas'} · ${totalGlobalCombos} combinaciones`, 76, totalY + 30);
-  ctx.font = '900 25px Arial'; ctx.fillText(`TOTAL A PAGAR: ${fmtMoney(totalGlobalMoney)}`, 76, totalY + 58);
+  ctx.fillStyle = '#ffffff'; ctx.font = '900 24px Arial'; ctx.fillText(`TOTAL LISTA: ${totalQuinielas} ${totalQuinielas === 1 ? 'Quiniela' : 'Quinielas'} · ${totalGlobalCombos} combinaciones`, 76, totalY + 30);
+  ctx.font = '900 31px Arial'; ctx.fillText(`TOTAL A PAGAR: ${fmtMoney(totalGlobalMoney)}`, 76, totalY + 62);
   return canvas;
 }
 
