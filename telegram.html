@@ -1155,7 +1155,7 @@ $('#btnEnviar').addEventListener('click', async () => {
       body: JSON.stringify(payload)
     }).catch(()=>{});
 
-    const tgUrl = `https://t.me/share/url?url=${encodeURIComponent(location.href)}&text=${encodeURIComponent(text)}`;
+    const tgUrl = `tg://msg?text=${encodeURIComponent(text)}`;
     window.open(tgUrl,'_blank');
     showSnack('Abriendo Telegram...');
 
