@@ -950,7 +950,6 @@ function validarBase(tel, nombre, sels, combos, err) {
       err.textContent = 'No pusiste tu número de teléfono.';
       err.style.display = 'block';
     }, 0);
-    telInput.focus();
     return false;
   }
   if (!/^\d{10,15}$/.test(tel)) {
@@ -966,7 +965,6 @@ function validarBase(tel, nombre, sels, combos, err) {
       err.textContent = 'No pusiste el nombre de tu quiniela.';
       err.style.display = 'block';
     }, 0);
-    nombreInput.focus();
     return false;
   }
   const faltantes = sels.filter(s => !s).length;
