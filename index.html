@@ -744,10 +744,8 @@ function resetCuponSelectionsOnly() {
 }
 
 function releaseSendingSoon() {
-  setTimeout(() => {
-    setSendingState(false);
-    isSending = false;
-  }, 150);
+  setSendingState(false);
+  isSending = false;
 }
 
 const telInput    = $('#telefono');
