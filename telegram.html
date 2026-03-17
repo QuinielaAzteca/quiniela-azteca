@@ -731,6 +731,13 @@ function resetCuponSelectionsOnly() {
   updateCurrentTotals();
 }
 
+function releaseSendingSoon() {
+  setTimeout(() => {
+    setSendingState(false);
+    isSending = false;
+  }, 1200);
+}
+
 const telInput    = $('#telefono');
 const nombreInput = $('#nombre');
 
@@ -1050,7 +1057,7 @@ $('#btnEnviar').addEventListener('click', async () => {
   }
 
   isSending = true;
-  sendLockUntil = now + 8000;
+  sendLockUntil = now + 5000;
   setSendingState(true);
 
   try {
@@ -1155,7 +1162,7 @@ $('#btnEnviar').addEventListener('click', async () => {
       body: JSON.stringify(payload)
     }).catch(()=>{});
 
-    const tgUrl = `tg://msg?text=${encodeURIComponent(text)}`;
+    const tgUrl = `https://t.me/share/url?url=${encodeURIComponent(location.href)}&text=${encodeURIComponent(text)}`;
     window.open(tgUrl,'_blank');
     showSnack('Abriendo Telegram...');
 
@@ -1165,8 +1172,7 @@ $('#btnEnviar').addEventListener('click', async () => {
     resetCuponSelectionsOnly();
 
   } finally {
-    setSendingState(false);
-    isSending = false;
+    // la reactivación del botón se hace poco después de abrir Telegram
   }
 });
 
@@ -1244,14 +1250,4 @@ function loadConfig() {
           subtitulo:'Jornada',
           cierre:'',
           precio:25,
-          dias_partido:'',
-          partidos:[]
-        });
-      }
-    });
-}
-
-document.addEventListener('DOMContentLoaded', loadConfig);
-</script>
-</body>
-</html>
+          dias_partido:''
