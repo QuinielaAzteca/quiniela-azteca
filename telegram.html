@@ -1199,6 +1199,9 @@ function aplicarCierreVisual(cerrar){
 }
 
 function applyConfig(cfg) {
+  const habiaRows = document.querySelectorAll('#rows .pick').length > 0;
+  const selsActuales = habiaRows ? getSelections() : Array(9).fill('');
+
   BASE_PRICE = cfg.precio || 25;
   PARTIDOS   = cfg.partidos || [];
 
@@ -1213,7 +1216,7 @@ function applyConfig(cfg) {
 
   $('#subtitleTxt').textContent = cfg.subtitulo || '';
   $('#precioTxt').textContent   = fmtMoney(BASE_PRICE);
-  $('#cierreTxt').textContent   = cfg.cierre    || '';
+  $('#cierreTxt').textContent   = cfg.cierre || '';
 
   const diasEl = $('#diasTxt');
   if (cfg.dias_partido || cfg.diasPartido) {
@@ -1229,6 +1232,7 @@ function applyConfig(cfg) {
   aplicarCierreVisual(cerrar);
 
   renderRows();
+  setSelectionsFromArray(selsActuales);
   updateCurrentTotals();
   renderCarrito();
 }
