@@ -942,7 +942,7 @@ function validarBase(tel, nombre, sels, combos, err) {
 
   if (!tel) {
     setTimeout(() => {
-      err.textContent = 'Captura tu teléfono.';
+      err.textContent = 'No pusiste tu número de teléfono.';
       err.style.display = 'block';
     }, 0);
     telInput.focus();
@@ -958,7 +958,7 @@ function validarBase(tel, nombre, sels, combos, err) {
   }
   if (!nombre) {
     setTimeout(() => {
-      err.textContent = 'Captura el nombre de tu quiniela.';
+      err.textContent = 'No pusiste el nombre de tu quiniela.';
       err.style.display = 'block';
     }, 0);
     nombreInput.focus();
