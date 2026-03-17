@@ -546,7 +546,6 @@ const CANAL = "WHATSAPP";
 let isSending = false;
 let sendLockUntil = 0;
 
-
 let BASE_PRICE = 25;
 let PARTIDOS   = [];
 let carrito    = JSON.parse(localStorage.getItem('quiniela_carrito_v4') || '[]');
@@ -741,13 +740,6 @@ function setSendingState(on) {
 function resetCuponSelectionsOnly() {
   setSelectionsFromArray(Array(9).fill(''));
   updateCurrentTotals();
-}
-
-function releaseSendingSoon() {
-  setTimeout(() => {
-    setSendingState(false);
-    isSending = false;
-  }, 1200);
 }
 
 const telInput    = $('#telefono');
@@ -1076,7 +1068,7 @@ $('#btnEnviar').addEventListener('click', async () => {
   }
 
   isSending = true;
-  sendLockUntil = now + 5000; // bloqueo corto anti-doble toque
+  sendLockUntil = now + 8000; // bloqueo corto anti-doble toque
   setSendingState(true);
 
   try {
@@ -1191,7 +1183,8 @@ $('#btnEnviar').addEventListener('click', async () => {
     resetCuponSelectionsOnly();
 
   } finally {
-    // la reactivación del botón se hace poco después de abrir WhatsApp
+    setSendingState(false);
+    isSending = false;
   }
 });
 
