@@ -17,7 +17,6 @@
     html, body { overflow-x: hidden; }
 
     :root{
-      /* ======= TEMA VERDE (discreto/elegante) ======= */
       --fg:#0f172a;
       --bg:#eaf3ee;
       --bg2:#dfeee7;
@@ -27,8 +26,8 @@
       --ok:#0a6b3a;
       --ok2:#0f8a4b;
 
-      --l:#0a6b3a;     /* QUINIELA (verde) */
-      --v:#c62828;     /* AZTECA (rojo) */
+      --l:#0a6b3a;
+      --v:#c62828;
       --e:#6b7280;
 
       --pick:54px;
@@ -133,21 +132,17 @@
       );
     }
 
-    /* ✅ FIX: que el contenido del cupón SÍ ocupe todo el ancho */
     .card .inner{
       padding:4px 2px 4px 0;
       width:100%;
-      display:block;          /* antes: flex */
+      display:block;
     }
-    #rows{ width:100%; }      /* asegura 100% */
+    #rows{ width:100%; }
 
     .row{
       width:100%;
       display:grid;
-
-      /* ✅ FIX: evita que los nombres “rompan” el grid, y rellena el ancho */
       grid-template-columns:24px var(--pick) minmax(0, 1fr) var(--pick) minmax(0, 1fr) var(--pick);
-
       gap:4px;
       padding:10px 4px;
       border-bottom:1px solid var(--line);
@@ -167,11 +162,10 @@
       white-space:normal;
       word-break:keep-all;
       color:#0f172a;
-      min-width:0;           /* ✅ importante con minmax(0,1fr) */
+      min-width:0;
     }
     .team span{display:block;}
 
-    /* ======= ESCUDOS MÁS GRANDES / CON PROTAGONISMO ======= */
     .team-logo{
       display:block;
       margin:0 auto 4px;
@@ -197,13 +191,10 @@
       transition:transform .06s ease,border-color .06s ease,background .06s ease,color .06s ease, box-shadow .06s ease;
       -webkit-tap-highlight-color:transparent;
       box-shadow: 0 1px 0 rgba(0,0,0,.04);
-
-      /* Feedback pro (desktop + móvil) */
       transform: translateZ(0);
       will-change: transform, box-shadow;
     }
 
-    /* Hover solo en dispositivos con mouse */
     @media (hover:hover) and (pointer:fine){
       .pick:hover{
         border-color: rgba(15,23,42,.28);
@@ -211,7 +202,6 @@
       }
     }
 
-    /* Press/tap */
     .pick:active{ transform: scale(.96); }
 
     .pick.on{
@@ -430,7 +420,6 @@
     }
     .bump-anim{ animation:bump .18s ease-out; }
 
-    /* Overlay de registro cerrado */
     #registroCerrado{
       display:none;
       position:absolute;
@@ -458,7 +447,6 @@
       .namebox{grid-template-columns:1fr}
     }
 
-    /* AJUSTE PARA TELÉFONOS CHICOS (evita scroll horizontal) */
     @media (max-width:420px){
       :root{ --pick: 44px; }
       .row{
@@ -486,16 +474,14 @@
 
       <div class="namebox">
         <input id="telefono" placeholder="Teléfono" inputmode="numeric" pattern="[0-9]*" autocomplete="tel" />
-        <input id="nombre" placeholder="nombre" inputmode="text" autocomplete="off" autocapitalize="characters" enterkeyhint="done">
+        <input id="nombre" placeholder="nombre" inputmode="text" autocomplete="name" autocapitalize="characters" enterkeyhint="done">
       </div>
     </div>
 
-    <!-- Overlay de registro cerrado -->
     <div id="registroCerrado">
       Registro cerrado<br>para esta quiniela.
     </div>
 
-    <!-- Todo el cupón (se desactiva con disabled-cupon) -->
     <div id="cupon">
       <div class="card">
         <div class="bar"></div>
@@ -543,19 +529,20 @@ const SHEET_ENDPOINT_PUBLIC = "https://script.google.com/macros/s/AKfycbyGqoqBpU
 const PHONE_NUMBER = "5213333913966";
 const CANAL = "WHATSAPP";
 
+let isSending = false;
+let sendLockUntil = 0;
+
 let BASE_PRICE = 25;
 let PARTIDOS   = [];
 let carrito    = JSON.parse(localStorage.getItem('quiniela_carrito_v4') || '[]');
 let telCache   = localStorage.getItem('quiniela_tel') || '';
+let nombreCache = localStorage.getItem('quiniela_nombre') || '';
 let CFG_ACEPTA = true;
 
-// vendedor desde parámetro ?v=
 const urlParams = new URLSearchParams(location.search);
 const VENDEDOR_PARAM = (urlParams.get('v') || '').trim().toUpperCase();
 
-// Mapa de escudos
 const TEAM_LOGOS = {
-  // Liga MX
   'AMÉRICA': 'escudos/america.png',
   'ATLAS': 'escudos/atlas.png',
   'SAN LUIS': 'escudos/sanluis.png',
@@ -579,7 +566,6 @@ const TEAM_LOGOS = {
   'TOLUCA': 'escudos/toluca.png',
   'VENADOS': 'escudos/venados.png',
 
-  // España
   'ALAVÉS': 'escudos/alaves.png',
   'ATHLETIC CLUB': 'escudos/athleticclub.png',
   'ATLÉTICO MADRID': 'escudos/atleticomadrid.png',
@@ -600,7 +586,6 @@ const TEAM_LOGOS = {
   'VALENCIA': 'escudos/valencia.png',
   'VILLARREAL': 'escudos/villarreal.png',
 
-  // Premier League / Championship
   'ARSENAL': 'escudos/arsenal.png',
   'ASTON VILLA': 'escudos/astonvilla.png',
   'BOURNEMOUTH': 'escudos/bournemouth.png',
@@ -622,7 +607,6 @@ const TEAM_LOGOS = {
   'WEST HAM': 'escudos/westham.png',
   'WOLVERHAMPTON': 'escudos/wolverhampton.png',
 
-  // MLS
   'ATLANTA UNITED': 'escudos/atlantaunited.png',
   'AUSTIN': 'escudos/austin.png',
   'CHARLOTTE': 'escudos/charlotte.png',
@@ -654,7 +638,6 @@ const TEAM_LOGOS = {
   'TORONTO FC': 'escudos/torontofc.png',
   'VANCOUVER WHITECAPS': 'escudos/vancouverwhitecaps.png',
 
-  // Selecciones
   'ALEMANIA': 'escudos/alemania.png',
   'ARABIA SAUDITA': 'escudos/arabiasaudita.png',
   'ARGENTINA': 'escudos/argentina.png',
@@ -720,10 +703,30 @@ function showSnack(msg) {
   setTimeout(() => el.classList.remove('show'), 2000);
 }
 
+function setSendingState(on) {
+  const btn = $('#btnEnviar');
+  if (!btn) return;
+
+  if (on) {
+    btn.disabled = true;
+    btn.dataset.originalText = btn.dataset.originalText || btn.textContent;
+    btn.textContent = 'Enviando...';
+  } else {
+    btn.disabled = false;
+    btn.textContent = btn.dataset.originalText || 'Enviar por WhatsApp';
+  }
+}
+
+function resetCuponSelectionsOnly() {
+  setSelectionsFromArray(Array(9).fill(''));
+  updateCurrentTotals();
+}
+
 const telInput    = $('#telefono');
 const nombreInput = $('#nombre');
 
 if (telCache) telInput.value = telCache;
+if (nombreCache) nombreInput.value = nombreCache;
 
 function cleanTel() {
   const c = telInput.value.replace(/\D/g, '').slice(0, 15);
@@ -736,16 +739,21 @@ telInput.addEventListener('keydown', e => {
   if (!/^\d$/.test(e.key)) e.preventDefault();
 });
 telInput.addEventListener('input', cleanTel);
+telInput.addEventListener('input', () => {
+  localStorage.setItem('quiniela_tel', telInput.value.trim());
+});
 telInput.addEventListener('paste', e => {
   e.preventDefault();
   const t = (e.clipboardData || window.clipboardData).getData('text');
   telInput.value = (t || '').replace(/\D/g, '').slice(0, 15);
+  localStorage.setItem('quiniela_tel', telInput.value.trim());
 });
 
 nombreInput.addEventListener('input', e => {
   const pos = e.target.selectionStart;
   e.target.value = e.target.value.toUpperCase();
   e.target.setSelectionRange(pos, pos);
+  localStorage.setItem('quiniela_nombre', e.target.value.trim().toUpperCase());
 });
 
 function renderRows() {
@@ -829,7 +837,6 @@ function updateCurrentTotals() {
   totalEl.classList.add('bump-anim');
 }
 
-// clicks en picks
 document.addEventListener('click', e => {
   const el = e.target.closest('.pick');
   if (!el) return;
@@ -917,7 +924,6 @@ function renderCarrito() {
     `TOTAL LISTA: ${totalComb} comb. · ${fmtMoney(totalCost)}`;
 }
 
-// eliminar de lista
 document.addEventListener('click', e => {
   const btn = e.target.closest('button.mini.danger[data-del]');
   if (!btn) return;
@@ -974,7 +980,6 @@ function validarBase(tel, nombre, sels, combos, err) {
   return true;
 }
 
-// cerrar recuadro de error al tocar fuera
 document.addEventListener('click', e => {
   const err = $('#errMsg');
   if (err.style.display === 'block' && !e.target.closest('#errMsg')) {
@@ -1010,6 +1015,7 @@ $('#btnAgregar').addEventListener('click', () => {
   if (!validarBase(tel, nombre, sels, combos, err)) return;
 
   localStorage.setItem('quiniela_tel', tel);
+  localStorage.setItem('quiniela_nombre', nombre);
 
   carrito.push({ nombre, sels, combos });
   localStorage.setItem('quiniela_carrito_v4', JSON.stringify(carrito));
@@ -1032,12 +1038,21 @@ function formatWhatsSelections(sels) {
   return parts.join(' ');
 }
 
-// enviar por WhatsApp
 $('#btnEnviar').addEventListener('click', () => {
   if (!CFG_ACEPTA) {
     showSnack('La quiniela ya no acepta registros.');
     return;
   }
+
+  const now = Date.now();
+  if (isSending || now < sendLockUntil) {
+    showSnack('Espera un momento...');
+    return;
+  }
+
+  isSending = true;
+  sendLockUntil = now + 8000;
+  setSendingState(true);
 
   const tel     = telInput.value.trim();
   const nombre  = nombreInput.value.trim().toUpperCase();
@@ -1050,9 +1065,13 @@ $('#btnEnviar').addEventListener('click', () => {
 
   let itemsToSend = carrito.slice();
 
-  if (!itemsToSend.length && nombre && combos > 0) {
+  if (!itemsToSend.length) {
     const selsCopy = sels.slice();
-    if (!validarBase(tel, nombre, selsCopy, combos, err)) return;
+    if (!validarBase(tel, nombre, selsCopy, combos, err)) {
+      setSendingState(false);
+      isSending = false;
+      return;
+    }
     itemsToSend.push({ nombre, sels: selsCopy, combos });
   }
 
@@ -1062,6 +1081,8 @@ $('#btnEnviar').addEventListener('click', () => {
       err.style.display = 'block';
     }, 0);
     telInput.focus();
+    setSendingState(false);
+    isSending = false;
     return;
   }
   if (!/^\d{10,15}$/.test(tel)) {
@@ -1070,6 +1091,8 @@ $('#btnEnviar').addEventListener('click', () => {
       err.style.display = 'block';
     }, 0);
     telInput.focus();
+    setSendingState(false);
+    isSending = false;
     return;
   }
   if (!itemsToSend.length) {
@@ -1077,10 +1100,13 @@ $('#btnEnviar').addEventListener('click', () => {
       err.textContent = 'No hay quinielas para enviar.';
       err.style.display = 'block';
     }, 0);
+    setSendingState(false);
+    isSending = false;
     return;
   }
 
   localStorage.setItem('quiniela_tel', tel);
+  localStorage.setItem('quiniela_nombre', nombre);
 
   const lines = [];
   const titulo   = $('#titleTxt').innerText.trim() || 'QUINIELA AZTECA';
@@ -1138,18 +1164,23 @@ $('#btnEnviar').addEventListener('click', () => {
     items: itemsToSend.map(q => ({ nombre: q.nombre, sels: q.sels }))
   };
 
+  carrito = [];
+  localStorage.setItem('quiniela_carrito_v4', JSON.stringify(carrito));
+  renderCarrito();
+  resetCuponSelectionsOnly();
+
+  setTimeout(() => {
+    setSendingState(false);
+    isSending = false;
+  }, 1200);
+
   fetch(SHEET_ENDPOINT_PUBLIC, {
     method:'POST',
     headers:{'Content-Type':'text/plain;charset=utf-8'},
     body: JSON.stringify(payload)
-  }).catch(()=>{}).finally(()=> {
-    carrito = [];
-    localStorage.setItem('quiniela_carrito_v4', JSON.stringify(carrito));
-    renderCarrito();
-  });
+  }).catch(()=>{});
 });
 
-// aplicar cierre visual
 function aplicarCierreVisual(cerrar){
   const overlay = $('#registroCerrado');
   const cup = $('#cupon');
@@ -1199,7 +1230,6 @@ function applyConfig(cfg) {
   renderCarrito();
 }
 
-// carga de config
 function loadConfig() {
   const stored = localStorage.getItem('quiniela_cfg_cache_v1');
   if (stored) {
