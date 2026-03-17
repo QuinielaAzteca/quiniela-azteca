@@ -446,7 +446,6 @@
       .namebox{grid-template-columns:1fr}
     }
 
-    /* AJUSTE PARA TELÉFONOS CHICOS (evita scroll horizontal) */
     @media (max-width: 420px) {
       :root{ --pick: 44px; }
       .row{
@@ -530,7 +529,7 @@
   <div class="snack" id="snack"></div>
 
 <script>
-const SHEET_ENDPOINT_PUBLIC = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec"; // misma URL /exec
+const SHEET_ENDPOINT_PUBLIC = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec";
 const CANAL = "TELEGRAM";
 
 let isSending = false;
@@ -729,6 +728,13 @@ function setSendingState(on) {
 function resetCuponSelectionsOnly() {
   setSelectionsFromArray(Array(9).fill(''));
   updateCurrentTotals();
+}
+
+function releaseSendingSoon() {
+  setTimeout(() => {
+    setSendingState(false);
+    isSending = false;
+  }, 1200);
 }
 
 const telInput    = $('#telefono');
@@ -1037,7 +1043,7 @@ function formatTelegramSelections(sels) {
   return parts.join(' ');
 }
 
-$('#btnEnviar').addEventListener('click', async () => {
+$('#btnEnviar').addEventListener('click', () => {
   if (!CFG_ACEPTA) {
     showSnack('La quiniela ya no acepta registros.');
     return;
@@ -1050,124 +1056,132 @@ $('#btnEnviar').addEventListener('click', async () => {
   }
 
   isSending = true;
-  sendLockUntil = now + 8000;
+  sendLockUntil = now + 5000;
   setSendingState(true);
 
-  try {
-    const tel     = telInput.value.trim();
-    const nombre  = nombreInput.value.trim().toUpperCase();
-    const sels    = getSelections();
-    const combos  = combosFromSelections(sels);
-    const err     = $('#errMsg');
+  const tel     = telInput.value.trim();
+  const nombre  = nombreInput.value.trim().toUpperCase();
+  const sels    = getSelections();
+  const combos  = combosFromSelections(sels);
+  const err     = $('#errMsg');
 
-    err.style.display = 'none';
-    err.textContent   = '';
+  err.style.display = 'none';
+  err.textContent   = '';
 
-    let itemsToSend = carrito.slice();
+  let itemsToSend = carrito.slice();
 
-    if (!itemsToSend.length && nombre && combos > 0) {
-      const selsCopy = sels.slice();
-      if (!validarBase(tel, nombre, selsCopy, combos, err)) return;
-      itemsToSend.push({ nombre, sels: selsCopy, combos });
-    }
-
-    if (!tel) {
-      setTimeout(() => {
-        err.textContent = 'Captura el teléfono del cliente.';
-        err.style.display = 'block';
-      }, 0);
-      telInput.focus();
+  if (!itemsToSend.length && nombre && combos > 0) {
+    const selsCopy = sels.slice();
+    if (!validarBase(tel, nombre, selsCopy, combos, err)) {
+      setSendingState(false);
+      isSending = false;
       return;
     }
-    if (!/^\d{10,15}$/.test(tel)) {
-      setTimeout(() => {
-        err.textContent = 'El teléfono debe tener entre 10 y 15 dígitos.';
-        err.style.display = 'block';
-      }, 0);
-      telInput.focus();
-      return;
-    }
-    if (!itemsToSend.length) {
-      setTimeout(() => {
-        err.textContent = 'No hay quinielas para enviar.';
-        err.style.display = 'block';
-      }, 0);
-      return;
-    }
+    itemsToSend.push({ nombre, sels: selsCopy, combos });
+  }
 
-    localStorage.setItem('quiniela_tel_telegram', tel);
-
-    const lines = [];
-    const titulo   = $('#titleTxt').innerText.trim() || 'QUINIELA AZTECA';
-    const subtitulo= $('#subtitleTxt').textContent;
-
-    lines.push(`🏆 **${titulo}**`);
-    if (subtitulo) lines.push(`📆 ${subtitulo}`);
-    lines.push('');
-
-    const groups = [];
-    const indexByName = {};
-    itemsToSend.forEach(q => {
-      const name = q.nombre;
-      let idx = indexByName[name];
-      if (idx === undefined) {
-        idx = groups.length;
-        indexByName[name] = idx;
-        groups.push({ nombre: name, items: [] });
-      }
-      groups[idx].items.push(q);
-    });
-
-    groups.forEach(group => {
-      const count = group.items.length;
-      const label = count === 1 ? 'quiniela' : 'quinielas';
-      lines.push(`👤 **${group.nombre}** (${count} ${label})`);
-      group.items.forEach(q => {
-        const selLine = formatTelegramSelections(q.sels);
-        const comb    = q.combos;
-        const total   = comb * BASE_PRICE;
-        lines.push(`   • ${selLine}`);
-        lines.push(`     Comb: ${comb} · ${fmtMoney(total)}`);
-      });
-      lines.push('');
-    });
-
-    const totalGlobalCombos = itemsToSend.reduce((a,q)=>a+q.combos,0);
-    const totalGlobalMoney  = totalGlobalCombos * BASE_PRICE;
-    const totalQuinielas    = itemsToSend.length;
-    const labelLista        = totalQuinielas === 1 ? 'Quiniela' : 'Quinielas';
-
-    lines.push(`**TOTAL LISTA:** ${totalQuinielas} ${labelLista} ${totalGlobalCombos} combinaciones.`);
-    lines.push(`**TOTAL A PAGAR:** ${fmtMoney(totalGlobalMoney)}.`);
-
-    const text = lines.join('\n');
-
-    const payload = {
-      tel,
-      vendedor: VENDEDOR_PARAM,
-      canal: CANAL,
-      items: itemsToSend.map(q => ({ nombre: q.nombre, sels: q.sels }))
-    };
-
-    await fetch(SHEET_ENDPOINT_PUBLIC, {
-      method:'POST',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body: JSON.stringify(payload)
-    }).catch(()=>{});
-
-    const tgUrl = `tg://msg?text=${encodeURIComponent(text)}`;
-    window.open(tgUrl,'_blank');
-    showSnack('Abriendo Telegram...');
-
-    carrito = [];
-    localStorage.setItem('quiniela_carrito_v4_telegram', JSON.stringify(carrito));
-    renderCarrito();
-    resetCuponSelectionsOnly();
-
-  } finally {
+  if (!tel) {
+    setTimeout(() => {
+      err.textContent = 'Captura el teléfono del cliente.';
+      err.style.display = 'block';
+    }, 0);
+    telInput.focus();
     setSendingState(false);
     isSending = false;
+    return;
   }
+  if (!/^\d{10,15}$/.test(tel)) {
+    setTimeout(() => {
+      err.textContent = 'El teléfono debe tener entre 10 y 15 dígitos.';
+      err.style.display = 'block';
+    }, 0);
+    telInput.focus();
+    setSendingState(false);
+    isSending = false;
+    return;
+  }
+  if (!itemsToSend.length) {
+    setTimeout(() => {
+      err.textContent = 'No hay quinielas para enviar.';
+      err.style.display = 'block';
+    }, 0);
+    setSendingState(false);
+    isSending = false;
+    return;
+  }
+
+  localStorage.setItem('quiniela_tel_telegram', tel);
+
+  const lines = [];
+  const titulo   = $('#titleTxt').innerText.trim() || 'QUINIELA AZTECA';
+  const subtitulo= $('#subtitleTxt').textContent;
+
+  lines.push(`🏆 **${titulo}**`);
+  if (subtitulo) lines.push(`📆 ${subtitulo}`);
+  lines.push('');
+
+  const groups = [];
+  const indexByName = {};
+  itemsToSend.forEach(q => {
+    const name = q.nombre;
+    let idx = indexByName[name];
+    if (idx === undefined) {
+      idx = groups.length;
+      indexByName[name] = idx;
+      groups.push({ nombre: name, items: [] });
+    }
+    groups[idx].items.push(q);
+  });
+
+  groups.forEach(group => {
+    const count = group.items.length;
+    const label = count === 1 ? 'quiniela' : 'quinielas';
+    lines.push(`👤 **${group.nombre}** (${count} ${label})`);
+    group.items.forEach(q => {
+      const selLine = formatTelegramSelections(q.sels);
+      const comb    = q.combos;
+      const total   = comb * BASE_PRICE;
+      lines.push(`   • ${selLine}`);
+      lines.push(`     Comb: ${comb} · ${fmtMoney(total)}`);
+    });
+    lines.push('');
+  });
+
+  const totalGlobalCombos = itemsToSend.reduce((a,q)=>a+q.combos,0);
+  const totalGlobalMoney  = totalGlobalCombos * BASE_PRICE;
+  const totalQuinielas    = itemsToSend.length;
+  const labelLista        = totalQuinielas === 1 ? 'Quiniela' : 'Quinielas';
+
+  lines.push(`**TOTAL LISTA:** ${totalQuinielas} ${labelLista} ${totalGlobalCombos} combinaciones.`);
+  lines.push(`**TOTAL A PAGAR:** ${fmtMoney(totalGlobalMoney)}.`);
+
+  const text = lines.join('\n');
+
+  const payload = {
+    tel,
+    vendedor: VENDEDOR_PARAM,
+    canal: CANAL,
+    items: itemsToSend.map(q => ({ nombre: q.nombre, sels: q.sels }))
+  };
+
+  const tgUrl = `tg://msg?text=${encodeURIComponent(text)}`;
+  const opened = window.open(tgUrl,'_blank');
+  if (!opened) {
+    location.href = tgUrl;
+  }
+  showSnack('Abriendo Telegram...');
+
+  carrito = [];
+  localStorage.setItem('quiniela_carrito_v4_telegram', JSON.stringify(carrito));
+  renderCarrito();
+  resetCuponSelectionsOnly();
+  releaseSendingSoon();
+
+  fetch(SHEET_ENDPOINT_PUBLIC, {
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify(payload)
+  }).catch(()=>{});
 });
 
 function aplicarCierreVisual(cerrar){
@@ -1253,5 +1267,4 @@ function loadConfig() {
 
 document.addEventListener('DOMContentLoaded', loadConfig);
 </script>
-</body>
-</html>
+</b
