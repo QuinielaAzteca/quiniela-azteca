@@ -1067,15 +1067,17 @@ $('#btnEnviar').addEventListener('click', () => {
 
   let itemsToSend = carrito.slice();
 
-  if (!itemsToSend.length && nombre && combos > 0) {
-    const selsCopy = sels.slice();
-    if (!validarBase(tel, nombre, selsCopy, combos, err)) {
-      setSendingState(false);
-      isSending = false;
-      return;
-    }
-    itemsToSend.push({ nombre, sels: selsCopy, combos });
+  let itemsToSend = carrito.slice();
+
+if (!itemsToSend.length) {
+  const selsCopy = sels.slice();
+  if (!validarBase(tel, nombre, selsCopy, combos, err)) {
+    setSendingState(false);
+    isSending = false;
+    return;
   }
+  itemsToSend.push({ nombre, sels: selsCopy, combos });
+}
 
   if (!tel) {
     setTimeout(() => {
