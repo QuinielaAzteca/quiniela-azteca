@@ -363,22 +363,24 @@
     }
 
     .err{
-      position:fixed;
-      top:50%;
-      left:50%;
-      transform:translate(-50%,-50%);
-      z-index:999;
-      min-width:220px;
-      max-width:90%;
-      padding:10px 12px;
-      background:#ffecec;
-      border:1px solid #f5b5b5;
-      color:#c62828;
-      font-size:13px;
-      border-radius:10px;
-      box-shadow:0 6px 16px rgba(0,0,0,.25);
-      text-align:center;
-    }
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  z-index:999;
+  min-width:300px;
+  max-width:92%;
+  padding:18px 20px;
+  background:#ffecec;
+  border:2px solid #f5b5b5;
+  color:#c62828;
+  font-size:18px;
+  line-height:1.35;
+  border-radius:16px;
+  box-shadow:0 10px 24px rgba(0,0,0,.25);
+  text-align:center;
+  font-weight:800;
+}
 
     .snack{
       position:fixed;
@@ -933,7 +935,7 @@ function validarBase(tel, nombre, sels, combos, err) {
 
   if (!tel) {
     setTimeout(() => {
-      err.textContent = 'Captura el teléfono del cliente.';
+      err.textContent = 'Captura tu teléfono.';
       err.style.display = 'block';
     }, 0);
     telInput.focus();
@@ -949,7 +951,7 @@ function validarBase(tel, nombre, sels, combos, err) {
   }
   if (!nombre) {
     setTimeout(() => {
-      err.textContent = 'Captura el nombre o alias de la quiniela.';
+      err.textContent = 'Captura el nombre de tu quiniela.';
       err.style.display = 'block';
     }, 0);
     nombreInput.focus();
@@ -958,7 +960,7 @@ function validarBase(tel, nombre, sels, combos, err) {
   const faltantes = sels.filter(s => !s).length;
   if (faltantes > 0) {
     setTimeout(() => {
-      err.textContent = 'Debes seleccionar un resultado en los 9 partidos.';
+      err.textContent = 'Te falto seleccionar un resultado en algún partido.';
       err.style.display = 'block';
     }, 0);
     return false;
