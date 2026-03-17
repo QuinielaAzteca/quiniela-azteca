@@ -1154,10 +1154,7 @@ $('#btnEnviar').addEventListener('click', () => {
   };
 
   const tgUrl = `tg://msg?text=${encodeURIComponent(text)}`;
-  const opened = window.open(tgUrl,'_blank');
-  if (!opened) {
-    location.href = tgUrl;
-  }
+  location.href = tgUrl;
   showSnack('Abriendo Telegram...');
 
   carrito = [];
