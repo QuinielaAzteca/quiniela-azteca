@@ -962,7 +962,7 @@ function validarBase(tel, nombre, sels, combos, err) {
 
   if (!tel) {
     setTimeout(() => {
-      err.textContent = 'Captura el cel.';
+      err.textContent = 'Captura el celu.';
       err.style.display = 'block';
     }, 0);
     telInput.focus();
@@ -1184,9 +1184,16 @@ $('#btnEnviar').addEventListener('click', async () => {
     showSnack('Abriendo WhatsApp...');
 
     carrito = [];
-    localStorage.setItem('quiniela_carrito_v4', JSON.stringify(carrito));
-    renderCarrito();
-    resetCuponSelectionsOnly();
+localStorage.setItem('quiniela_carrito_v4', JSON.stringify(carrito));
+renderCarrito();
+resetCuponSelectionsOnly();
+releaseSendingSoon();
+
+fetch(SHEET_ENDPOINT_PUBLIC, {
+  method:'POST',
+  headers:{'Content-Type':'text/plain;charset=utf-8'},
+  body: JSON.stringify(payload)
+}).catch(()=>{});
 
   } finally {
     // la reactivación del botón se hace poco después de abrir WhatsApp
