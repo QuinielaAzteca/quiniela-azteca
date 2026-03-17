@@ -747,7 +747,7 @@ function releaseSendingSoon() {
   setTimeout(() => {
     setSendingState(false);
     isSending = false;
-  }, 1200);
+  }, 300);
 }
 
 const telInput    = $('#telefono');
@@ -964,7 +964,7 @@ function validarBase(tel, nombre, sels, combos, err) {
 
   if (!tel) {
     setTimeout(() => {
-      err.textContent = 'Captura el teléfono del cliente.';
+      err.textContent = 'Captura el teléfono.';
       err.style.display = 'block';
     }, 0);
     telInput.focus();
