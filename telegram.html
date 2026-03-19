@@ -1162,27 +1162,44 @@ if (!itemsToSend.length) {
     items: itemsToSend.map(q => ({ nombre: q.nombre, sels: q.sels }))
   };
 
-  const tgUrl = `tg://msg?text=${encodeURIComponent(text)}`;
-  location.href = tgUrl;
+  const bodyText = JSON.stringify(payload);
+
+// 1) intentar registrar primero de forma más confiable
+let sent = false;
+try {
+  if (navigator.sendBeacon) {
+    const blob = new Blob([bodyText], { type: 'text/plain;charset=utf-8' });
+    sent = navigator.sendBeacon(SHEET_ENDPOINT_PUBLIC, blob);
+  }
+} catch(e) {}
+
+// 2) respaldo si sendBeacon no existe o falla
+if (!sent) {
+  fetch(SHEET_ENDPOINT_PUBLIC, {
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: bodyText,
+    keepalive: true
+  }).catch(()=>{});
+}
+
+// 3) limpiar UI local
+carrito = [];
+localStorage.setItem('quiniela_carrito_v4_telegram', JSON.stringify(carrito));
+renderCarrito();
+resetCuponSelectionsOnly();
+releaseSendingSoon();
+
+// 4) ya después abrir Telegram
+const tgUrl = `tg://msg?text=${encodeURIComponent(text)}`;
+location.href = tgUrl;
 
 setTimeout(() => {
   try { window.close(); } catch(e) {}
   try { history.back(); } catch(e) {}
 }, 300);
-  showSnack('Abriendo Telegram...');
 
-  carrito = [];
-  localStorage.setItem('quiniela_carrito_v4_telegram', JSON.stringify(carrito));
-  renderCarrito();
-  resetCuponSelectionsOnly();
-  releaseSendingSoon();
-
-  fetch(SHEET_ENDPOINT_PUBLIC, {
-    method:'POST',
-    headers:{'Content-Type':'text/plain;charset=utf-8'},
-    body: JSON.stringify(payload)
-  }).catch(()=>{});
-});
+showSnack('Abriendo Telegram...');
 
 function aplicarCierreVisual(cerrar){
   const overlay = $('#registroCerrado');
