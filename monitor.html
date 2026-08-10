@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quiniela Azteca - Monitor</title>
+  <link rel="icon" href="favicon.png" type="image/png" />
+
+  <style>
+    html, body { overflow-x: hidden; }
+    :root{
+      --fg:#0f172a;
+      --bg:#eaf3ee;
+      --bg2:#dfeee7;
+      --line:#d7e6dc;
+      --ok:#0a6b3a;
+      --l:#0a6b3a;
+      --v:#c62828;
+      --e:#6b7280;
+      --rowA:#f6fbf8;
+      --rowB:#eff7f2;
+      --oro:#ffd966;
+      --plata:#ffecb3;
+      --shadow: 0 8px 20px rgba(2, 44, 20, .10);
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+      background: radial-gradient(1200px 520px at 50% -140px, #ffffff 0%, var(--bg) 55%, var(--bg2) 100%);
+      color:var(--fg);
+    }
+    .wrap{ max-width:900px; margin:0 auto; padding:0 12px 16px; }
+
+    .sticky{
+      position:sticky;
+      top:0;
+      z-index:50;
+      background: var(--bg);
+      padding-top:10px;
+      padding-bottom:8px;
+    }
+
+    .title{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:2px;
+      padding:10px 12px;
+      background: var(--rowB);
+      border:1px solid var(--line);
+      border-radius:12px;
+      margin-bottom:6px;
+      text-align:center;
+      box-shadow: var(--shadow);
+    }
+    .title h1{ font-size:18px; margin:0; letter-spacing:.03em; }
+    .title h1 .title-q{color:var(--l);}
+    .title h1 .title-a{color:var(--v);}
+    .title small{ font-size:12px; color:#334155; font-weight:800; }
+
+    .resumenPartidos{
+      display:flex;
+      flex-direction:column;
+      gap:3px;
+      padding:6px;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:12px;
+      margin-bottom:6px;
+      box-shadow: var(--shadow);
+    }
+    .chipPartido{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      font-size:11px;
+      font-weight:800;
+      color:#334155;
+      background:var(--rowA);
+      border-radius:8px;
+      padding:5px 8px;
+    }
+    .chipPartido .r{
+      font-size:12px;
+      font-weight:900;
+      border-radius:6px;
+      padding:2px 7px;
+      min-width:20px;
+      text-align:center;
+      flex:0 0 auto;
+    }
+    .chipPartido .r.L{ background:var(--l); color:#fff; }
+    .chipPartido .r.E{ background:var(--e); color:#fff; }
+    .chipPartido .r.V{ background:var(--v); color:#fff; }
+    .chipPartido .equipo1{ flex:1; text-align:right; }
+    .chipPartido .equipo2{ flex:1; text-align:left; }
+    .chipPartido .m{
+      font-size:11px;
+      font-weight:900;
+      color:#0f172a;
+      background:#fff;
+      border-radius:6px;
+      padding:2px 7px;
+      flex:0 0 auto;
+      min-width:34px;
+      text-align:center;
+    }
+
+    .searchBar{
+      display:flex;
+      gap:6px;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:8px;
+      box-shadow: var(--shadow);
+    }
+    .searchBar input{
+      flex:1;
+      padding:8px 10px;
+      border:1px solid var(--line);
+      border-radius:8px;
+      font-size:13px;
+      outline:none;
+    }
+    .searchBar button{
+      padding:8px 12px;
+      border-radius:8px;
+      border:1px solid #0f172a;
+      background:#0f172a;
+      color:#fff;
+      font-weight:800;
+      font-size:12px;
+    }
+
+    .premiosGrid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      margin:8px 0;
+    }
+    .premioCard{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:8px;
+      text-align:center;
+    }
+    .premioCard .lbl{ font-size:10px; color:#64748b; font-weight:800; }
+    .premioCard .val{ font-size:16px; font-weight:900; margin-top:2px; }
+    .premioCard.oro{ border-color:#e6c200; background:#fffaeb; }
+    .premioCard.plata{ border-color:#e6c200; background:#fffaeb; }
+
+    .pendiente{
+      text-align:center;
+      font-size:12px;
+      color:#7a5c00;
+      background:#fff4cc;
+      border:1px solid #e6c200;
+      border-radius:10px;
+      padding:6px;
+      font-weight:800;
+      margin:8px 0;
+    }
+
+    .infoResultados{
+      font-size:11px;
+      color:#64748b;
+      text-align:center;
+      margin:4px 0 8px;
+    }
+
+    .tableWrap{ overflow-x:auto; }
+    table{ width:100%; border-collapse:collapse; font-size:12px; }
+    thead th{
+      position:sticky; top:0;
+      background:var(--rowB);
+      font-size:9px;
+      font-weight:900;
+      color:#334155;
+      padding:5px 3px;
+      border-bottom:2px solid var(--line);
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+    }
+    thead th.plain{ writing-mode:horizontal-tb; text-align:left; }
+    tbody td{
+      padding:5px 3px;
+      text-align:center;
+      border-bottom:1px solid var(--line);
+      white-space:nowrap;
+    }
+    tbody td.nombre{ text-align:left; font-weight:800; white-space:normal; font-size:11px; }
+    tbody tr:nth-child(odd){ background:var(--rowA); }
+    tbody tr.lugar1{ background:var(--oro) !important; }
+    tbody tr.lugar2{ background:var(--plata) !important; }
+
+    .sel{
+      display:inline-block;
+      width:20px; height:20px; line-height:20px;
+      border-radius:5px;
+      font-weight:900;
+      color:#334155;
+      background:#eef2f2;
+      font-size:11px;
+    }
+    .sel.hit{ background:var(--ok); color:#fff; }
+    tbody td.hit{
+      background:var(--ok);
+      color:#fff;
+      font-weight:900;
+      border-radius:5px;
+    }
+
+    .aciertosBadge{
+      display:inline-block;
+      min-width:24px;
+      padding:2px 5px;
+      border-radius:999px;
+      background:#0f172a;
+      color:#fff;
+      font-weight:900;
+      font-size:11px;
+    }
+    .premioTxt{ font-weight:900; color:#0a6b3a; font-size:11px; }
+
+    .pager{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      margin-top:10px;
+      font-size:12px;
+      font-weight:800;
+    }
+    .pager button{
+      padding:6px 10px;
+      border-radius:8px;
+      border:1px solid var(--line);
+      background:#fff;
+    }
+    .pager button:disabled{ opacity:.4; }
+
+    .loading, .errbox{
+      text-align:center;
+      padding:24px 12px;
+      font-weight:800;
+      color:#334155;
+    }
+    .errbox{ color:#c62828; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="sticky">
+      <div class="title">
+        <h1><span class="title-q">QUINIELA</span> <span class="title-a">AZTECA</span></h1>
+        <small>Monitor de resultados</small>
+      </div>
+      <div id="resumenPartidos" class="resumenPartidos"></div>
+      <div class="searchBar">
+        <input id="buscador" placeholder="Buscar por teléfono, # o nombre" />
+        <button id="btnBuscar">Buscar</button>
+      </div>
+    </div>
+
+    <div id="loading" class="loading">Cargando…</div>
+    <div id="err" class="errbox" style="display:none;"></div>
+
+    <div id="content" style="display:none;">
+      <div id="premiosPendiente" class="pendiente" style="display:none;">
+        Los resultados aún no están completos. Los premios se mostrarán cuando se carguen todos.
+      </div>
+      <div id="premiosGrid" class="premiosGrid" style="display:none;"></div>
+
+      <div class="infoResultados" id="infoResultados"></div>
+
+      <div class="tableWrap">
+        <table>
+          <thead>
+            <tr id="theadRow"><th class="plain">Nombre</th></tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="pager">
+        <button id="btnPrev">‹ Anterior</button>
+        <span id="pagerInfo"></span>
+        <button id="btnNext">Siguiente ›</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+const SHEET_ENDPOINT_PUBLIC = "https://script.google.com/macros/s/AKfycbwaioZMPiJmk4CUoo0v6dW2kn87pGt2g2X5ROa6PvzmSKmi4COKxMRMZ9aB1ZESlNbp/exec"; // ⚠️ LINK DE PRUEBA - cambiar al de producción cuando ya esté validado
+
+const $ = s => document.querySelector(s);
+const fmtMoney = n => '$' + Math.round(n || 0).toLocaleString('es-MX');
+
+let currentPage = 1;
+let currentQuery = '';
+let cabeceraPintada = false;
+
+function renderResumenPartidos(data){
+  if (cabeceraPintada) return;
+  cabeceraPintada = true;
+  const wrap = $('#resumenPartidos');
+  wrap.innerHTML = '';
+  data.partidos.forEach((p, i) => {
+    const res = data.resultados[i] || '';
+    const marc = data.marcadores[i] || '-';
+    const partes = String(p).split(' vs ');
+    const equipo1 = partes[0] || '';
+    const equipo2 = partes[1] || '';
+    const chip = document.createElement('div');
+    chip.className = 'chipPartido';
+    chip.innerHTML = `
+      <span class="r ${res}">${res || '-'}</span>
+      <span class="equipo1">${equipo1}</span>
+      <span class="m">${marc}</span>
+      <span class="equipo2">${equipo2}</span>
+    `;
+    wrap.appendChild(chip);
+  });
+}
+
+function renderPremios(data){
+  const pendiente = $('#premiosPendiente');
+  const grid = $('#premiosGrid');
+  if (!data.resultadosCompletos){
+    pendiente.style.display = 'block';
+    grid.style.display = 'none';
+    return;
+  }
+  pendiente.style.display = 'none';
+  grid.style.display = 'grid';
+  const a1 = data.aciertosLugar1 >= 0 ? data.aciertosLugar1 : '—';
+  const a2 = data.aciertosLugar2 >= 0 ? data.aciertosLugar2 : '—';
+  grid.innerHTML = `
+    <div class="premioCard oro">
+      <div class="lbl">1er lugar · ${a1} aciertos · ${data.ganadores1} ganador${data.ganadores1===1?'':'es'}</div>
+      <div class="val">${fmtMoney(data.premio1PorQuiniela)}</div>
+    </div>
+    <div class="premioCard plata">
+      <div class="lbl">2do lugar · ${a2} aciertos · ${data.ganadores2} ganador${data.ganadores2===1?'':'es'}</div>
+      <div class="val">${fmtMoney(data.premio2PorQuiniela)}</div>
+    </div>
+  `;
+}
+
+function renderTabla(data){
+  const thead = $('#theadRow');
+  thead.innerHTML = '<th class="plain">Nombre</th>';
+  data.partidos.forEach(p => {
+    const th = document.createElement('th');
+    th.textContent = p;
+    thead.appendChild(th);
+  });
+  const thA = document.createElement('th');
+  thA.className = 'plain';
+  thA.textContent = 'Aciertos';
+  thead.appendChild(thA);
+
+  const tbody = $('#tbody');
+  tbody.innerHTML = '';
+
+  data.quinielas.forEach(q => {
+    const tr = document.createElement('tr');
+    if (q.lugar === 1) tr.classList.add('lugar1');
+    else if (q.lugar === 2) tr.classList.add('lugar2');
+
+    let selsHtml = '';
+    q.sels.forEach((s, i) => {
+      const hit = data.resultados[i] && s === data.resultados[i];
+      selsHtml += `<td class="${hit ? 'hit' : ''}">${s || '-'}</td>`;
+    });
+
+    const premioTxt = q.premio ? fmtMoney(q.premio) : '';
+
+    tr.innerHTML = `
+      <td class="nombre">#${q.numero} · ${q.nombre}</td>
+      ${selsHtml}
+      <td><span class="aciertosBadge">${q.aciertos}</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  $('#infoResultados').textContent = `${data.totalRows} quiniela${data.totalRows===1?'':'s'} encontrada${data.totalRows===1?'':'s'}`;
+  $('#pagerInfo').textContent = `Página ${data.page} de ${data.totalPages}`;
+  $('#btnPrev').disabled = data.page <= 1;
+  $('#btnNext').disabled = data.page >= data.totalPages;
+}
+
+function loadMonitor(page, q){
+  $('#loading').style.display = cabeceraPintada ? 'none' : 'block';
+  const url = SHEET_ENDPOINT_PUBLIC
+    + '?mode=monitor&page=' + page
+    + '&pageSize=5000'
+    + '&q=' + encodeURIComponent(q || '')
+    + '&_=' + Date.now();
+
+  fetch(url, { cache: 'no-store' })
+    .then(r => r.json())
+    .then(res => {
+      if (!res.ok || !res.data) throw new Error('Respuesta inválida');
+      $('#loading').style.display = 'none';
+      $('#content').style.display = 'block';
+      renderResumenPartidos(res.data);
+      renderPremios(res.data);
+      renderTabla(res.data);
+      if (res.data.semana) {
+        document.querySelector('.title small').textContent = 'Monitor de resultados · Semana ' + res.data.semana;
+      }
+      currentPage = res.data.page;
+      currentQuery = q || '';
+    })
+    .catch(() => {
+      $('#loading').style.display = 'none';
+      $('#err').style.display = 'block';
+      $('#err').textContent = 'No se pudo cargar el monitor. Verifica tu conexión e intenta de nuevo.';
+    });
+}
+
+$('#btnBuscar').addEventListener('click', () => {
+  loadMonitor(1, $('#buscador').value.trim());
+});
+$('#buscador').addEventListener('keydown', e => {
+  if (e.key === 'Enter') loadMonitor(1, $('#buscador').value.trim());
+});
+$('#btnPrev').addEventListener('click', () => {
+  if (currentPage > 1) loadMonitor(currentPage - 1, currentQuery);
+});
+$('#btnNext').addEventListener('click', () => {
+  loadMonitor(currentPage + 1, currentQuery);
+});
+
+document.addEventListener('DOMContentLoaded', () => loadMonitor(1, ''));
+</script>
+</body>
+</html>
