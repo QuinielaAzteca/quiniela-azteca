@@ -193,6 +193,12 @@
       font-size:11px;
     }
     .sel.hit{ background:var(--ok); color:#fff; }
+    tbody td.hit{
+      background:var(--ok);
+      color:#fff;
+      font-weight:900;
+      border-radius:5px;
+    }
 
     .aciertosBadge{
       display:inline-block;
@@ -313,13 +319,15 @@ function renderPremios(data){
   }
   pendiente.style.display = 'none';
   grid.style.display = 'grid';
+  const a1 = data.aciertosLugar1 >= 0 ? data.aciertosLugar1 : '—';
+  const a2 = data.aciertosLugar2 >= 0 ? data.aciertosLugar2 : '—';
   grid.innerHTML = `
     <div class="premioCard oro">
-      <div class="lbl">1er lugar · ${data.ganadores1} ganador${data.ganadores1===1?'':'es'}</div>
+      <div class="lbl">1er lugar · ${a1} aciertos · ${data.ganadores1} ganador${data.ganadores1===1?'':'es'}</div>
       <div class="val">${fmtMoney(data.premio1PorQuiniela)}</div>
     </div>
     <div class="premioCard plata">
-      <div class="lbl">2do lugar · ${data.ganadores2} ganador${data.ganadores2===1?'':'es'}</div>
+      <div class="lbl">2do lugar · ${a2} aciertos · ${data.ganadores2} ganador${data.ganadores2===1?'':'es'}</div>
       <div class="val">${fmtMoney(data.premio2PorQuiniela)}</div>
     </div>
   `;
@@ -337,10 +345,6 @@ function renderTabla(data){
   thA.className = 'plain';
   thA.textContent = 'Aciertos';
   thead.appendChild(thA);
-  const thP = document.createElement('th');
-  thP.className = 'plain';
-  thP.textContent = 'Premio';
-  thead.appendChild(thP);
 
   const tbody = $('#tbody');
   tbody.innerHTML = '';
@@ -353,7 +357,7 @@ function renderTabla(data){
     let selsHtml = '';
     q.sels.forEach((s, i) => {
       const hit = data.resultados[i] && s === data.resultados[i];
-      selsHtml += `<td><span class="sel ${hit ? 'hit' : ''}">${s || '-'}</span></td>`;
+      selsHtml += `<td class="${hit ? 'hit' : ''}">${s || '-'}</td>`;
     });
 
     const premioTxt = q.premio ? fmtMoney(q.premio) : '';
@@ -362,7 +366,6 @@ function renderTabla(data){
       <td class="nombre">#${q.numero} · ${q.nombre}</td>
       ${selsHtml}
       <td><span class="aciertosBadge">${q.aciertos}</span></td>
-      <td class="premioTxt">${premioTxt}</td>
     `;
     tbody.appendChild(tr);
   });
