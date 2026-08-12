@@ -105,6 +105,12 @@
       min-width:34px;
       text-align:center;
     }
+    .chipPartido .escudo{
+      width:20px;
+      height:20px;
+      object-fit:contain;
+      flex:0 0 auto;
+    }
 
     .searchBar{
       display:flex;
@@ -313,6 +319,80 @@ const SHEET_ENDPOINT_PUBLIC = "https://script.google.com/macros/s/AKfycbwaioZMPi
 const $ = s => document.querySelector(s);
 const fmtMoney = n => '$' + Math.round(n || 0).toLocaleString('es-MX');
 
+const TEAM_LOGOS = {
+  'AMÉRICA': 'escudos/america.png', 'ATLANTE': 'escudos/atlante.png', 'ATLAS': 'escudos/atlas.png',
+  'SAN LUIS': 'escudos/sanluis.png', 'ATLETICO LA PAZ': 'escudos/atleticolapaz.png',
+  'ATLÉTICO MORELIA': 'escudos/atleticomorelia.png', 'CANCÚN': 'escudos/cancun.png',
+  'CRUZ AZUL': 'escudos/cruzazul.png', 'CHIVAS': 'escudos/chivas.png', 'JUÁREZ': 'escudos/juarez.png',
+  'LEÓN': 'escudos/leon.png', 'MAZATLÁN': 'escudos/mazatlan.png', 'MONTERREY': 'escudos/monterrey.png',
+  'NECAXA': 'escudos/necaxa.png', 'PACHUCA': 'escudos/pachuca.png', 'PUEBLA': 'escudos/puebla.png',
+  'PUMAS': 'escudos/pumas.png', 'QUERÉTARO': 'escudos/queretaro.png', 'SANTOS': 'escudos/santos.png',
+  'TIGRES': 'escudos/tigres.png', 'TIJUANA': 'escudos/tijuana.png', 'TOLUCA': 'escudos/toluca.png',
+  'VENADOS': 'escudos/venados.png',
+  'ALAVÉS': 'escudos/alaves.png', 'ATHLETIC CLUB': 'escudos/athleticclub.png',
+  'ATLÉTICO MADRID': 'escudos/atleticomadrid.png', 'BARCELONA': 'escudos/barcelona.png',
+  'BETIS': 'escudos/betis.png', 'CELTA': 'escudos/celta.png', 'ELCHE': 'escudos/elche.png',
+  'ESPANYOL': 'escudos/espanyol.png', 'GETAFE': 'escudos/getafe.png', 'GIRONA': 'escudos/girona.png',
+  'LEVANTE': 'escudos/levante.png', 'MALLORCA': 'escudos/mallorca.png', 'OSASUNA': 'escudos/osasuna.png',
+  'RAYO VALLECANO': 'escudos/rayovallecano.png', 'REAL MADRID': 'escudos/realmadrid.png',
+  'REAL OVIEDO': 'escudos/realoviedo.png', 'REAL SOCIEDAD': 'escudos/realsociedad.png',
+  'SEVILLA': 'escudos/sevilla.png', 'VALENCIA': 'escudos/valencia.png', 'VILLARREAL': 'escudos/villarreal.png',
+  'ARSENAL': 'escudos/arsenal.png', 'ASTON VILLA': 'escudos/astonvilla.png',
+  'BOURNEMOUTH': 'escudos/bournemouth.png', 'BRENTFORD': 'escudos/brentford.png',
+  'BRIGHTON': 'escudos/brighton.png', 'BURNLEY': 'escudos/burnley.png', 'CHELSEA': 'escudos/chelsea.png',
+  'CRYSTAL PALACE': 'escudos/crystalpalace.png', 'EVERTON': 'escudos/everton.png',
+  'FULHAM': 'escudos/fulham.png', 'LEEDS UNITED': 'escudos/leedsunited.png',
+  'LIVERPOOL': 'escudos/liverpool.png', 'MANCHESTER CITY': 'escudos/manchestercity.png',
+  'MANCHESTER UNITED': 'escudos/manchesterunited.png', 'NEWCASTLE': 'escudos/newcastle.png',
+  'NOTTINGHAM FOREST': 'escudos/nottinghamforest.png', 'SUNDERLAND': 'escudos/sunderland.png',
+  'TOTTENHAM': 'escudos/tottenham.png', 'WEST HAM': 'escudos/westham.png',
+  'WOLVERHAMPTON': 'escudos/wolverhampton.png',
+  'ATLANTA UNITED': 'escudos/atlantaunited.png', 'AUSTIN': 'escudos/austin.png',
+  'CHARLOTTE FC': 'escudos/charlotte.png', 'CHICAGO FIRE': 'escudos/chicagofire.png',
+  'FC CINCINNATI': 'escudos/cincinnati.png', 'COLORADO RAPIDS': 'escudos/coloradorapids.png',
+  'COLUMBUS CREW': 'escudos/columbuscrew.png', 'D.C. UNITED': 'escudos/dcunited.png',
+  'FC DALLAS': 'escudos/fcdallas.png', 'HOUSTON DYNAMO': 'escudos/houstondynamo.png',
+  'INTER MIAMI': 'escudos/intermiami.png', 'LA GALAXY': 'escudos/losangelesgalaxy.png',
+  'LOS ANGELES FC': 'escudos/losangelesfc.png', 'MINNESOTA UNITED': 'escudos/minnesotaunited.png',
+  'MONTRÉAL': 'escudos/cfmontreal.png', 'NASHVILLE': 'escudos/nashville.png',
+  'NEW ENGLAND REVOLUTION': 'escudos/newenglandrevolution.png', 'NEW YORK CITY': 'escudos/newyorkcity.png',
+  'NEW YORK RED BULLS': 'escudos/newyorkredbulls.png', 'ORLANDO CITY': 'escudos/orlandocity.png',
+  'PHILADELPHIA UNION': 'escudos/philadelphiaunion.png', 'PORTLAND TIMBERS': 'escudos/portlandtimbers.png',
+  'REAL SALT LAKE': 'escudos/realsaltlake.png', 'SAN DIEGO FC': 'escudos/sandiegofc.png',
+  'SAN JOSE EARTHQUAKES': 'escudos/sanjoseearthquakes.png', 'SEATTLE SOUNDERS': 'escudos/seattlesounders.png',
+  'SPORTING KANSAS CITY': 'escudos/sportingkansascity.png', 'ST LOUIS CITY': 'escudos/stlouissc.png',
+  'TORONTO FC': 'escudos/torontofc.png', 'VANCOUVER WHITECAPS': 'escudos/vancouverwhitecaps.png',
+  'P S G': 'escudos/parissaintgermain.png', 'JAIBA BRAVA': 'escudos/jaibabrava.png',
+  'TEPATITLÁN': 'escudos/tepatitlan.png',
+  'ALEMANIA': 'escudos/alemania.png', 'ARABIA S.': 'escudos/arabiasaudita.png', 'ARGELIA': 'escudos/argelia.png',
+  'ARGENTINA': 'escudos/argentina.png', 'AUSTRALIA': 'escudos/australia.png', 'AUSTRIA': 'escudos/austria.png',
+  'BÉLGICA': 'escudos/belgica.png', 'BOLIVIA': 'escudos/bolivia.png', 'BOSNIA Y H.': 'escudos/bosniayherzegovina.png',
+  'BRASIL': 'escudos/brasil.png', 'CABO VERDE': 'escudos/caboverde.png', 'CAMERÚN': 'escudos/camerun.png',
+  'CANADÁ': 'escudos/canada.png', 'CATAR': 'escudos/catar.png', 'CHEQUIA': 'escudos/chequia.png',
+  'COLOMBIA': 'escudos/colombia.png', 'COREA DEL SUR': 'escudos/coreadelsur.png',
+  'COSTA DE MARFIL': 'escudos/costademarfil.png', 'CROACIA': 'escudos/croacia.png', 'CURAZAO': 'escudos/curazao.png',
+  'DINAMARCA': 'escudos/dinamarca.png', 'ECUADOR': 'escudos/ecuador.png', 'EGIPTO': 'escudos/egipto.png',
+  'ESCOCIA': 'escudos/escocia.png', 'ESLOVAQUIA': 'escudos/eslovaquia.png', 'ESPAÑA': 'escudos/espana.png',
+  'U S A': 'escudos/estadosunidos.png', 'FINLANDIA': 'escudos/finlandia.png', 'FRANCIA': 'escudos/francia.png',
+  'GALES': 'escudos/gales.png', 'GHANA': 'escudos/ghana.png', 'HAITÍ': 'escudos/haiti.png',
+  'INGLATERRA': 'escudos/inglaterra.png', 'IRAK': 'escudos/irak.png', 'IRÁN': 'escudos/iran.png',
+  'IRLANDA DEL NORTE': 'escudos/irlandadelnorte.png', 'ISLANDIA': 'escudos/islandia.png',
+  'JORDANIA': 'escudos/jordania.png', 'ITALIA': 'escudos/italia.png', 'JAMAICA': 'escudos/jamaica.png',
+  'JAPÓN': 'escudos/japon.png', 'MARRUECOS': 'escudos/marruecos.png', 'MÉXICO': 'escudos/mexico.png',
+  'NORUEGA': 'escudos/noruega.png', 'NUEVA ZELANDA': 'escudos/nuevazelanda.png',
+  'PAÍSES BAJOS': 'escudos/paisesbajos.png', 'PANAMÁ': 'escudos/panama.png', 'PARAGUAY': 'escudos/paraguay.png',
+  'POLONIA': 'escudos/polonia.png', 'PORTUGAL': 'escudos/portugal.png',
+  'REPÚBLICA DE IRLANDA': 'escudos/republicadeirlanda.png', 'RD CONGO': 'escudos/rdcongo.png',
+  'RUMANIA': 'escudos/rumania.png', 'SENEGAL': 'escudos/senegal.png', 'SUDÁFRICA': 'escudos/sudafrica.png',
+  'SUECIA': 'escudos/suecia.png', 'SUIZA': 'escudos/suiza.png', 'SURINAM': 'escudos/surinam.png',
+  'TÚNEZ': 'escudos/tunez.png', 'TURQUÍA': 'escudos/turquia.png', 'UCRANIA': 'escudos/ucrania.png',
+  'URUGUAY': 'escudos/uruguay.png', 'UZBEKISTÁN': 'escudos/uzbekistan.png'
+};
+function logoTag_(nombreEquipo){
+  const src = TEAM_LOGOS[nombreEquipo];
+  return src ? `<img class="escudo" src="${src}" alt="${nombreEquipo}">` : '';
+}
+
 let currentPage = 1;
 let currentQuery = '';
 let cabeceraPintada = false;
@@ -332,9 +412,11 @@ function renderResumenPartidos(data){
     chip.className = 'chipPartido';
     chip.innerHTML = `
       <span class="r ${res}">${res || '-'}</span>
+      ${logoTag_(equipo1)}
       <span class="equipo1">${equipo1}</span>
       <span class="m">${marc}</span>
       <span class="equipo2">${equipo2}</span>
+      ${logoTag_(equipo2)}
     `;
     wrap.appendChild(chip);
   });
