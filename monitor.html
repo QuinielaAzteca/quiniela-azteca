@@ -59,6 +59,10 @@
     .title h1 .title-a{color:var(--v);}
     .title small{ font-size:12px; color:#334155; font-weight:800; }
 
+    .resumenPartidos.stickyOn{
+      position:sticky;
+      z-index:40;
+    }
     .resumenPartidos{
       display:flex;
       flex-direction:column;
@@ -277,15 +281,18 @@
         <h1><span class="title-q">QUINIELA</span> <span class="title-a">AZTECA</span></h1>
         <small>Monitor de resultados</small>
       </div>
-      <div id="resumenPartidos" class="resumenPartidos"></div>
       <div class="searchBar">
         <input id="buscador" placeholder="Buscar por teléfono, # o nombre" />
         <button id="btnBuscar">Buscar</button>
       </div>
     </div>
+    <div id="resumenPartidos" class="resumenPartidos"></div>
 
     <div id="loading" class="loading">Cargando…</div>
-    <div id="err" class="errbox" style="display:none;"></div>
+    <div id="err" class="errbox" style="display:none;">
+      <div id="errText"></div>
+      <button id="btnReintentar" class="mini" style="margin-top:8px;">Intentar de nuevo</button>
+    </div>
 
     <div id="content" style="display:none;">
       <div id="premiosPendiente" class="pendiente" style="display:none;">
@@ -519,15 +526,30 @@ function loadMonitor(page, q){
       } else {
         banner.style.display = 'none';
       }
+
+      const resumenEl = $('#resumenPartidos');
+      if (q) {
+        const stickyBar = document.querySelector('.sticky');
+        resumenEl.style.top = stickyBar.offsetHeight + 'px';
+        resumenEl.classList.add('stickyOn');
+      } else {
+        resumenEl.classList.remove('stickyOn');
+        resumenEl.style.top = '';
+      }
       currentPage = res.data.page;
       currentQuery = q || '';
     })
     .catch(() => {
       $('#loading').style.display = 'none';
       $('#err').style.display = 'block';
-      $('#err').textContent = 'No se pudo cargar el monitor. Verifica tu conexión e intenta de nuevo.';
+      $('#errText').textContent = 'No se pudo cargar el listado.';
     });
 }
+
+$('#btnReintentar').addEventListener('click', () => {
+  $('#err').style.display = 'none';
+  loadMonitor(currentPage || 1, currentQuery || '');
+});
 
 $('#btnBuscar').addEventListener('click', () => {
   loadMonitor(1, $('#buscador').value.trim());
