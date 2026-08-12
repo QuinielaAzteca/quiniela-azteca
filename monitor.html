@@ -59,10 +59,6 @@
     .title h1 .title-a{color:var(--v);}
     .title small{ font-size:12px; color:#334155; font-weight:800; }
 
-    .resumenPartidos.stickyOn{
-      position:sticky;
-      z-index:40;
-    }
     .resumenPartidos{
       display:flex;
       flex-direction:column;
@@ -235,6 +231,8 @@
       font-weight:900;
       border-radius:5px;
     }
+    tbody td.colA:not(.hit){ background:var(--rowA); }
+    tbody td.colB:not(.hit){ background:var(--rowB); }
 
     .aciertosBadge{
       display:inline-block;
@@ -281,12 +279,13 @@
         <h1><span class="title-q">QUINIELA</span> <span class="title-a">AZTECA</span></h1>
         <small>Monitor de resultados</small>
       </div>
+      <div id="resumenPartidosSticky" class="resumenPartidos" style="display:none;"></div>
       <div class="searchBar">
         <input id="buscador" placeholder="Buscar por teléfono, # o nombre" />
         <button id="btnBuscar">Buscar</button>
       </div>
     </div>
-    <div id="resumenPartidos" class="resumenPartidos"></div>
+    <div id="resumenPartidosNormal" class="resumenPartidos"></div>
 
     <div id="loading" class="loading">Cargando…</div>
     <div id="err" class="errbox" style="display:none;">
@@ -407,26 +406,33 @@ let cabeceraPintada = false;
 function renderResumenPartidos(data){
   if (cabeceraPintada) return;
   cabeceraPintada = true;
-  const wrap = $('#resumenPartidos');
-  wrap.innerHTML = '';
+
+  let html = '';
   data.partidos.forEach((p, i) => {
     const res = data.resultados[i] || '';
     const marc = data.marcadores[i] || '-';
     const partes = String(p).split(' vs ');
     const equipo1 = partes[0] || '';
     const equipo2 = partes[1] || '';
-    const chip = document.createElement('div');
-    chip.className = 'chipPartido';
-    chip.innerHTML = `
-      <span class="r ${res}">${res || '-'}</span>
-      ${logoTag_(equipo1)}
-      <span class="equipo1">${equipo1}</span>
-      <span class="m">${marc}</span>
-      <span class="equipo2">${equipo2}</span>
-      ${logoTag_(equipo2)}
+    html += `
+      <div class="chipPartido">
+        <span class="r ${res}">${res || '-'}</span>
+        ${logoTag_(equipo1)}
+        <span class="equipo1">${equipo1}</span>
+        <span class="m">${marc}</span>
+        <span class="equipo2">${equipo2}</span>
+        ${logoTag_(equipo2)}
+      </div>
     `;
-    wrap.appendChild(chip);
   });
+
+  $('#resumenPartidosSticky').innerHTML = html;
+  $('#resumenPartidosNormal').innerHTML = html;
+}
+
+function mostrarResumenSegunBusqueda(hayQuery){
+  $('#resumenPartidosSticky').style.display = hayQuery ? 'flex' : 'none';
+  $('#resumenPartidosNormal').style.display = hayQuery ? 'none' : 'flex';
 }
 
 function renderPremios(data){
@@ -477,7 +483,8 @@ function renderTabla(data){
     let selsHtml = '';
     q.sels.forEach((s, i) => {
       const hit = data.resultados[i] && s === data.resultados[i];
-      selsHtml += `<td class="${hit ? 'hit' : ''}">${s || '-'}</td>`;
+      const colClass = i % 2 === 0 ? 'colA' : 'colB';
+      selsHtml += `<td class="${colClass} ${hit ? 'hit' : ''}">${s || '-'}</td>`;
     });
 
     const premioTxt = q.premio ? fmtMoney(q.premio) : '';
@@ -527,15 +534,7 @@ function loadMonitor(page, q){
         banner.style.display = 'none';
       }
 
-      const resumenEl = $('#resumenPartidos');
-      if (q) {
-        const stickyBar = document.querySelector('.sticky');
-        resumenEl.style.top = stickyBar.offsetHeight + 'px';
-        resumenEl.classList.add('stickyOn');
-      } else {
-        resumenEl.classList.remove('stickyOn');
-        resumenEl.style.top = '';
-      }
+      mostrarResumenSegunBusqueda(!!q);
       currentPage = res.data.page;
       currentQuery = q || '';
     })
