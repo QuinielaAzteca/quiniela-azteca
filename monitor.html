@@ -116,29 +116,29 @@
 
     .searchBar{
       display:flex;
-      gap:6px;
+      gap:8px;
       background:#fff;
       border:1px solid var(--line);
-      border-radius:12px;
-      padding:8px;
+      border-radius:14px;
+      padding:12px;
       box-shadow: var(--shadow);
     }
     .searchBar input{
       flex:1;
-      padding:8px 10px;
+      padding:14px 14px;
       border:1px solid var(--line);
-      border-radius:8px;
-      font-size:13px;
+      border-radius:10px;
+      font-size:16px;
       outline:none;
     }
     .searchBar button{
-      padding:8px 12px;
-      border-radius:8px;
+      padding:14px 18px;
+      border-radius:10px;
       border:1px solid #0f172a;
       background:#0f172a;
       color:#fff;
       font-weight:800;
-      font-size:12px;
+      font-size:15px;
       transition: transform .08s ease, background-color .12s ease;
     }
     .searchBar button:active{
@@ -203,6 +203,18 @@
       border-radius:14px;
       margin:8px 0;
       box-shadow: 0 8px 20px rgba(10,107,58,.25);
+    }
+    .workingMsg{
+      display:none;
+      background:#eef2f2;
+      border:2px solid #94a3b8;
+      color:#334155;
+      font-size:14px;
+      font-weight:800;
+      text-align:center;
+      padding:10px 12px;
+      border-radius:12px;
+      margin:8px 0;
     }
 
     .tableWrap{ overflow-x:auto; }
@@ -335,6 +347,7 @@
         <input id="buscador" placeholder="Buscar por teléfono, # o nombre" />
         <button id="btnBuscar">Buscar</button>
       </div>
+      <div id="workingMsg" class="workingMsg"></div>
 
       <div class="pager">
         <button class="btnFirst">« Primera</button>
@@ -370,6 +383,10 @@
 const SHEET_ENDPOINT_PUBLIC = "https://script.google.com/macros/s/AKfycbwaioZMPiJmk4CUoo0v6dW2kn87pGt2g2X5ROa6PvzmSKmi4COKxMRMZ9aB1ZESlNbp/exec"; // ⚠️ LINK DE PRUEBA - cambiar al de producción cuando ya esté validado
 
 const $ = s => document.querySelector(s);
+const MAPA_ACENTOS_BUSQ = {'á':'a','é':'e','í':'i','ó':'o','ú':'u','ü':'u','Á':'A','É':'E','Í':'I','Ó':'O','Ú':'U','Ü':'U'};
+function quitarAcentosBusqueda_(str){
+  return String(str || '').replace(/[áéíóúüÁÉÍÓÚÜ]/g, c => MAPA_ACENTOS_BUSQ[c] || c);
+}
 const fmtMoney = n => '$' + Math.round(n || 0).toLocaleString('es-MX');
 
 const TEAM_LOGOS = {
@@ -549,8 +566,15 @@ function renderTabla(data){
   document.querySelectorAll('.btnLast').forEach(el => { el.disabled = data.page >= data.totalPages; });
 }
 
-function loadMonitor(page, q){
+function loadMonitor(page, q, motivo){
   $('#loading').style.display = cabeceraPintada ? 'none' : 'block';
+
+  const working = $('#workingMsg');
+  if (cabeceraPintada) {
+    working.style.display = 'block';
+    working.textContent = motivo === 'buscar' ? 'Buscando quinielas…' : 'Cargando página…';
+  }
+
   const url = SHEET_ENDPOINT_PUBLIC
     + '?mode=monitor&page=' + page
     + '&pageSize=2000'
@@ -561,6 +585,7 @@ function loadMonitor(page, q){
     .then(r => r.json())
     .then(res => {
       if (!res.ok || !res.data) throw new Error('Respuesta inválida');
+      working.style.display = 'none';
       $('#err').style.display = 'none';
       $('#loading').style.display = 'none';
       $('#content').style.display = 'block';
@@ -587,6 +612,7 @@ function loadMonitor(page, q){
       window.scrollTo({ top: 0, behavior: 'instant' });
     })
     .catch(() => {
+      working.style.display = 'none';
       $('#loading').style.display = 'none';
       $('#err').style.display = 'block';
       $('#errText').textContent = 'No se pudo cargar el listado.';
@@ -598,23 +624,32 @@ $('#btnReintentar').addEventListener('click', () => {
   loadMonitor(currentPage || 1, currentQuery || '');
 });
 
+$('#buscador').addEventListener('input', e => {
+  const pos = e.target.selectionStart;
+  const before = e.target.value;
+  const after = quitarAcentosBusqueda_(before);
+  const delta = after.length - before.length;
+  e.target.value = after;
+  e.target.setSelectionRange(pos + delta, pos + delta);
+});
+
 $('#btnBuscar').addEventListener('click', () => {
-  loadMonitor(1, $('#buscador').value.trim());
+  loadMonitor(1, $('#buscador').value.trim(), 'buscar');
 });
 $('#buscador').addEventListener('keydown', e => {
-  if (e.key === 'Enter') loadMonitor(1, $('#buscador').value.trim());
+  if (e.key === 'Enter') loadMonitor(1, $('#buscador').value.trim(), 'buscar');
 });
 document.querySelectorAll('.btnFirst').forEach(el => el.addEventListener('click', () => {
-  if (currentPage > 1) loadMonitor(1, currentQuery);
+  if (currentPage > 1) loadMonitor(1, currentQuery, 'pagina');
 }));
 document.querySelectorAll('.btnPrev').forEach(el => el.addEventListener('click', () => {
-  if (currentPage > 1) loadMonitor(currentPage - 1, currentQuery);
+  if (currentPage > 1) loadMonitor(currentPage - 1, currentQuery, 'pagina');
 }));
 document.querySelectorAll('.btnNext').forEach(el => el.addEventListener('click', () => {
-  loadMonitor(currentPage + 1, currentQuery);
+  loadMonitor(currentPage + 1, currentQuery, 'pagina');
 }));
 document.querySelectorAll('.btnLast').forEach(el => el.addEventListener('click', () => {
-  loadMonitor(currentTotalPages, currentQuery);
+  loadMonitor(currentTotalPages, currentQuery, 'pagina');
 }));
 
 document.body.addEventListener('touchstart', function(){}, false);
