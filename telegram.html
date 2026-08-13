@@ -557,6 +557,11 @@ let BASE_PRICE = 25;
 let PARTIDOS   = [];
 let carrito    = JSON.parse(localStorage.getItem('quiniela_carrito_v4_telegram') || '[]');
 let telCache   = localStorage.getItem('quiniela_tel_telegram') || '';
+const RESET_NOMBRE_ACENTOS_KEY = 'quiniela_reset_acentos_v1_telegram';
+if (!localStorage.getItem(RESET_NOMBRE_ACENTOS_KEY)) {
+  localStorage.removeItem('quiniela_nombre_telegram');
+  localStorage.setItem(RESET_NOMBRE_ACENTOS_KEY, '1');
+}
 let nombreCache = localStorage.getItem('quiniela_nombre_telegram') || '';
 let CFG_ACEPTA = true;
 
@@ -794,10 +799,18 @@ telInput.addEventListener('paste', e => {
   localStorage.setItem('quiniela_tel_telegram', telInput.value.trim());
 });
 
+const MAPA_ACENTOS = {'á':'a','é':'e','í':'i','ó':'o','ú':'u','ü':'u','Á':'A','É':'E','Í':'I','Ó':'O','Ú':'U','Ü':'U'};
+function quitarAcentos_(str){
+  return String(str || '').replace(/[áéíóúüÁÉÍÓÚÜ]/g, c => MAPA_ACENTOS[c] || c);
+}
+
 nombreInput.addEventListener('input', e => {
   const pos = e.target.selectionStart;
-  e.target.value = e.target.value.toUpperCase();
-  e.target.setSelectionRange(pos, pos);
+  const before = e.target.value;
+  const after = quitarAcentos_(before).toUpperCase();
+  const delta = after.length - before.length;
+  e.target.value = after;
+  e.target.setSelectionRange(pos + delta, pos + delta);
   localStorage.setItem('quiniela_nombre_telegram', e.target.value.trim().toUpperCase());
 });
 
