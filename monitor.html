@@ -54,10 +54,10 @@
       text-align:center;
       box-shadow: var(--shadow);
     }
-    .title h1{ font-size:18px; margin:0; letter-spacing:.03em; }
+    .title h1{ font-size:26px; margin:0; letter-spacing:.03em; }
     .title h1 .title-q{color:var(--l);}
     .title h1 .title-a{color:var(--v);}
-    .title small{ font-size:12px; color:#334155; font-weight:800; }
+    .title small{ font-size:16px; color:#334155; font-weight:900; }
 
     .resumenPartidos{
       display:flex;
@@ -139,6 +139,12 @@
       color:#fff;
       font-weight:800;
       font-size:12px;
+      transition: transform .08s ease, background-color .12s ease;
+    }
+    .searchBar button:active{
+      transform: scale(.92);
+      background:#0a6b3a;
+      border-color:#0a6b3a;
     }
 
     .premiosGrid{
@@ -311,7 +317,7 @@
     <div class="sticky">
       <div class="title">
         <h1><span class="title-q">QUINIELA</span> <span class="title-a">AZTECA</span></h1>
-        <small>Monitor de resultados</small>
+        <small id="subtitulo"></small>
       </div>
     </div>
     <div id="resumenPartidos" class="resumenPartidos"></div>
@@ -562,7 +568,7 @@ function loadMonitor(page, q){
       renderPremios(res.data);
       renderTabla(res.data);
       if (res.data.semana) {
-        document.querySelector('.title small').textContent = 'Monitor de resultados · Semana ' + res.data.semana;
+        document.querySelector('.title small').textContent = 'SEMANA ' + res.data.semana;
       }
 
       const banner = $('#searchBanner');
