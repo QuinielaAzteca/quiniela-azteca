@@ -184,6 +184,19 @@
     .premioCard.oro{ border-color:#c9a227; background:var(--oro); }
     .premioCard.plata{ border-color:#e6c200; background:#fffaeb; }
 
+    .mini{
+      display:block;
+      padding:8px 14px;
+      border-radius:10px;
+      border:1px solid #0f172a;
+      background:#fff;
+      color:#0f172a;
+      font-weight:800;
+      font-size:13px;
+      transition: transform .08s ease, background-color .12s ease;
+    }
+    .mini:active{ transform: scale(.94); background:#0f172a; color:#fff; }
+
     .infoResultados{
       font-size:11px;
       color:#64748b;
@@ -359,6 +372,7 @@
 
       <div class="infoResultados" id="infoResultados"></div>
       <div class="searchBanner" id="searchBanner"></div>
+      <button id="btnVolverListado" class="mini" style="display:none;margin:0 auto 8px;">Volver al listado</button>
 
       <div class="tableWrap">
         <table>
@@ -597,13 +611,16 @@ function loadMonitor(page, q, motivo){
       }
 
       const banner = $('#searchBanner');
+      const btnVolver = $('#btnVolverListado');
       if (q) {
         banner.style.display = 'block';
         banner.textContent = res.data.totalRows === 0
           ? `No se encontraron quinielas para "${q}"`
           : `Se encontraron ${res.data.totalRows} quiniela${res.data.totalRows===1?'':'s'} para "${q}"`;
+        btnVolver.style.display = 'block';
       } else {
         banner.style.display = 'none';
+        btnVolver.style.display = 'none';
       }
 
       currentPage = res.data.page;
@@ -631,6 +648,11 @@ $('#buscador').addEventListener('input', e => {
   const delta = after.length - before.length;
   e.target.value = after;
   e.target.setSelectionRange(pos + delta, pos + delta);
+});
+
+$('#btnVolverListado').addEventListener('click', () => {
+  $('#buscador').value = '';
+  loadMonitor(1, '', 'pagina');
 });
 
 $('#btnBuscar').addEventListener('click', () => {
