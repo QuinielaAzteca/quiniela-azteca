@@ -83,19 +83,29 @@
       height:24px;
       object-fit:contain;
     }
-    .equipo1{ flex:1 1 0; min-width:0; text-align:right; font-size:13px; font-weight:800; line-height:1.12; }
-    .equipo2{ flex:1 1 0; min-width:0; text-align:left; font-size:13px; font-weight:800; line-height:1.12; }
+    .ladoEquipo{
+      flex:1 1 0;
+      min-width:0;
+      display:flex;
+      align-items:center;
+      gap:5px;
+    }
+    .ladoEquipo.der{ justify-content:flex-end; }
+    .ladoEquipo.izq{ justify-content:flex-start; }
+    .equipo1{ text-align:right; font-size:13px; font-weight:800; line-height:1.12; }
+    .equipo2{ text-align:left; font-size:13px; font-weight:800; line-height:1.12; }
     .marcador{
       flex:0 0 auto;
       min-width:44px;
       text-align:center;
-      font-size:13px;
       font-weight:900;
-      background:#fff;
       border-radius:7px;
       padding:5px 4px;
       white-space:nowrap;
+      font-size:13px;
     }
+    .marcador.sinResultado{ background:#e2e8f0; color:#475569; }
+    .marcador.conResultado{ background:#d7f2e0; color:#0a6b3a; }
 
     @media (min-width:480px){
       .fila{ gap:14px; padding:18px 16px; }
@@ -229,11 +239,15 @@ function renderPartidos(data){
     fila.className = 'fila';
     fila.innerHTML = `
       <span class="resLetra" style="${res ? '' : 'visibility:hidden;'}">${res || '-'}</span>
-      ${logoTag_(equipo1)}
-      <span class="equipo1">${equipo1}</span>
-      <span class="marcador">${marc}</span>
-      <span class="equipo2">${equipo2}</span>
-      ${logoTag_(equipo2)}
+      <span class="ladoEquipo der">
+        ${logoTag_(equipo1)}
+        <span class="equipo1">${equipo1}</span>
+      </span>
+      <span class="marcador ${res ? 'conResultado' : 'sinResultado'}">${marc}</span>
+      <span class="ladoEquipo izq">
+        <span class="equipo2">${equipo2}</span>
+        ${logoTag_(equipo2)}
+      </span>
     `;
     wrap.appendChild(fila);
   });
