@@ -9,36 +9,44 @@
     html, body { overflow-x: hidden; }
     :root{
       --fg:#0f172a;
-      --bg:#f1f5f4;
+      --bg:#eaf3ee;
+      --bg2:#dfeee7;
       --line:#d7e6dc;
+      --l:#0a6b3a;
+      --v:#c62828;
+      --e:#6b7280;
+      --rowA:#f6fbf8;
+      --rowB:#eff7f2;
+      --shadow: 0 8px 20px rgba(2, 44, 20, .10);
       --pickColor: #0a6b3a; /* la cambia el color que elijas */
     }
     *{ box-sizing:border-box; }
     body{
       margin:0;
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
-      background:var(--bg);
+      background: radial-gradient(1200px 520px at 50% -140px, #ffffff 0%, var(--bg) 55%, var(--bg2) 100%);
       color:var(--fg);
     }
-    .wrap{ max-width:520px; margin:0 auto; padding:16px; }
+    .wrap{ max-width:520px; margin:0 auto; padding:12px; }
 
     /* --- Controles (fuera del cupón) --- */
     .controles{
       background:#fff;
       border:1px solid var(--line);
-      border-radius:14px;
-      padding:12px;
-      margin-bottom:16px;
-      box-shadow:0 6px 14px rgba(2,6,23,.06);
+      border-radius:16px;
+      padding:14px;
+      margin-bottom:14px;
+      box-shadow: var(--shadow);
     }
     .controles label{ font-size:12px; font-weight:800; color:#475569; display:block; margin-bottom:4px; }
     .controles input{
       width:100%;
-      padding:10px;
+      padding:11px 10px;
       border:1px solid var(--line);
-      border-radius:8px;
+      border-radius:10px;
       font-size:15px;
-      margin-bottom:10px;
+      margin-bottom:12px;
+      outline:none;
     }
     #nombreInput{ text-transform:uppercase; }
 
@@ -46,7 +54,7 @@
       display:flex;
       flex-wrap:wrap;
       gap:8px;
-      margin-bottom:10px;
+      margin-bottom:12px;
     }
     .swatch{
       width:30px;
@@ -59,9 +67,9 @@
 
     .controles .btnLimpiar{
       width:100%;
-      padding:10px;
-      border-radius:8px;
-      border:1px solid #0f172a;
+      padding:11px;
+      border-radius:10px;
+      border:2px solid #0f172a;
       background:#fff;
       color:#0f172a;
       font-weight:800;
@@ -70,74 +78,95 @@
 
     /* --- El cupón: esto es lo que se captura --- */
     #cupon{
-      background:#fff;
-      border-radius:6px;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdfc 100%);
+      border:1px solid var(--line);
+      border-radius:20px;
       overflow:hidden;
-      box-shadow:0 10px 24px rgba(2,6,23,.10);
-      border-left:14px solid #0a6b3a;
-      border-right:14px solid #c62828;
-      padding:18px 14px 24px;
+      box-shadow: var(--shadow);
+      padding:18px 14px 22px;
     }
-    .cTitulo{
+    .cTitle{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:4px;
+      padding:14px 12px;
+      background: var(--rowB);
+      border:1px solid var(--line);
+      border-radius:14px;
+      margin-bottom:12px;
       text-align:center;
-      font-size:32px;
-      font-weight:900;
-      letter-spacing:.02em;
-      margin:4px 0 2px;
     }
-    .cTitulo .q{ color:#0a6b3a; }
-    .cTitulo .a{ color:#c62828; }
-    .cSemana{ text-align:center; font-size:16px; font-weight:900; color:#c62828; }
-    .cPrecio{ text-align:center; font-size:20px; font-weight:900; margin-bottom:10px; }
+    .cTitle h1{ font-size:24px; margin:0; letter-spacing:.03em; }
+    .cTitle .q{ color:var(--l); }
+    .cTitle .a{ color:var(--v); }
+    .cTitle small{ font-size:14px; color:#334155; font-weight:900; }
+    .cTitle .precio{ font-size:18px; font-weight:900; margin-top:2px; }
 
     .cNombreBox{
-      border:2px solid #0f172a;
-      border-radius:6px;
+      background:#fff;
+      border:2px solid var(--line);
+      border-radius:12px;
       text-align:center;
-      font-size:20px;
+      font-size:19px;
       font-weight:900;
-      padding:8px 6px;
-      margin:6px 4px 14px;
+      padding:10px 8px;
+      margin-bottom:12px;
       min-height:1.4em;
       color: var(--pickColor);
+      box-shadow: var(--shadow);
     }
 
+    .cCard{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:16px;
+      overflow:hidden;
+      box-shadow: var(--shadow);
+    }
     .cHeadRow{
       display:grid;
-      grid-template-columns: 26px 40px 1fr 40px 1fr 40px;
+      grid-template-columns: 24px 38px 1fr 38px 1fr 38px;
       align-items:center;
-      padding:0 4px 4px;
+      padding:8px 6px;
+      background:var(--rowB);
+      border-bottom:1px solid var(--line);
     }
-    .cHeadRow .l{ text-align:center; font-weight:900; color:#64748b; font-size:13px; }
+    .cHeadRow .l{ text-align:center; font-weight:900; color:#334155; font-size:12px; }
 
     .cRow{
       display:grid;
-      grid-template-columns: 26px 40px 1fr 40px 1fr 40px;
+      grid-template-columns: 24px 38px 1fr 38px 1fr 38px;
       align-items:center;
       gap:4px;
-      padding:6px 4px;
+      padding:8px 6px;
+      border-bottom:1px solid rgba(207,229,218,.7);
     }
-    .cRow .n{ font-weight:900; font-size:16px; text-align:center; }
-    .cRow .team{ font-weight:900; font-size:16px; text-transform:uppercase; }
+    .cRow:last-child{ border-bottom:none; }
+    .cRow:nth-child(odd){ background:var(--rowA); }
+    .cRow:nth-child(even){ background:var(--rowB); }
+    .cRow .n{ font-weight:900; font-size:13px; text-align:center; color:#334155; }
+    .cRow .team{ font-weight:800; font-size:13px; text-transform:uppercase; line-height:1.15; }
     .cRow .team.izq{ text-align:right; padding-right:4px; }
     .cRow .team.der{ text-align:left; padding-left:4px; }
 
     .pick{
-      width:34px;
-      height:34px;
-      border:2px solid #94a3b8;
-      border-radius:4px;
+      width:30px;
+      height:30px;
+      border:2px solid rgba(15,23,42,.18);
+      border-radius:8px;
       margin:0 auto;
       cursor:pointer;
-      background:#fff;
-      transition: background-color .1s ease, border-color .1s ease;
+      background: rgba(255,255,255,.92);
+      transition: background-color .1s ease, border-color .1s ease, transform .06s ease;
     }
+    .pick:active{ transform: scale(.92); }
     .pick.on{
       background: var(--pickColor);
       border-color: var(--pickColor);
     }
 
-    .loading{ text-align:center; padding:30px 10px; font-weight:800; color:#64748b; }
+    .loading{ text-align:center; padding:30px 10px; font-weight:800; color:#334155; }
   </style>
 </head>
 <body>
@@ -159,21 +188,25 @@
     <div id="cupon">
       <div id="loading" class="loading">Cargando partidos…</div>
       <div id="cuponContenido" style="display:none;">
-        <div class="cTitulo"><span class="q">QUINIELA</span> <span class="a">AZTECA</span></div>
-        <div class="cSemana" id="cSemana">SEMANA</div>
-        <div class="cPrecio" id="cPrecio">$0</div>
-        <div class="cNombreBox" id="cNombreBox">&nbsp;</div>
-
-        <div class="cHeadRow">
-          <div></div>
-          <div class="l">L</div>
-          <div></div>
-          <div class="l">E</div>
-          <div></div>
-          <div class="l">V</div>
+        <div class="cTitle">
+          <h1><span class="q">QUINIELA</span> <span class="a">AZTECA</span></h1>
+          <small id="cSemana">SEMANA</small>
+          <div class="precio" id="cPrecio">$0</div>
         </div>
 
-        <div id="filas"></div>
+        <div class="cNombreBox" id="cNombreBox">&nbsp;</div>
+
+        <div class="cCard">
+          <div class="cHeadRow">
+            <div></div>
+            <div class="l">L</div>
+            <div></div>
+            <div class="l">E</div>
+            <div></div>
+            <div class="l">V</div>
+          </div>
+          <div id="filas"></div>
+        </div>
       </div>
     </div>
 
@@ -184,24 +217,9 @@ const SHEET_ENDPOINT_PUBLIC = "https://script.google.com/macros/s/AKfycbyGqoqBpU
 
 // Paleta de colores para elegir. Los primeros 6 son los de tus cupones originales.
 const PALETA_COLORES = [
-  '#0a6b3a', // 1 verde
-  '#b91c1c', // 2 rojo
-  '#16305c', // 3 azul marino
-  '#f2a900', // 4 dorado
-  '#6a3fa0', // 5 morado
-  '#111827', // 6 negro
-  '#0e7490', // 7 azul petróleo
-  '#be185d', // 8 rosa fuerte
-  '#4d7c0f', // 9 verde olivo
-  '#c2410c', // 10 naranja quemado
-  '#334155', // 11 gris azulado
-  '#7c2d12', // 12 café
-  '#0369a1', // 13 azul cielo oscuro
-  '#a16207', // 14 mostaza
-  '#831843', // 15 vino
-  '#166534', // 16 verde bosque
-  '#4c1d95', // 17 morado oscuro
-  '#1e293b'  // 18 negro azulado
+  '#0a6b3a', '#b91c1c', '#16305c', '#f2a900', '#6a3fa0', '#111827',
+  '#0e7490', '#be185d', '#4d7c0f', '#c2410c', '#334155', '#7c2d12',
+  '#0369a1', '#a16207', '#831843', '#166534', '#4c1d95', '#1e293b'
 ];
 
 const $ = s => document.querySelector(s);
