@@ -249,7 +249,7 @@ document.addEventListener('click', e => {
 });
 
 $('#nombreInput').addEventListener('input', () => {
-  $('#cNombreBox').textContent = $('#nombreInput').value || '\u00A0';
+  $('#cNombreBox').textContent = $('#nombreInput').value.toUpperCase() || '\u00A0';
 });
 
 function renderFilas(){
