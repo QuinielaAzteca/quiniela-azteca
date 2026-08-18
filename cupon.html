@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cupón - Uso interno</title>
+
+  <style>
+    html, body { overflow-x: hidden; }
+    :root{
+      --fg:#0f172a;
+      --bg:#f1f5f4;
+      --line:#d7e6dc;
+      --pickColor: #0a6b3a; /* la cambia el color que elijas */
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+      background:var(--bg);
+      color:var(--fg);
+    }
+    .wrap{ max-width:520px; margin:0 auto; padding:16px; }
+
+    /* --- Controles (fuera del cupón) --- */
+    .controles{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px;
+      margin-bottom:16px;
+      box-shadow:0 6px 14px rgba(2,6,23,.06);
+    }
+    .controles label{ font-size:12px; font-weight:800; color:#475569; display:block; margin-bottom:4px; }
+    .controles input{
+      width:100%;
+      padding:10px;
+      border:1px solid var(--line);
+      border-radius:8px;
+      font-size:15px;
+      margin-bottom:10px;
+    }
+    #nombreInput{ text-transform:uppercase; }
+
+    .colorRow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-bottom:10px;
+    }
+    .swatch{
+      width:30px;
+      height:30px;
+      border-radius:8px;
+      border:3px solid transparent;
+      cursor:pointer;
+    }
+    .swatch.sel{ border-color:#0f172a; }
+
+    .controles .btnLimpiar{
+      width:100%;
+      padding:10px;
+      border-radius:8px;
+      border:1px solid #0f172a;
+      background:#fff;
+      color:#0f172a;
+      font-weight:800;
+      font-size:13px;
+    }
+
+    /* --- El cupón: esto es lo que se captura --- */
+    #cupon{
+      background:#fff;
+      border-radius:6px;
+      overflow:hidden;
+      box-shadow:0 10px 24px rgba(2,6,23,.10);
+      border-left:14px solid #0a6b3a;
+      border-right:14px solid #c62828;
+      padding:18px 14px 24px;
+    }
+    .cTitulo{
+      text-align:center;
+      font-size:32px;
+      font-weight:900;
+      letter-spacing:.02em;
+      margin:4px 0 2px;
+    }
+    .cTitulo .q{ color:#0a6b3a; }
+    .cTitulo .a{ color:#c62828; }
+    .cSemana{ text-align:center; font-size:16px; font-weight:900; color:#c62828; }
+    .cPrecio{ text-align:center; font-size:20px; font-weight:900; margin-bottom:10px; }
+
+    .cNombreBox{
+      border:2px solid #0f172a;
+      border-radius:6px;
+      text-align:center;
+      font-size:20px;
+      font-weight:900;
+      padding:8px 6px;
+      margin:6px 4px 14px;
+      min-height:1.4em;
+      color: var(--pickColor);
+    }
+
+    .cHeadRow{
+      display:grid;
+      grid-template-columns: 26px 40px 1fr 40px 1fr 40px;
+      align-items:center;
+      padding:0 4px 4px;
+    }
+    .cHeadRow .l{ text-align:center; font-weight:900; color:#64748b; font-size:13px; }
+
+    .cRow{
+      display:grid;
+      grid-template-columns: 26px 40px 1fr 40px 1fr 40px;
+      align-items:center;
+      gap:4px;
+      padding:6px 4px;
+    }
+    .cRow .n{ font-weight:900; font-size:16px; text-align:center; }
+    .cRow .team{ font-weight:900; font-size:16px; text-transform:uppercase; }
+    .cRow .team.izq{ text-align:right; padding-right:4px; }
+    .cRow .team.der{ text-align:left; padding-left:4px; }
+
+    .pick{
+      width:34px;
+      height:34px;
+      border:2px solid #94a3b8;
+      border-radius:4px;
+      margin:0 auto;
+      cursor:pointer;
+      background:#fff;
+      transition: background-color .1s ease, border-color .1s ease;
+    }
+    .pick.on{
+      background: var(--pickColor);
+      border-color: var(--pickColor);
+    }
+
+    .loading{ text-align:center; padding:30px 10px; font-weight:800; color:#64748b; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <div class="controles">
+      <label for="nombreInput">Nombre del cupón</label>
+      <input id="nombreInput" placeholder="COP AZTECA 1" />
+
+      <label for="partesInput">¿En cuántas partes divides el costo?</label>
+      <input id="partesInput" type="number" min="1" value="10" />
+
+      <label>Color del cupón</label>
+      <div class="colorRow" id="colorRow"></div>
+
+      <button class="btnLimpiar" id="btnLimpiar">Limpiar selecciones</button>
+    </div>
+
+    <div id="cupon">
+      <div id="loading" class="loading">Cargando partidos…</div>
+      <div id="cuponContenido" style="display:none;">
+        <div class="cTitulo"><span class="q">QUINIELA</span> <span class="a">AZTECA</span></div>
+        <div class="cSemana" id="cSemana">SEMANA</div>
+        <div class="cPrecio" id="cPrecio">$0</div>
+        <div class="cNombreBox" id="cNombreBox">&nbsp;</div>
+
+        <div class="cHeadRow">
+          <div></div>
+          <div class="l">L</div>
+          <div></div>
+          <div class="l">E</div>
+          <div></div>
+          <div class="l">V</div>
+        </div>
+
+        <div id="filas"></div>
+      </div>
+    </div>
+
+  </div>
+
+<script>
+const SHEET_ENDPOINT_PUBLIC = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec";
+
+// Paleta de colores para elegir. Los primeros 6 son los de tus cupones originales.
+const PALETA_COLORES = [
+  '#0a6b3a', // 1 verde
+  '#b91c1c', // 2 rojo
+  '#16305c', // 3 azul marino
+  '#f2a900', // 4 dorado
+  '#6a3fa0', // 5 morado
+  '#111827', // 6 negro
+  '#0e7490', // 7 azul petróleo
+  '#be185d', // 8 rosa fuerte
+  '#4d7c0f', // 9 verde olivo
+  '#c2410c', // 10 naranja quemado
+  '#334155', // 11 gris azulado
+  '#7c2d12', // 12 café
+  '#0369a1', // 13 azul cielo oscuro
+  '#a16207', // 14 mostaza
+  '#831843', // 15 vino
+  '#166534', // 16 verde bosque
+  '#4c1d95', // 17 morado oscuro
+  '#1e293b'  // 18 negro azulado
+];
+
+const $ = s => document.querySelector(s);
+let PARTIDOS = [];
+let PRECIO_BASE = 25;
+let colorSeleccionado = PALETA_COLORES[0];
+
+function renderPaleta(){
+  const row = $('#colorRow');
+  row.innerHTML = '';
+  PALETA_COLORES.forEach((color, idx) => {
+    const sw = document.createElement('div');
+    sw.className = 'swatch' + (color === colorSeleccionado ? ' sel' : '');
+    sw.style.background = color;
+    sw.dataset.color = color;
+    sw.title = 'Color ' + (idx + 1);
+    row.appendChild(sw);
+  });
+}
+
+document.addEventListener('click', e => {
+  const sw = e.target.closest('.swatch');
+  if (!sw) return;
+  colorSeleccionado = sw.dataset.color;
+  document.documentElement.style.setProperty('--pickColor', colorSeleccionado);
+  renderPaleta();
+});
+
+$('#nombreInput').addEventListener('input', () => {
+  $('#cNombreBox').textContent = $('#nombreInput').value || '\u00A0';
+});
+
+function renderFilas(){
+  const cont = $('#filas');
+  cont.innerHTML = '';
+  PARTIDOS.slice(0, 9).forEach((p, idx) => {
+    const row = document.createElement('div');
+    row.className = 'cRow';
+    row.innerHTML = `
+      <div class="n">${idx + 1}</div>
+      <div class="pick" data-i="${idx}" data-k="L"></div>
+      <div class="team izq">${p.local}</div>
+      <div class="pick" data-i="${idx}" data-k="E"></div>
+      <div class="team der">${p.visita}</div>
+      <div class="pick" data-i="${idx}" data-k="V"></div>
+    `;
+    cont.appendChild(row);
+  });
+}
+
+function combosActuales(){
+  const map = {};
+  document.querySelectorAll('.pick').forEach(p => {
+    const i = p.dataset.i;
+    map[i] = map[i] || 0;
+    if (p.classList.contains('on')) map[i]++;
+  });
+  let combos = 1;
+  Object.values(map).forEach(n => { combos *= Math.max(n, 1); });
+  return combos;
+}
+
+function actualizarPrecio(){
+  const combos = combosActuales();
+  const totalCombinacion = combos * PRECIO_BASE;
+  const partes = Math.max(1, Number($('#partesInput').value) || 1);
+  const precioPorParte = Math.ceil(totalCombinacion / partes);
+  $('#cPrecio').textContent = '$' + precioPorParte.toLocaleString('es-MX');
+}
+
+document.addEventListener('click', e => {
+  const el = e.target.closest('.pick');
+  if (!el) return;
+  el.classList.toggle('on');
+  actualizarPrecio();
+});
+
+$('#partesInput').addEventListener('input', actualizarPrecio);
+
+$('#btnLimpiar').addEventListener('click', () => {
+  document.querySelectorAll('.pick.on').forEach(p => p.classList.remove('on'));
+  actualizarPrecio();
+});
+
+function cargarConfig(){
+  fetch(SHEET_ENDPOINT_PUBLIC + '?mode=config&_=' + Date.now(), { cache: 'no-store' })
+    .then(r => r.json())
+    .then(data => {
+      if (!data.ok || !data.cfg) throw new Error('Config inválida');
+      const cfg = data.cfg;
+      PARTIDOS = cfg.partidos || [];
+      PRECIO_BASE = cfg.precio || 25;
+      $('#cSemana').textContent = (cfg.subtitulo || 'SEMANA').toUpperCase();
+      renderFilas();
+      renderPaleta();
+      document.documentElement.style.setProperty('--pickColor', colorSeleccionado);
+      actualizarPrecio();
+      $('#loading').style.display = 'none';
+      $('#cuponContenido').style.display = 'block';
+    })
+    .catch(() => {
+      $('#loading').textContent = 'No se pudo cargar. Verifica tu conexión e intenta de nuevo.';
+    });
+}
+
+document.addEventListener('DOMContentLoaded', cargarConfig);
+</script>
+</body>
+</html>
