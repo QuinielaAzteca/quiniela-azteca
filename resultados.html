@@ -83,8 +83,8 @@
       height:28px;
       object-fit:contain;
     }
-    .equipo1{ flex:1 1 0; min-width:0; text-align:right; font-size:14px; font-weight:800; line-height:1.15; overflow-wrap:break-word; }
-    .equipo2{ flex:1 1 0; min-width:0; text-align:left; font-size:14px; font-weight:800; line-height:1.15; overflow-wrap:break-word; }
+    .equipo1{ flex:1 1 0; min-width:0; text-align:right; font-size:14px; font-weight:800; line-height:1.15; }
+    .equipo2{ flex:1 1 0; min-width:0; text-align:left; font-size:14px; font-weight:800; line-height:1.15; }
     .marcador{
       flex:0 0 auto;
       min-width:52px;
@@ -228,7 +228,7 @@ function renderPartidos(data){
     const fila = document.createElement('div');
     fila.className = 'fila';
     fila.innerHTML = `
-      <span class="resLetra">${res || '-'}</span>
+      <span class="resLetra" style="${res ? '' : 'visibility:hidden;'}">${res || '-'}</span>
       ${logoTag_(equipo1)}
       <span class="equipo1">${equipo1}</span>
       <span class="marcador">${marc}</span>
