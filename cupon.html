@@ -147,18 +147,25 @@
     .cRow:nth-child(even){ background:var(--rowB); }
     .cRow .n{ font-weight:900; font-size:13px; text-align:center; color:#334155; }
     .cRow .team{
-      display:flex;
-      align-items:center;
-      gap:6px;
+      text-align:center;
       font-weight:800;
-      font-size:13px;
-      text-transform:uppercase;
+      padding:2px 2px;
+      font-size:11px;
       line-height:1.15;
+      white-space:normal;
+      word-break:keep-all;
+      color:#0f172a;
       min-width:0;
     }
-    .cRow .team.izq{ justify-content:flex-end; }
-    .cRow .team.der{ justify-content:flex-start; }
-    .escudoCupon{ flex:0 0 auto; width:20px; height:20px; object-fit:contain; }
+    .cRow .team span{ display:block; }
+    .escudoCupon{
+      display:block;
+      margin:0 auto 4px;
+      width:28px;
+      height:28px;
+      object-fit:contain;
+      filter: drop-shadow(0 2px 2px rgba(0,0,0,.12));
+    }
 
     .pick{
       width:30px;
@@ -347,7 +354,7 @@ function renderFilas(){
       <div class="pick" data-i="${idx}" data-k="L"></div>
       <div class="team izq">${logoTag_(p.local)}<span>${p.local}</span></div>
       <div class="pick" data-i="${idx}" data-k="E"></div>
-      <div class="team der"><span>${p.visita}</span>${logoTag_(p.visita)}</div>
+      <div class="team der">${logoTag_(p.visita)}<span>${p.visita}</span></div>
       <div class="pick" data-i="${idx}" data-k="V"></div>
     `;
     cont.appendChild(row);
