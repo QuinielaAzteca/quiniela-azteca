@@ -124,16 +124,18 @@
       overflow:hidden;
       box-shadow: var(--shadow);
     }
-    .cHeadRow{
-      display:grid;
-      grid-template-columns: 24px 38px 1fr 38px 1fr 38px;
-      align-items:center;
-      padding:8px 6px;
-      background:var(--rowB);
-      border-bottom:1px solid var(--line);
+    .cBar{
+      height:8px;
+      background:linear-gradient(
+        90deg,
+        var(--l) 0%,
+        var(--l) 33%,
+        #ffffff 33%,
+        #ffffff 66%,
+        var(--v) 66%,
+        var(--v) 100%
+      );
     }
-    .cHeadRow .l{ text-align:center; font-weight:900; color:#334155; font-size:12px; }
-
     .cRow{
       display:grid;
       grid-template-columns: 24px 38px 1fr 38px 1fr 38px;
@@ -168,6 +170,8 @@
     }
 
     .pick{
+      display:grid;
+      place-items:center;
       width:30px;
       height:30px;
       border:2px solid rgba(15,23,42,.18);
@@ -175,12 +179,17 @@
       margin:0 auto;
       cursor:pointer;
       background: rgba(255,255,255,.92);
-      transition: background-color .1s ease, border-color .1s ease, transform .06s ease;
+      color:#6b7280;
+      font-weight:900;
+      font-size:14px;
+      user-select:none;
+      transition: background-color .1s ease, border-color .1s ease, transform .06s ease, color .1s ease;
     }
     .pick:active{ transform: scale(.92); }
     .pick.on{
       background: var(--pickColor);
       border-color: var(--pickColor);
+      color:#fff;
     }
 
     .loading{ text-align:center; padding:30px 10px; font-weight:800; color:#334155; }
@@ -214,14 +223,7 @@
         <div class="cNombreBox" id="cNombreBox">&nbsp;</div>
 
         <div class="cCard">
-          <div class="cHeadRow">
-            <div></div>
-            <div class="l">L</div>
-            <div></div>
-            <div class="l">E</div>
-            <div></div>
-            <div class="l">V</div>
-          </div>
+          <div class="cBar"></div>
           <div id="filas"></div>
         </div>
       </div>
@@ -351,11 +353,11 @@ function renderFilas(){
     row.className = 'cRow';
     row.innerHTML = `
       <div class="n">${idx + 1}</div>
-      <div class="pick" data-i="${idx}" data-k="L"></div>
+      <div class="pick" data-i="${idx}" data-k="L">L</div>
       <div class="team izq">${logoTag_(p.local)}<span>${p.local}</span></div>
-      <div class="pick" data-i="${idx}" data-k="E"></div>
+      <div class="pick" data-i="${idx}" data-k="E">E</div>
       <div class="team der">${logoTag_(p.visita)}<span>${p.visita}</span></div>
-      <div class="pick" data-i="${idx}" data-k="V"></div>
+      <div class="pick" data-i="${idx}" data-k="V">V</div>
     `;
     cont.appendChild(row);
   });
