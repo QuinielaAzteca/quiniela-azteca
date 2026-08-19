@@ -1344,8 +1344,18 @@ function loadConfig() {
 function fetchConfigFresh(storedCfg) {
   const bustUrl = SHEET_ENDPOINT_PUBLIC + '?mode=config&_=' + Date.now();
 
-  fetch(bustUrl, { cache: 'no-store' })
-    .then(r => r.json())
+  // Límite de tiempo: si la señal está mala, el fetch puede quedarse
+  // esperando para siempre sin fallar ni tener éxito, dejando la pantalla
+  // en blanco. Si no responde en 10 segundos, lo cancelamos nosotros
+  // mismos para que caiga al aviso de "no se pudo cargar, reintentar".
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+  fetch(bustUrl, { cache: 'no-store', signal: controller.signal })
+    .then(r => {
+      clearTimeout(timeoutId);
+      return r.json();
+    })
     .then(data => {
       if (!data.ok || !data.cfg) throw new Error('Config inválida');
 
@@ -1367,6 +1377,7 @@ function fetchConfigFresh(storedCfg) {
       applyConfig(data.cfg);
     })
     .catch(() => {
+      clearTimeout(timeoutId);
       if (!storedCfg) {
         applyConfig({
           titulo: 'QUINIELA AZTECA',
