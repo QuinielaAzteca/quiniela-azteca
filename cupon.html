@@ -15,6 +15,7 @@
       --l:#0a6b3a;
       --v:#c62828;
       --e:#6b7280;
+      --pick:54px;
       --rowA:#f6fbf8;
       --rowB:#eff7f2;
       --shadow: 0 8px 20px rgba(2, 44, 20, .10);
@@ -137,22 +138,23 @@
       );
     }
     .cRow{
+      width:100%;
       display:grid;
-      grid-template-columns: 24px 38px 1fr 38px 1fr 38px;
+      grid-template-columns: 24px var(--pick) minmax(0, 1fr) var(--pick) minmax(0, 1fr) var(--pick);
       align-items:center;
       gap:4px;
-      padding:8px 6px;
+      padding:10px 4px;
       border-bottom:1px solid rgba(207,229,218,.7);
     }
     .cRow:last-child{ border-bottom:none; }
     .cRow:nth-child(odd){ background:var(--rowA); }
     .cRow:nth-child(even){ background:var(--rowB); }
-    .cRow .n{ font-weight:900; font-size:13px; text-align:center; color:#334155; }
+    .cRow .n{ font-weight:800; text-align:center; font-size:13px; color:#334155; }
     .cRow .team{
       text-align:center;
       font-weight:800;
       padding:2px 2px;
-      font-size:11px;
+      font-size:12px;
       line-height:1.15;
       white-space:normal;
       word-break:keep-all;
@@ -163,8 +165,8 @@
     .escudoCupon{
       display:block;
       margin:0 auto 4px;
-      width:28px;
-      height:28px;
+      width:32px;
+      height:32px;
       object-fit:contain;
       filter: drop-shadow(0 2px 2px rgba(0,0,0,.12));
     }
@@ -172,16 +174,16 @@
     .pick{
       display:grid;
       place-items:center;
-      width:30px;
-      height:30px;
+      width:var(--pick);
+      height:var(--pick);
       border:2px solid rgba(15,23,42,.18);
-      border-radius:8px;
+      border-radius:14px;
       margin:0 auto;
       cursor:pointer;
       background: rgba(255,255,255,.92);
       color:#6b7280;
       font-weight:900;
-      font-size:14px;
+      font-size:18px;
       user-select:none;
       transition: background-color .1s ease, border-color .1s ease, transform .06s ease, color .1s ease;
     }
@@ -193,6 +195,16 @@
     }
 
     .loading{ text-align:center; padding:30px 10px; font-weight:800; color:#334155; }
+    @media (max-width:420px){
+      :root{ --pick: 44px; }
+      .cRow{
+        grid-template-columns: 22px var(--pick) minmax(0, 1fr) var(--pick) minmax(0, 1fr) var(--pick);
+        gap:3px;
+      }
+      .cRow .team{ font-size:11px; }
+      .escudoCupon{ height:28px; width:28px; }
+      .pick{ border-radius:12px; font-size:16px; }
+    }
   </style>
 </head>
 <body>
