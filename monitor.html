@@ -217,22 +217,35 @@
       margin:8px 0;
       box-shadow: 0 8px 20px rgba(10,107,58,.25);
     }
-    .workingMsg{
-      display:none;
-      background:#eef2f2;
-      border:2px solid #94a3b8;
-      color:#334155;
-      font-size:14px;
-      font-weight:800;
+    #contentBlurWrap.blurring > *:not(.workingOverlay){
+      filter: blur(3px);
+      opacity:.35;
+      pointer-events:none;
+      user-select:none;
+    }
+    .workingOverlay{
+      position:absolute;
+      top:0; left:0; right:0; bottom:0;
+      min-height:180px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:60;
+    }
+    .workingOverlayBox{
+      background:rgba(255,255,255,0.97);
+      color:#0a6b3a;
       text-align:center;
-      padding:10px 12px;
-      border-radius:12px;
-      margin:8px 0;
+      font-size:22px;
+      font-weight:900;
+      padding:22px 20px;
+      border-radius:16px;
+      box-shadow:0 10px 24px rgba(0,0,0,.20);
       animation: pulseWorking 1.1s ease-in-out infinite;
     }
     @keyframes pulseWorking{
       0%, 100%{ opacity:1; }
-      50%{ opacity:.55; }
+      50%{ opacity:.6; }
     }
     .dotsAnim span{
       display:inline-block;
@@ -370,41 +383,48 @@
     </div>
 
     <div id="content" style="display:none;">
-      <div id="premiosGrid" class="premiosGrid" style="display:none;"></div>
-
       <div class="searchBar">
         <input id="buscador" placeholder="Buscar por teléfono, # o nombre" />
         <button id="btnBuscar">Buscar</button>
       </div>
-      <div id="workingMsg" class="workingMsg"></div>
 
-      <div class="pager">
-        <button class="btnFirst">« Primera</button>
-        <button class="btnPrev">‹ Anterior</button>
-        <span class="pagerInfo"></span>
-        <button class="btnNext">Siguiente ›</button>
-        <button class="btnLast">Última »</button>
-      </div>
+      <div id="contentBlurWrap" style="position:relative;">
+        <div id="premiosGrid" class="premiosGrid" style="display:none;"></div>
 
-      <div class="infoResultados" id="infoResultados"></div>
-      <div class="searchBanner" id="searchBanner"></div>
-      <button id="btnVolverListado" class="mini" style="display:none;margin:0 auto 8px;">Volver al listado</button>
+        <div class="pager">
+          <button class="btnFirst">« Primera</button>
+          <button class="btnPrev">‹ Anterior</button>
+          <span class="pagerInfo"></span>
+          <button class="btnNext">Siguiente ›</button>
+          <button class="btnLast">Última »</button>
+        </div>
 
-      <div class="tableWrap">
-        <table>
-          <thead>
-            <tr id="theadRow"><th class="plain">Nombre</th></tr>
-          </thead>
-          <tbody id="tbody"></tbody>
-        </table>
-      </div>
+        <div class="infoResultados" id="infoResultados"></div>
+        <div class="searchBanner" id="searchBanner"></div>
+        <button id="btnVolverListado" class="mini" style="display:none;margin:0 auto 8px;">Volver al listado</button>
 
-      <div class="pager">
-        <button class="btnFirst">« Primera</button>
-        <button class="btnPrev">‹ Anterior</button>
-        <span class="pagerInfo"></span>
-        <button class="btnNext">Siguiente ›</button>
-        <button class="btnLast">Última »</button>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr id="theadRow"><th class="plain">Nombre</th></tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+
+        <div class="pager">
+          <button class="btnFirst">« Primera</button>
+          <button class="btnPrev">‹ Anterior</button>
+          <span class="pagerInfo"></span>
+          <button class="btnNext">Siguiente ›</button>
+          <button class="btnLast">Última »</button>
+        </div>
+
+        <div id="workingOverlay" class="workingOverlay" style="display:none;">
+          <div class="workingOverlayBox">
+            <div id="workingOverlayText">Buscando quinielas</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -599,11 +619,13 @@ function renderTabla(data){
 function loadMonitor(page, q, motivo){
   $('#loading').style.display = cabeceraPintada ? 'none' : 'block';
 
-  const working = $('#workingMsg');
+  const overlay = $('#workingOverlay');
+  const blurWrap = $('#contentBlurWrap');
   if (cabeceraPintada) {
-    working.style.display = 'block';
+    overlay.style.display = 'flex';
+    blurWrap.classList.add('blurring');
     const texto = motivo === 'buscar' ? 'Buscando quinielas' : 'Cargando página';
-    working.innerHTML = texto + '<span class="dotsAnim"><span>.</span><span>.</span><span>.</span></span>';
+    $('#workingOverlayText').innerHTML = texto + '<span class="dotsAnim"><span>.</span><span>.</span><span>.</span></span>';
   }
 
   const vParam = new URLSearchParams(location.search).get('v');
@@ -619,7 +641,8 @@ function loadMonitor(page, q, motivo){
     .then(r => r.json())
     .then(res => {
       if (!res.ok || !res.data) throw new Error('Respuesta inválida');
-      working.style.display = 'none';
+      overlay.style.display = 'none';
+      blurWrap.classList.remove('blurring');
       $('#err').style.display = 'none';
       $('#loading').style.display = 'none';
       $('#content').style.display = 'block';
@@ -650,7 +673,8 @@ function loadMonitor(page, q, motivo){
       $('.searchBar').scrollIntoView({ block: 'start', behavior: 'instant' });
     })
     .catch(() => {
-      working.style.display = 'none';
+      overlay.style.display = 'none';
+      blurWrap.classList.remove('blurring');
       $('#loading').style.display = 'none';
       $('#err').style.display = 'block';
       $('#errText').textContent = 'No se pudo cargar el listado.';
