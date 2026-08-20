@@ -224,9 +224,8 @@
       user-select:none;
     }
     .workingOverlay{
-      position:absolute;
+      position:fixed;
       top:0; left:0; right:0; bottom:0;
-      min-height:180px;
       display:flex;
       align-items:center;
       justify-content:center;
@@ -698,6 +697,10 @@ $('#buscador').addEventListener('input', e => {
 $('#btnVolverListado').addEventListener('click', () => {
   $('#buscador').value = '';
   loadMonitor(1, '', 'pagina');
+});
+
+$('#buscador').addEventListener('focus', () => {
+  $('.searchBar').scrollIntoView({ block: 'start', behavior: 'smooth' });
 });
 
 $('#btnBuscar').addEventListener('click', () => {
