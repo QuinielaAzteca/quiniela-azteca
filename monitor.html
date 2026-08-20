@@ -92,15 +92,15 @@
       flex:0 0 auto;
     }
     .chipPartido .r.L, .chipPartido .r.E, .chipPartido .r.V{ background:var(--ok); color:#fff; }
-    .chipPartido .equipo1{ flex:1; text-align:right; }
-    .chipPartido .equipo2{ flex:1; text-align:left; }
+    .chipPartido .equipo1{ flex:1; text-align:right; font-size:13px; }
+    .chipPartido .equipo2{ flex:1; text-align:left; font-size:13px; }
     .chipPartido .m{
-      font-size:11px;
+      font-size:13px;
       font-weight:900;
-      color:#0f172a;
-      background:#fff;
+      color:#fff;
+      background:var(--ok);
       border-radius:6px;
-      padding:2px 8px;
+      padding:3px 8px;
       flex:0 0 auto;
       min-width:34px;
       max-width:110px;
@@ -228,6 +228,22 @@
       padding:10px 12px;
       border-radius:12px;
       margin:8px 0;
+      animation: pulseWorking 1.1s ease-in-out infinite;
+    }
+    @keyframes pulseWorking{
+      0%, 100%{ opacity:1; }
+      50%{ opacity:.55; }
+    }
+    .dotsAnim span{
+      display:inline-block;
+      animation: dotBounce 1.1s infinite;
+      animation-fill-mode: both;
+    }
+    .dotsAnim span:nth-child(2){ animation-delay:.15s; }
+    .dotsAnim span:nth-child(3){ animation-delay:.3s; }
+    @keyframes dotBounce{
+      0%, 60%, 100%{ transform:translateY(0); }
+      30%{ transform:translateY(-4px); }
     }
 
     .tableWrap{ overflow-x:auto; }
@@ -586,13 +602,17 @@ function loadMonitor(page, q, motivo){
   const working = $('#workingMsg');
   if (cabeceraPintada) {
     working.style.display = 'block';
-    working.textContent = motivo === 'buscar' ? 'Buscando quinielas…' : 'Cargando página…';
+    const texto = motivo === 'buscar' ? 'Buscando quinielas' : 'Cargando página';
+    working.innerHTML = texto + '<span class="dotsAnim"><span>.</span><span>.</span><span>.</span></span>';
   }
+
+  const vParam = new URLSearchParams(location.search).get('v');
 
   const url = SHEET_ENDPOINT_PUBLIC
     + '?mode=monitor&page=' + page
     + '&pageSize=2000'
     + '&q=' + encodeURIComponent(q || '')
+    + (vParam ? '&v=' + encodeURIComponent(vParam) : '')
     + '&_=' + Date.now();
 
   fetch(url, { cache: 'no-store' })
@@ -607,7 +627,8 @@ function loadMonitor(page, q, motivo){
       renderPremios(res.data);
       renderTabla(res.data);
       if (res.data.semana) {
-        document.querySelector('.title small').textContent = 'SEMANA ' + res.data.semana;
+        document.querySelector('.title small').textContent = 'SEMANA ' + res.data.semana
+          + (res.data.version ? ' · Versión ' + res.data.version : '');
       }
 
       const banner = $('#searchBanner');
