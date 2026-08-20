@@ -647,7 +647,7 @@ function loadMonitor(page, q, motivo){
       currentPage = res.data.page;
       currentTotalPages = res.data.totalPages;
       currentQuery = q || '';
-      window.scrollTo({ top: 0, behavior: 'instant' });
+      $('.searchBar').scrollIntoView({ block: 'start', behavior: 'instant' });
     })
     .catch(() => {
       working.style.display = 'none';
