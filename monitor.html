@@ -97,16 +97,15 @@
     .chipPartido .m{
       font-size:13px;
       font-weight:900;
-      color:#fff;
-      background:var(--ok);
       border-radius:6px;
-      padding:3px 8px;
+      padding:3px 4px;
       flex:0 0 auto;
-      min-width:34px;
-      max-width:110px;
+      width:76px;
       text-align:center;
       white-space:nowrap;
     }
+    .chipPartido .m.sinResultado{ background:#334155; color:#ffffff; }
+    .chipPartido .m.conResultado{ background:var(--ok); color:#ffffff; }
     .chipPartido .escudo{
       width:20px;
       height:20px;
@@ -538,7 +537,7 @@ function renderResumenPartidos(data){
         <span class="r ${res}">${res || '-'}</span>
         ${logoTag_(equipo1)}
         <span class="equipo1">${equipo1}</span>
-        <span class="m">${marc}</span>
+        <span class="m ${res ? 'conResultado' : 'sinResultado'}">${marc}</span>
         <span class="equipo2">${equipo2}</span>
         ${logoTag_(equipo2)}
       </div>
