@@ -217,6 +217,11 @@
       margin:8px 0;
       box-shadow: 0 8px 20px rgba(10,107,58,.25);
     }
+    .searchBanner.sinResultados{
+      background:#c62828;
+      border-color:#8f1d1d;
+      box-shadow: 0 8px 20px rgba(198,40,40,.25);
+    }
     #contentBlurWrap.blurring > *:not(.workingOverlay){
       filter: blur(3px);
       opacity:.35;
@@ -657,6 +662,7 @@ function loadMonitor(page, q, motivo){
       const btnVolver = $('#btnVolverListado');
       if (q) {
         banner.style.display = 'block';
+        banner.classList.toggle('sinResultados', res.data.totalRows === 0);
         banner.textContent = res.data.totalRows === 0
           ? `No se encontraron quinielas para "${q}"`
           : `Se encontraron ${res.data.totalRows} quiniela${res.data.totalRows===1?'':'s'} para "${q}"`;
