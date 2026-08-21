@@ -675,7 +675,9 @@ function loadMonitor(page, q, motivo){
       currentPage = res.data.page;
       currentTotalPages = res.data.totalPages;
       currentQuery = q || '';
-      $('.searchBar').scrollIntoView({ block: 'start', behavior: 'instant' });
+      if (motivo) {
+        $('.searchBar').scrollIntoView({ block: 'start', behavior: 'instant' });
+      }
     })
     .catch(() => {
       overlay.style.display = 'none';
