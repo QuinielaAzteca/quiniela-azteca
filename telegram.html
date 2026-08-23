@@ -1017,6 +1017,14 @@ function validarBase(tel, nombre, sels, combos, err) {
     nombreInput.focus();
     return false;
   }
+  if (nombre.trim().toUpperCase() === '#APP') {
+    setTimeout(() => {
+      err.textContent = 'Ese nombre no está permitido, elige otro.';
+      err.style.display = 'block';
+    }, 0);
+    nombreInput.focus();
+    return false;
+  }
   const faltantes = sels.filter(s => !s).length;
   if (faltantes > 0) {
     setTimeout(() => {
