@@ -84,36 +84,36 @@
       border-radius:20px;
       overflow:hidden;
       box-shadow: var(--shadow);
-      padding:8px 8px 10px;
+      padding:6px 6px 8px;
     }
     .cTitle{
       display:flex;
       flex-direction:column;
       align-items:center;
-      gap:1px;
-      padding:6px 8px;
+      gap:0px;
+      padding:4px 6px;
       background: var(--rowB);
       border:1px solid var(--line);
-      border-radius:10px;
-      margin-bottom:6px;
+      border-radius:8px;
+      margin-bottom:4px;
       text-align:center;
     }
-    .cTitle h1{ font-size:17px; margin:0; letter-spacing:.03em; }
+    .cTitle h1{ font-size:15px; margin:0; letter-spacing:.02em; }
     .cTitle .q{ color:var(--l); }
     .cTitle .a{ color:var(--v); }
-    .cTitle small{ font-size:11px; color:#334155; font-weight:900; }
-    .cTitle .precio{ font-size:13px; font-weight:900; margin-top:1px; }
+    .cTitle small{ font-size:10px; color:#334155; font-weight:900; }
+    .cTitle .precio{ font-size:11px; font-weight:900; margin-top:0; }
 
     .cNombreBox{
       background:#fff;
       border:2px solid var(--line);
-      border-radius:8px;
+      border-radius:7px;
       text-align:center;
-      font-size:13px;
+      font-size:12px;
       font-weight:900;
-      padding:4px 6px;
-      margin-bottom:6px;
-      min-height:1.2em;
+      padding:3px 6px;
+      margin-bottom:4px;
+      min-height:1.1em;
       color: var(--pickColor);
       box-shadow: var(--shadow);
     }
@@ -143,7 +143,7 @@
       grid-template-columns: 24px var(--pick) minmax(0, 1fr) var(--pick) minmax(0, 1fr) var(--pick);
       align-items:center;
       gap:4px;
-      padding:4px 4px;
+      padding:2px 4px;
       border-bottom:1px solid rgba(207,229,218,.7);
     }
     .cRow:last-child{ border-bottom:none; }
@@ -164,9 +164,9 @@
     .cRow .team span{ display:block; }
     .escudoCupon{
       display:block;
-      margin:0 auto 4px;
-      width:32px;
-      height:32px;
+      margin:0 auto 2px;
+      width:26px;
+      height:26px;
       object-fit:contain;
       filter: drop-shadow(0 2px 2px rgba(0,0,0,.12));
     }
@@ -221,6 +221,17 @@
       <div class="colorRow" id="colorRow"></div>
 
       <button class="btnLimpiar" id="btnLimpiar">Limpiar selecciones</button>
+      <button class="btnLimpiar" id="btnGenerarCoperachas" style="margin-top:6px;border-color:#0a6b3a;color:#0a6b3a;">Generar coperachas compatibles</button>
+      <div id="avisoCoperachas" style="display:none;font-size:12px;color:#c62828;font-weight:800;margin-top:6px;text-align:center;"></div>
+    </div>
+
+    <div id="navCoperachas" style="display:none;margin-bottom:8px;">
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px;box-shadow:var(--shadow);">
+        <button id="btnVarAnterior" class="btnLimpiar" style="flex:0 0 auto;padding:8px 12px;">‹</button>
+        <span id="varInfo" style="font-weight:900;font-size:13px;color:#334155;">Variante 1 de 26</span>
+        <button id="btnVarSiguiente" class="btnLimpiar" style="flex:0 0 auto;padding:8px 12px;">›</button>
+      </div>
+      <button id="btnVolverManual" class="btnLimpiar" style="width:100%;margin-top:6px;">Volver a edición manual</button>
     </div>
 
     <div id="cupon">
@@ -244,7 +255,7 @@
   </div>
 
 <script>
-const SHEET_ENDPOINT_PUBLIC = "https://script.google.com/macros/s/AKfycbyGqoqBpUMbf34qt3cMBbvlsCuf-PXqK8Dvhv7Vzj4dgzNT9pBJ0-_UHkc-IvnPqZ1Y/exec";
+const SHEET_ENDPOINT_PUBLIC = "https://script.google.com/macros/s/AKfycbwaioZMPiJmk4CUoo0v6dW2kn87pGt2g2X5ROa6PvzmSKmi4COKxMRMZ9aB1ZESlNbp/exec";
 
 // Paleta de colores para elegir. Los primeros 6 son los de tus cupones originales.
 const PALETA_COLORES = [
@@ -394,6 +405,192 @@ function actualizarPrecio(){
   const precioPorParte = Math.ceil(totalCombinacion / partes);
   $('#cPrecio').textContent = '$' + precioPorParte.toLocaleString('es-MX');
 }
+
+/* -------------------------------------------------------
+   Coperachas: lee las 9 selecciones actuales (tu coperacha
+   base), identifica cuáles 3 partidos marcaste como
+   favoritos (los que dejaste simples), y genera hasta 10
+   variantes al azar con estructura libre (3 simples/4
+   dobles/2 triples, en cualquier partido), respetando:
+   - Un partido favorito, si queda simple, siempre usa tu
+     misma letra favorita.
+   - Un partido favorito, si queda doble, siempre es
+     "favorito + empate" (nunca lo excluye, nunca se combina
+     con la opción contraria).
+   - Los otros 6 partidos son completamente libres.
+   Cada variante generada se verifica matemáticamente para
+   garantizar que nunca pueda empatarte en los 9 aciertos.
+------------------------------------------------------- */
+
+const LETRAS = ['L','E','V'];
+const DOBLES_POSIBLES = ['LE','EV','LV'];
+const MAX_VARIANTES = 10;
+const MAX_INTENTOS = 4000;
+
+let variantesCoperachas = [];
+let indiceVarianteActual = 0;
+let selsBase = null;
+
+function leerSelsActuales(){
+  const sels = [];
+  for (let i = 0; i < 9; i++) {
+    let letras = '';
+    ['L','E','V'].forEach(k => {
+      const el = document.querySelector(`.pick[data-i="${i}"][data-k="${k}"]`);
+      if (el && el.classList.contains('on')) letras += k;
+    });
+    sels.push(letras);
+  }
+  return sels;
+}
+
+function aplicarSelsAlCupon(sels){
+  document.querySelectorAll('.pick').forEach(p => {
+    const i = Number(p.dataset.i);
+    const k = p.dataset.k;
+    p.classList.toggle('on', (sels[i] || '').includes(k));
+  });
+  actualizarPrecio();
+}
+
+function elegirIndicesAlAzar(n, total){
+  const idx = Array.from({length: total}, (_, i) => i);
+  for (let i = idx.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [idx[i], idx[j]] = [idx[j], idx[i]];
+  }
+  return idx.slice(0, n);
+}
+
+function generarCandidataAleatoria_(favoritos){
+  // Estructura al azar: 3 simples, 4 dobles, 2 triples, en cualquier partido
+  const simplesIdx = elegirIndicesAlAzar(3, 9);
+  const restantes = [];
+  for (let i = 0; i < 9; i++) if (!simplesIdx.includes(i)) restantes.push(i);
+  const dobleShuffle = restantes.slice();
+  for (let i = dobleShuffle.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [dobleShuffle[i], dobleShuffle[j]] = [dobleShuffle[j], dobleShuffle[i]];
+  }
+  const doblesIdx = dobleShuffle.slice(0, 4);
+  const triplesIdx = dobleShuffle.slice(4);
+
+  const sels = new Array(9).fill('');
+
+  simplesIdx.forEach(i => {
+    if (favoritos[i]) {
+      sels[i] = favoritos[i]; // favorito simple: siempre su letra favorita
+    } else {
+      sels[i] = LETRAS[Math.floor(Math.random() * 3)];
+    }
+  });
+
+  doblesIdx.forEach(i => {
+    if (favoritos[i]) {
+      // favorito como doble: siempre favorito + empate.
+      // Si el favorito ya es "E" (empate), ese caso especial no aplica
+      // (no hay forma de combinar "empate con empate"), así que ahí
+      // el doble queda libre como cualquier otro partido.
+      const fav = favoritos[i];
+      if (fav === 'L') sels[i] = 'LE';
+      else if (fav === 'V') sels[i] = 'EV';
+      else sels[i] = DOBLES_POSIBLES[Math.floor(Math.random() * 3)];
+    } else {
+      sels[i] = DOBLES_POSIBLES[Math.floor(Math.random() * 3)];
+    }
+  });
+
+  triplesIdx.forEach(i => { sels[i] = 'LEV'; });
+
+  return sels;
+}
+
+function esValidaVsBase_(candidata, base){
+  for (let i = 0; i < 9; i++) {
+    const setCand = new Set(candidata[i].split(''));
+    const setBase = new Set(base[i].split(''));
+    let interseccion = false;
+    setCand.forEach(l => { if (setBase.has(l)) interseccion = true; });
+    if (!interseccion) return true; // encontramos un partido sin traslape: garantizado
+  }
+  return false;
+}
+
+function generarVariantesDesde(sels, favoritos){
+  const vistas = new Set();
+  vistas.add(sels.join('|'));
+
+  const variantes = [];
+  let intentos = 0;
+
+  while (variantes.length < MAX_VARIANTES && intentos < MAX_INTENTOS) {
+    intentos++;
+    const candidata = generarCandidataAleatoria_(favoritos);
+    const clave = candidata.join('|');
+    if (vistas.has(clave)) continue;
+    if (!esValidaVsBase_(candidata, sels)) continue;
+    vistas.add(clave);
+    variantes.push(candidata);
+  }
+
+  return variantes;
+}
+
+$('#btnGenerarCoperachas').addEventListener('click', () => {
+  const sels = leerSelsActuales();
+  const aviso = $('#avisoCoperachas');
+
+  const nSimples = sels.filter(s => s.length === 1).length;
+  const nDobles  = sels.filter(s => s.length === 2).length;
+  const nTriples = sels.filter(s => s.length === 3).length;
+  const nVacios  = sels.filter(s => s.length === 0).length;
+
+  if (nVacios > 0 || nSimples !== 3 || nDobles !== 4 || nTriples !== 2) {
+    aviso.style.display = 'block';
+    aviso.textContent = 'Marca exactamente 3 partidos simples (tus favoritos), 4 dobles y 2 triples antes de generar.';
+    return;
+  }
+  aviso.style.display = 'none';
+
+  // Los favoritos son los 3 partidos que dejaste simples en tu cupón
+  const favoritos = {};
+  sels.forEach((s, i) => { if (s.length === 1) favoritos[i] = s; });
+
+  selsBase = sels;
+  variantesCoperachas = generarVariantesDesde(sels, favoritos);
+  indiceVarianteActual = 0;
+
+  if (!variantesCoperachas.length) {
+    aviso.style.display = 'block';
+    aviso.textContent = 'No se encontraron variantes válidas, intenta de nuevo.';
+    return;
+  }
+
+  $('#navCoperachas').style.display = 'block';
+  mostrarVarianteActual();
+});
+
+function mostrarVarianteActual(){
+  aplicarSelsAlCupon(variantesCoperachas[indiceVarianteActual]);
+  $('#varInfo').textContent = `Variante ${indiceVarianteActual + 1} de ${variantesCoperachas.length}`;
+  const nombreBase = ($('#nombreInput').value || '').trim().replace(/\s*VAR\s*\d+$/i, '');
+  const nombreVar = (nombreBase ? nombreBase + ' ' : '') + 'VAR ' + (indiceVarianteActual + 1);
+  $('#nombreInput').value = nombreVar;
+  $('#cNombreBox').textContent = nombreVar.toUpperCase();
+}
+
+$('#btnVarSiguiente').addEventListener('click', () => {
+  indiceVarianteActual = (indiceVarianteActual + 1) % variantesCoperachas.length;
+  mostrarVarianteActual();
+});
+$('#btnVarAnterior').addEventListener('click', () => {
+  indiceVarianteActual = (indiceVarianteActual - 1 + variantesCoperachas.length) % variantesCoperachas.length;
+  mostrarVarianteActual();
+});
+$('#btnVolverManual').addEventListener('click', () => {
+  $('#navCoperachas').style.display = 'none';
+  if (selsBase) aplicarSelsAlCupon(selsBase);
+});
 
 document.addEventListener('click', e => {
   const el = e.target.closest('.pick');
