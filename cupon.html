@@ -488,7 +488,9 @@ function generarCandidataAleatoria_(favoritos){
     if (favoritos[i]) {
       sels[i] = favoritos[i];
     } else {
-      sels[i] = LETRAS[Math.floor(Math.random() * 3)];
+      // el empate nunca va solo: si el partido queda simple y no es
+      // favorito, solo se elige entre L o V, nunca E
+      sels[i] = Math.random() < 0.5 ? 'L' : 'V';
     }
   });
 
@@ -519,16 +521,26 @@ function esValidaVsBase_(candidata, base){
   return false;
 }
 
+function esValidaContraTodas_(candidata, listaExistente){
+  for (let j = 0; j < listaExistente.length; j++) {
+    if (!esValidaVsBase_(candidata, listaExistente[j])) return false;
+  }
+  return true;
+}
+
 function generarTandaNueva_(){
   const nuevas = [];
   let intentos = 0;
+  // Cada candidata se compara contra tu original Y contra todas las
+  // variantes ya aceptadas (de esta tanda y de tandas anteriores),
+  // para garantizar que ninguna combinación pueda empatar con otra.
 
   while (nuevas.length < MAX_VARIANTES_POR_TANDA && intentos < MAX_INTENTOS) {
     intentos++;
     const candidata = generarCandidataAleatoria_(favoritosBase);
     const clave = candidata.join('|');
     if (vistas.has(clave)) continue;
-    if (!esValidaVsBase_(candidata, selsBase)) continue;
+    if (!esValidaContraTodas_(candidata, variantesCoperachas.concat(nuevas))) continue;
     vistas.add(clave);
     nuevas.push(candidata);
   }
