@@ -528,6 +528,25 @@ function esValidaContraTodas_(candidata, listaExistente){
   return true;
 }
 
+function momioTotalDe_(sels){
+  let total = 1;
+  sels.forEach((s, i) => {
+    const p = PARTIDOS[i];
+    if (!p) return;
+    if (s.length === 1) {
+      const m = { L: p.momioL, E: p.momioE, V: p.momioV }[s];
+      if (m) total *= m;
+    } else if (s.length === 2) {
+      // los dobles se guardan como LE / LV / EV; normalizamos por si acaso
+      const orden = { LE: p.momioLE, EL: p.momioLE, LV: p.momioLV, VL: p.momioLV, EV: p.momioEV, VE: p.momioEV };
+      const m = orden[s];
+      if (m) total *= m;
+    }
+    // los triples (s.length === 3) no cuentan, equivale a multiplicar por 1
+  });
+  return total;
+}
+
 function generarTandaNueva_(){
   const nuevas = [];
   let intentos = 0;
@@ -575,6 +594,7 @@ $('#btnGenerarCoperachas').addEventListener('click', () => {
     variantesCoperachas = [sels];
     vistas = new Set([sels.join('|')]);
     indiceVarianteActual = 0;
+    seleccionadas = new Set([0]); // tu original siempre cuenta como una de las 6
   }
 
   aviso.style.display = 'none';
@@ -585,6 +605,10 @@ $('#btnGenerarCoperachas').addEventListener('click', () => {
     aviso.textContent = 'No se encontraron variantes nuevas, intenta de nuevo.';
     return;
   }
+
+  // Ordenamos esta tanda de menor a mayor momio total (más favorecida primero).
+  // Si no hay momios capturados en CONFIG, todos dan 1 y el orden no cambia nada.
+  nuevas.sort((a, b) => momioTotalDe_(a) - momioTotalDe_(b));
 
   const indiceDePrimeraNueva = variantesCoperachas.length;
   variantesCoperachas = variantesCoperachas.concat(nuevas);
