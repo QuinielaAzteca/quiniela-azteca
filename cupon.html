@@ -625,9 +625,11 @@ function actualizarContador(){
 function mostrarVarianteActual(){
   aplicarSelsAlCupon(variantesCoperachas[indiceVarianteActual]);
   const esOriginal = indiceVarianteActual === 0;
-  $('#varInfo').textContent = esOriginal
+  const momio = momioTotalDe_(variantesCoperachas[indiceVarianteActual]);
+  const momioTexto = ` · Momio ${momio.toFixed(2)}`;
+  $('#varInfo').textContent = (esOriginal
     ? `Tu original (1 de ${variantesCoperachas.length})`
-    : `Variante ${indiceVarianteActual + 1} de ${variantesCoperachas.length}`;
+    : `Variante ${indiceVarianteActual + 1} de ${variantesCoperachas.length}`) + momioTexto;
 
   const nombreBase = ($('#nombreInput').value || '').trim().replace(/\s*VAR\s*\d+$/i, '');
   const nombreVar = esOriginal
