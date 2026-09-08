@@ -235,6 +235,8 @@
         <button id="btnVarSiguiente" class="btnLimpiar" style="flex:0 0 auto;padding:8px 12px;">›</button>
       </div>
       <div id="contadorSeleccionadas" style="text-align:center;font-weight:800;font-size:12px;color:#0a6b3a;margin-top:4px;">0 de 6 seleccionadas</div>
+      <button id="btnVerSeleccionadas" class="btnLimpiar" style="width:100%;margin-top:6px;">Ver mis seleccionadas</button>
+      <div id="listaSeleccionadas" style="display:none;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px;margin-top:6px;"></div>
       <button id="btnVolverManual" class="btnLimpiar" style="width:100%;margin-top:6px;">Volver a edición manual</button>
     </div>
 
@@ -366,6 +368,7 @@ document.addEventListener('click', e => {
   colorSeleccionado = sw.dataset.color;
   document.documentElement.style.setProperty('--pickColor', colorSeleccionado);
   renderPaleta();
+  if (typeof sincronizarSeleccionActual === 'function') sincronizarSeleccionActual();
 });
 
 $('#nombreInput').addEventListener('input', () => {
@@ -433,7 +436,7 @@ const MAX_INTENTOS = 4000;
 const META_COPERACHAS = 6;
 
 let variantesCoperachas = [];   // índice 0 = tu original, luego las generadas
-let seleccionadas = new Set();  // índices marcados con la casilla
+let seleccionadas = new Map(); // índice -> { nombre, color }
 let vistas = new Set();         // claves ya generadas, para no repetir entre tandas
 let indiceVarianteActual = 0;
 let selsBase = null;
@@ -620,7 +623,39 @@ $('#btnGenerarCoperachas').addEventListener('click', () => {
 
 function actualizarContador(){
   $('#contadorSeleccionadas').textContent = `${seleccionadas.size} de ${META_COPERACHAS} seleccionadas`;
+  renderListaSeleccionadas();
 }
+
+function renderListaSeleccionadas(){
+  const cont = $('#listaSeleccionadas');
+  if (cont.style.display === 'none') return; // no perder tiempo si está oculta
+
+  if (!seleccionadas.size) {
+    cont.innerHTML = '<div style="text-align:center;color:#64748b;font-size:12px;">Aún no has marcado ninguna.</div>';
+    return;
+  }
+
+  const filas = [];
+  // Orden por índice para que salgan en el mismo orden en que las vas viendo
+  Array.from(seleccionadas.keys()).sort((a, b) => a - b).forEach(idx => {
+    const info = seleccionadas.get(idx);
+    filas.push(`
+      <div style="display:flex;align-items:center;gap:8px;padding:5px 2px;border-bottom:1px solid var(--line);">
+        <span style="width:18px;height:18px;border-radius:5px;background:${info.color};flex:0 0 auto;"></span>
+        <span style="font-weight:800;font-size:12px;color:#0f172a;">${info.nombre.toUpperCase()}</span>
+      </div>
+    `);
+  });
+  cont.innerHTML = filas.join('');
+}
+
+$('#btnVerSeleccionadas').addEventListener('click', () => {
+  const cont = $('#listaSeleccionadas');
+  const abierta = cont.style.display !== 'none';
+  cont.style.display = abierta ? 'none' : 'block';
+  $('#btnVerSeleccionadas').textContent = abierta ? 'Ver mis seleccionadas' : 'Ocultar mis seleccionadas';
+  if (!abierta) renderListaSeleccionadas();
+});
 
 function mostrarVarianteActual(){
   aplicarSelsAlCupon(variantesCoperachas[indiceVarianteActual]);
@@ -643,10 +678,29 @@ function mostrarVarianteActual(){
 }
 
 $('#checkVariante').addEventListener('change', e => {
-  if (e.target.checked) seleccionadas.add(indiceVarianteActual);
-  else seleccionadas.delete(indiceVarianteActual);
+  if (e.target.checked) {
+    seleccionadas.set(indiceVarianteActual, {
+      nombre: $('#nombreInput').value,
+      color: colorSeleccionado
+    });
+  } else {
+    seleccionadas.delete(indiceVarianteActual);
+  }
   actualizarContador();
 });
+
+// Si edita el nombre o el color mientras la variante actual está
+// marcada, actualizamos lo guardado para que quede al día.
+function sincronizarSeleccionActual(){
+  if (seleccionadas.has(indiceVarianteActual)) {
+    seleccionadas.set(indiceVarianteActual, {
+      nombre: $('#nombreInput').value,
+      color: colorSeleccionado
+    });
+    actualizarContador();
+  }
+}
+$('#nombreInput').addEventListener('input', sincronizarSeleccionActual);
 
 function irASiguiente(){
   if (!variantesCoperachas.length) return;
