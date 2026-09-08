@@ -291,8 +291,8 @@ const TEAM_LOGOS = {
   'ARSENAL': 'escudos/arsenal.png', 'ASTON VILLA': 'escudos/astonvilla.png',
   'BOURNEMOUTH': 'escudos/bournemouth.png', 'BRENTFORD': 'escudos/brentford.png',
   'BRIGHTON': 'escudos/brighton.png', 'BURNLEY': 'escudos/burnley.png', 'CHELSEA': 'escudos/chelsea.png',
-  'COVENTRY CITY': 'escudos/coventrycityfc.png', 'CRYSTAL PALACE': 'escudos/crystalpalace.png', 'EVERTON': 'escudos/everton.png',
-  'FULHAM': 'escudos/fulham.png', 'HULL CITY': 'escudos/hullcityfc.png','LEEDS UNITED': 'escudos/leedsunited.png',
+  'CRYSTAL PALACE': 'escudos/crystalpalace.png', 'EVERTON': 'escudos/everton.png',
+  'FULHAM': 'escudos/fulham.png', 'LEEDS UNITED': 'escudos/leedsunited.png',
   'LIVERPOOL': 'escudos/liverpool.png', 'MANCHESTER CITY': 'escudos/manchestercity.png',
   'MANCHESTER UNITED': 'escudos/manchesterunited.png', 'NEWCASTLE': 'escudos/newcastle.png',
   'NOTTINGHAM FOREST': 'escudos/nottinghamforest.png', 'SUNDERLAND': 'escudos/sunderland.png',
@@ -685,11 +685,10 @@ $('#btnVarAnterior').addEventListener('click', irAAnterior);
 
 $('#btnVolverManual').addEventListener('click', () => {
   $('#navCoperachas').style.display = 'none';
-  variantesCoperachas = [];
-  seleccionadas = new Set();
-  vistas = new Set();
-  selsBase = null;
-  favoritosBase = null;
+  // No se borra nada: tu original, las variantes ya generadas y tus
+  // casillas marcadas se conservan, para que "Generar coperachas
+  // compatibles" siga partiendo de la misma base sin repetir nada.
+  if (selsBase) aplicarSelsAlCupon(selsBase);
 });
 
 document.addEventListener('click', e => {
