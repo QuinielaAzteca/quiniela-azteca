@@ -235,8 +235,7 @@
         <button id="btnVarSiguiente" class="btnLimpiar" style="flex:0 0 auto;padding:8px 12px;">›</button>
       </div>
       <div id="contadorSeleccionadas" style="text-align:center;font-weight:800;font-size:12px;color:#0a6b3a;margin-top:4px;">0 de 6 seleccionadas</div>
-      <button id="btnVerSeleccionadas" class="btnLimpiar" style="width:100%;margin-top:6px;">Ver mis seleccionadas</button>
-      <div id="listaSeleccionadas" style="display:none;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px;margin-top:6px;"></div>
+      <div id="listaSeleccionadas" style="background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px;margin-top:6px;"></div>
       <button id="btnVolverManual" class="btnLimpiar" style="width:100%;margin-top:6px;">Volver a edición manual</button>
     </div>
 
@@ -597,7 +596,7 @@ $('#btnGenerarCoperachas').addEventListener('click', () => {
     variantesCoperachas = [sels];
     vistas = new Set([sels.join('|')]);
     indiceVarianteActual = 0;
-    seleccionadas = new Set([0]); // tu original siempre cuenta como una de las 6
+    seleccionadas = new Map([[0, { nombre: $('#nombreInput').value || 'COPERACHA', color: colorSeleccionado }]]); // tu original siempre cuenta como una de las 6
   }
 
   aviso.style.display = 'none';
@@ -628,7 +627,6 @@ function actualizarContador(){
 
 function renderListaSeleccionadas(){
   const cont = $('#listaSeleccionadas');
-  if (cont.style.display === 'none') return; // no perder tiempo si está oculta
 
   if (!seleccionadas.size) {
     cont.innerHTML = '<div style="text-align:center;color:#64748b;font-size:12px;">Aún no has marcado ninguna.</div>';
@@ -648,14 +646,6 @@ function renderListaSeleccionadas(){
   });
   cont.innerHTML = filas.join('');
 }
-
-$('#btnVerSeleccionadas').addEventListener('click', () => {
-  const cont = $('#listaSeleccionadas');
-  const abierta = cont.style.display !== 'none';
-  cont.style.display = abierta ? 'none' : 'block';
-  $('#btnVerSeleccionadas').textContent = abierta ? 'Ver mis seleccionadas' : 'Ocultar mis seleccionadas';
-  if (!abierta) renderListaSeleccionadas();
-});
 
 function mostrarVarianteActual(){
   aplicarSelsAlCupon(variantesCoperachas[indiceVarianteActual]);
