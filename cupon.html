@@ -684,11 +684,10 @@ $('#btnVarAnterior').addEventListener('click', irAAnterior);
 })();
 
 $('#btnVolverManual').addEventListener('click', () => {
-  $('#navCoperachas').style.display = 'none';
-  // No se borra nada: tu original, las variantes ya generadas y tus
-  // casillas marcadas se conservan, para que "Generar coperachas
-  // compatibles" siga partiendo de la misma base sin repetir nada.
-  if (selsBase) aplicarSelsAlCupon(selsBase);
+  // Limpia las casillas del cupón (sin marcar nada), pero mantiene la
+  // navegación visible, y no toca el color ni el nombre ya puestos.
+  document.querySelectorAll('.pick.on').forEach(p => p.classList.remove('on'));
+  actualizarPrecio();
 });
 
 document.addEventListener('click', e => {
