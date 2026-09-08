@@ -595,7 +595,7 @@ $('#btnGenerarCoperachas').addEventListener('click', () => {
     variantesCoperachas = [sels];
     vistas = new Set([sels.join('|')]);
     indiceVarianteActual = 0;
-    seleccionadas = new Map([[0, { nombre: $('#nombreInput').value || 'COPERACHA', color: colorSeleccionado }]]); // tu original siempre cuenta como una de las 6
+    seleccionadas = new Map([[0, { nombre: $('#nombreInput').value || 'COPERACHA', color: colorSeleccionado, sels: sels }]]); // tu original siempre cuenta como una de las 6
   }
 
   aviso.style.display = 'none';
@@ -660,7 +660,8 @@ $('#checkVariante').addEventListener('change', e => {
   if (e.target.checked) {
     seleccionadas.set(indiceVarianteActual, {
       nombre: $('#nombreInput').value,
-      color: colorSeleccionado
+      color: colorSeleccionado,
+      sels: variantesCoperachas[indiceVarianteActual]
     });
   } else {
     seleccionadas.delete(indiceVarianteActual);
@@ -674,7 +675,8 @@ function sincronizarSeleccionActual(){
   if (seleccionadas.has(indiceVarianteActual)) {
     seleccionadas.set(indiceVarianteActual, {
       nombre: $('#nombreInput').value,
-      color: colorSeleccionado
+      color: colorSeleccionado,
+      sels: variantesCoperachas[indiceVarianteActual]
     });
     actualizarContador();
   }
@@ -717,10 +719,26 @@ $('#btnVarAnterior').addEventListener('click', irAAnterior);
 })();
 
 $('#btnVolverManual').addEventListener('click', () => {
+  // Descartamos las variantes que NO marcaste, quedándonos solo con
+  // tu original y las que sí seleccionaste (reindexadas en orden).
+  const indicesAConservar = Array.from(seleccionadas.keys()).sort((a, b) => a - b);
+  if (!indicesAConservar.includes(0)) indicesAConservar.unshift(0); // el original siempre se queda
+
+  const nuevasVariantes = indicesAConservar.map(i => variantesCoperachas[i]);
+  const nuevaSeleccion = new Map();
+  indicesAConservar.forEach((viejoIdx, nuevoIdx) => {
+    if (seleccionadas.has(viejoIdx)) nuevaSeleccion.set(nuevoIdx, seleccionadas.get(viejoIdx));
+  });
+
+  variantesCoperachas = nuevasVariantes;
+  seleccionadas = nuevaSeleccion;
+  indiceVarianteActual = 0;
+
   // Limpia las casillas del cupón (sin marcar nada), pero mantiene la
   // navegación visible, y no toca el color ni el nombre ya puestos.
   document.querySelectorAll('.pick.on').forEach(p => p.classList.remove('on'));
   actualizarPrecio();
+  actualizarContador();
 });
 
 document.addEventListener('click', e => {
@@ -728,13 +746,45 @@ document.addEventListener('click', e => {
   if (!el) return;
   el.classList.toggle('on');
   actualizarPrecio();
+  verificarCompatibilidadManual_();
 });
+
+function verificarCompatibilidadManual_(){
+  const aviso = $('#avisoCoperachas');
+  if (!seleccionadas.size) { aviso.style.display = 'none'; return; }
+
+  const sels = leerSelsActuales();
+  const nSimples = sels.filter(s => s.length === 1).length;
+  const nDobles  = sels.filter(s => s.length === 2).length;
+  const nTriples = sels.filter(s => s.length === 3).length;
+  const nVacios  = sels.filter(s => s.length === 0).length;
+
+  // Mientras no esté completa (3 simples + 4 dobles + 2 triples),
+  // todavía no se puede verificar nada de forma confiable.
+  if (nVacios > 0 || nSimples !== 3 || nDobles !== 4 || nTriples !== 2) {
+    aviso.style.display = 'none';
+    return;
+  }
+
+  const conflictos = [];
+  seleccionadas.forEach(info => {
+    if (!esValidaVsBase_(sels, info.sels)) conflictos.push(info.nombre);
+  });
+
+  if (conflictos.length) {
+    aviso.style.display = 'block';
+    aviso.textContent = 'Ojo: esta combinación podría empatar con ' + conflictos.join(', ') + '.';
+  } else {
+    aviso.style.display = 'none';
+  }
+}
 
 $('#partesInput').addEventListener('input', actualizarPrecio);
 
 $('#btnLimpiar').addEventListener('click', () => {
   document.querySelectorAll('.pick.on').forEach(p => p.classList.remove('on'));
   actualizarPrecio();
+  $('#avisoCoperachas').style.display = 'none';
 });
 
 function cargarConfig(){
