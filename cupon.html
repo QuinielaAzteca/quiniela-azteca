@@ -235,7 +235,6 @@
         <button id="btnVarSiguiente" class="btnLimpiar" style="flex:0 0 auto;padding:8px 12px;">›</button>
       </div>
       <div id="contadorSeleccionadas" style="text-align:center;font-weight:800;font-size:12px;color:#0a6b3a;margin-top:4px;">0 de 6 seleccionadas</div>
-      <div id="listaSeleccionadas" style="background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px;margin-top:6px;"></div>
       <button id="btnVolverManual" class="btnLimpiar" style="width:100%;margin-top:6px;">Volver a edición manual</button>
     </div>
 
@@ -622,29 +621,6 @@ $('#btnGenerarCoperachas').addEventListener('click', () => {
 
 function actualizarContador(){
   $('#contadorSeleccionadas').textContent = `${seleccionadas.size} de ${META_COPERACHAS} seleccionadas`;
-  renderListaSeleccionadas();
-}
-
-function renderListaSeleccionadas(){
-  const cont = $('#listaSeleccionadas');
-
-  if (!seleccionadas.size) {
-    cont.innerHTML = '<div style="text-align:center;color:#64748b;font-size:12px;">Aún no has marcado ninguna.</div>';
-    return;
-  }
-
-  const filas = [];
-  // Orden por índice para que salgan en el mismo orden en que las vas viendo
-  Array.from(seleccionadas.keys()).sort((a, b) => a - b).forEach(idx => {
-    const info = seleccionadas.get(idx);
-    filas.push(`
-      <div style="display:flex;align-items:center;gap:8px;padding:5px 2px;border-bottom:1px solid var(--line);">
-        <span style="width:18px;height:18px;border-radius:5px;background:${info.color};flex:0 0 auto;"></span>
-        <span style="font-weight:800;font-size:12px;color:#0f172a;">${info.nombre.toUpperCase()}</span>
-      </div>
-    `);
-  });
-  cont.innerHTML = filas.join('');
 }
 
 function mostrarVarianteActual(){
@@ -656,14 +632,27 @@ function mostrarVarianteActual(){
     ? `Tu original (1 de ${variantesCoperachas.length})`
     : `Variante ${indiceVarianteActual + 1} de ${variantesCoperachas.length}`) + momioTexto;
 
-  const nombreBase = ($('#nombreInput').value || '').trim().replace(/\s*VAR\s*\d+$/i, '');
-  const nombreVar = esOriginal
-    ? (nombreBase || 'COPERACHA')
-    : (nombreBase ? nombreBase + ' ' : '') + 'VAR ' + indiceVarianteActual;
-  $('#nombreInput').value = nombreVar;
-  $('#cNombreBox').textContent = nombreVar.toUpperCase();
+  const yaMarcada = seleccionadas.has(indiceVarianteActual);
 
-  $('#checkVariante').checked = seleccionadas.has(indiceVarianteActual);
+  if (yaMarcada) {
+    // Ya la habías marcado antes: recuperamos su nombre y color tal
+    // como estaban en ese momento, en vez de recalcular uno nuevo.
+    const info = seleccionadas.get(indiceVarianteActual);
+    $('#nombreInput').value = info.nombre;
+    $('#cNombreBox').textContent = info.nombre.toUpperCase();
+    colorSeleccionado = info.color;
+    document.documentElement.style.setProperty('--pickColor', colorSeleccionado);
+    renderPaleta();
+  } else {
+    const nombreBase = ($('#nombreInput').value || '').trim().replace(/\s*VAR\s*\d+$/i, '');
+    const nombreVar = esOriginal
+      ? (nombreBase || 'COPERACHA')
+      : (nombreBase ? nombreBase + ' ' : '') + 'VAR ' + indiceVarianteActual;
+    $('#nombreInput').value = nombreVar;
+    $('#cNombreBox').textContent = nombreVar.toUpperCase();
+  }
+
+  $('#checkVariante').checked = yaMarcada;
   actualizarContador();
 }
 
