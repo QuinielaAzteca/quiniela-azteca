@@ -346,6 +346,7 @@ function logoTag_(nombreEquipo){
 let PARTIDOS = [];
 let PRECIO_BASE = 25;
 let colorSeleccionado = PALETA_COLORES[0];
+let proximoColorIndice = 0; // avanza solo cuando marcas una coperacha
 
 function renderPaleta(){
   const row = $('#colorRow');
@@ -597,6 +598,7 @@ $('#btnGenerarCoperachas').addEventListener('click', () => {
     vistas = new Set([sels.join('|')]);
     indiceVarianteActual = 0;
     seleccionadas = new Map([[0, { nombre: $('#nombreInput').value || 'COPERACHA', color: colorSeleccionado, sels: sels }]]); // tu original siempre cuenta como una de las 6
+    proximoColorIndice = 1;
   } else {
     // Ya hay una base: si el cupón tiene algo nuevo armado a mano (completo
     // y distinto a lo que ya está en la lista), lo agregamos y seleccionamos.
@@ -624,6 +626,7 @@ $('#btnGenerarCoperachas').addEventListener('click', () => {
         color: colorSeleccionado,
         sels: selsManual
       });
+      proximoColorIndice++;
     }
   }
 
@@ -680,11 +683,10 @@ function mostrarVarianteActual(){
     $('#nombreInput').value = nombreVar;
     $('#cNombreBox').textContent = nombreVar.toUpperCase();
 
-    // Aún no está marcada: le damos un color propio según su posición,
-    // en vez de dejar el que haya quedado "pegado" de la última que sí
-    // marcaste - así, si la marcas ahora sin tocar la paleta, guarda
-    // este color consistente, no uno prestado sin querer.
-    colorSeleccionado = PALETA_COLORES[indiceVarianteActual % PALETA_COLORES.length];
+    // Aún no está marcada: usa el color "próximo" en la paleta, el mismo
+    // para todas las que no has marcado - solo avanza al siguiente cuando
+    // de verdad marcas una, así no cambia solo mientras navegas.
+    colorSeleccionado = PALETA_COLORES[proximoColorIndice % PALETA_COLORES.length];
     document.documentElement.style.setProperty('--pickColor', colorSeleccionado);
     renderPaleta();
   }
@@ -700,6 +702,7 @@ $('#checkVariante').addEventListener('change', e => {
       color: colorSeleccionado,
       sels: variantesCoperachas[indiceVarianteActual]
     });
+    proximoColorIndice++;
   } else {
     seleccionadas.delete(indiceVarianteActual);
   }
@@ -733,27 +736,6 @@ function irAAnterior(){
 
 $('#btnVarSiguiente').addEventListener('click', irASiguiente);
 $('#btnVarAnterior').addEventListener('click', irAAnterior);
-
-// Deslizar con el dedo sobre el cupón para navegar entre variantes
-(function habilitarSwipe(){
-  const zona = document.getElementById('cupon');
-  let xInicio = null;
-
-  zona.addEventListener('touchstart', e => {
-    if (!variantesCoperachas.length) return;
-    xInicio = e.touches[0].clientX;
-  }, { passive: true });
-
-  zona.addEventListener('touchend', e => {
-    if (xInicio === null || !variantesCoperachas.length) return;
-    const xFin = e.changedTouches[0].clientX;
-    const delta = xFin - xInicio;
-    const UMBRAL = 40;
-    if (delta > UMBRAL) irAAnterior();
-    else if (delta < -UMBRAL) irASiguiente();
-    xInicio = null;
-  }, { passive: true });
-})();
 
 $('#btnVolverManual').addEventListener('click', () => {
   // Descartamos las variantes que NO marcaste, quedándonos solo con
