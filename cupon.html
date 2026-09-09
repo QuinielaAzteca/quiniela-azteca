@@ -347,6 +347,7 @@ let PARTIDOS = [];
 let PRECIO_BASE = 25;
 let colorSeleccionado = PALETA_COLORES[0];
 let proximoColorIndice = 0; // avanza solo cuando marcas una coperacha
+let enEdicionLibre = false; // true mientras armas algo nuevo a mano, sin editar una ya guardada
 
 function renderPaleta(){
   const row = $('#colorRow');
@@ -656,6 +657,7 @@ function actualizarContador(){
 }
 
 function mostrarVarianteActual(){
+  enEdicionLibre = false;
   aplicarSelsAlCupon(variantesCoperachas[indiceVarianteActual]);
   const esOriginal = indiceVarianteActual === 0;
   const momio = momioTotalDe_(variantesCoperachas[indiceVarianteActual]);
@@ -712,6 +714,7 @@ $('#checkVariante').addEventListener('change', e => {
 // Si edita el nombre o el color mientras la variante actual está
 // marcada, actualizamos lo guardado para que quede al día.
 function sincronizarSeleccionActual(){
+  if (enEdicionLibre) return; // estás armando algo nuevo, no editando una ya guardada
   if (seleccionadas.has(indiceVarianteActual)) {
     seleccionadas.set(indiceVarianteActual, {
       nombre: $('#nombreInput').value,
@@ -738,6 +741,7 @@ $('#btnVarSiguiente').addEventListener('click', irASiguiente);
 $('#btnVarAnterior').addEventListener('click', irAAnterior);
 
 $('#btnVolverManual').addEventListener('click', () => {
+  enEdicionLibre = true;
   // Descartamos las variantes que NO marcaste, quedándonos solo con
   // tu original y las que sí seleccionaste (reindexadas en orden).
   const indicesAConservar = Array.from(seleccionadas.keys()).sort((a, b) => a - b);
@@ -753,9 +757,16 @@ $('#btnVolverManual').addEventListener('click', () => {
   seleccionadas = nuevaSeleccion;
   indiceVarianteActual = 0;
 
-  // Limpia las casillas del cupón (sin marcar nada), pero mantiene la
-  // navegación visible, y no toca el color ni el nombre ya puestos.
+  // Limpia las casillas del cupón (sin marcar nada) y también reinicia
+  // el nombre y el color a un estado limpio - antes se quedaban "pegados"
+  // de la última variante que estabas viendo, y eso podía terminar
+  // pisando por accidente el nombre/color de otra ya guardada.
   document.querySelectorAll('.pick.on').forEach(p => p.classList.remove('on'));
+  $('#nombreInput').value = '';
+  $('#cNombreBox').textContent = '\u00A0';
+  colorSeleccionado = PALETA_COLORES[proximoColorIndice % PALETA_COLORES.length];
+  document.documentElement.style.setProperty('--pickColor', colorSeleccionado);
+  renderPaleta();
   actualizarPrecio();
   actualizarContador();
 });
