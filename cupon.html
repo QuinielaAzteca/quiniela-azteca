@@ -433,7 +433,6 @@ const LETRAS = ['L','E','V'];
 const DOBLES_POSIBLES = ['LE','EV','LV'];
 const MAX_VARIANTES_POR_TANDA = 10;
 const MAX_INTENTOS = 4000;
-const META_COPERACHAS = 6;
 
 let variantesCoperachas = [];   // índice 0 = tu original, luego las generadas
 let seleccionadas = new Map(); // índice -> { nombre, color }
@@ -655,7 +654,7 @@ $('#btnGenerarCoperachas').addEventListener('click', () => {
 });
 
 function actualizarContador(){
-  $('#contadorSeleccionadas').textContent = `${seleccionadas.size} de ${META_COPERACHAS} seleccionadas`;
+  $('#contadorSeleccionadas').textContent = `${seleccionadas.size} seleccionada${seleccionadas.size === 1 ? '' : 's'}`;
 }
 
 function mostrarVarianteActual(){
