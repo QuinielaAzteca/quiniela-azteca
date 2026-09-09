@@ -441,6 +441,7 @@ let vistas = new Set();         // claves ya generadas, para no repetir entre ta
 let indiceVarianteActual = 0;
 let selsBase = null;
 let favoritosBase = null;
+let estructuraBase = null; // { nSimples, nDobles, nTriples } - de tu coperacha base
 
 function leerSelsActuales(){
   const sels = [];
@@ -474,7 +475,7 @@ function elegirIndicesAlAzar(n, total){
 }
 
 function generarCandidataAleatoria_(favoritos){
-  const simplesIdx = elegirIndicesAlAzar(3, 9);
+  const simplesIdx = elegirIndicesAlAzar(estructuraBase.nSimples, 9);
   const restantes = [];
   for (let i = 0; i < 9; i++) if (!simplesIdx.includes(i)) restantes.push(i);
   const dobleShuffle = restantes.slice();
@@ -482,8 +483,8 @@ function generarCandidataAleatoria_(favoritos){
     const j = Math.floor(Math.random() * (i + 1));
     [dobleShuffle[i], dobleShuffle[j]] = [dobleShuffle[j], dobleShuffle[i]];
   }
-  const doblesIdx = dobleShuffle.slice(0, 4);
-  const triplesIdx = dobleShuffle.slice(4);
+  const doblesIdx = dobleShuffle.slice(0, estructuraBase.nDobles);
+  const triplesIdx = dobleShuffle.slice(estructuraBase.nDobles);
 
   const sels = new Array(9).fill('');
 
@@ -584,9 +585,9 @@ $('#btnGenerarCoperachas').addEventListener('click', () => {
     const nTriples = sels.filter(s => s.length === 3).length;
     const nVacios  = sels.filter(s => s.length === 0).length;
 
-    if (nVacios > 0 || nSimples !== 3 || nDobles !== 4 || nTriples !== 2) {
+    if (nVacios > 0) {
       aviso.style.display = 'block';
-      aviso.textContent = 'Marca exactamente 3 partidos simples (tus favoritos), 4 dobles y 2 triples antes de generar.';
+      aviso.textContent = 'Marca al menos una letra en cada uno de los 9 partidos antes de generar.';
       return;
     }
 
@@ -595,6 +596,7 @@ $('#btnGenerarCoperachas').addEventListener('click', () => {
 
     selsBase = sels;
     favoritosBase = favoritos;
+    estructuraBase = { nSimples, nDobles, nTriples };
     variantesCoperachas = [sels];
     vistas = new Set([sels.join('|')]);
     indiceVarianteActual = 0;
@@ -608,7 +610,7 @@ $('#btnGenerarCoperachas').addEventListener('click', () => {
     const nDobles  = selsManual.filter(s => s.length === 2).length;
     const nTriples = selsManual.filter(s => s.length === 3).length;
     const nVacios  = selsManual.filter(s => s.length === 0).length;
-    const estaCompleta = nVacios === 0 && nSimples === 3 && nDobles === 4 && nTriples === 2;
+    const estaCompleta = nVacios === 0;
 
     if (estaCompleta) {
       const clave = selsManual.join('|');
@@ -789,9 +791,9 @@ function verificarCompatibilidadManual_(){
   const nTriples = sels.filter(s => s.length === 3).length;
   const nVacios  = sels.filter(s => s.length === 0).length;
 
-  // Mientras no esté completa (3 simples + 4 dobles + 2 triples),
-  // todavía no se puede verificar nada de forma confiable.
-  if (nVacios > 0 || nSimples !== 3 || nDobles !== 4 || nTriples !== 2) {
+  // Mientras no esté completa (ningún partido sin marcar), todavía
+  // no se puede verificar nada de forma confiable.
+  if (nVacios > 0) {
     aviso.style.display = 'none';
     return;
   }
