@@ -572,8 +572,9 @@ $('#btnGenerarCoperachas').addEventListener('click', () => {
   const aviso = $('#avisoCoperachas');
 
   // Primera vez: tomamos lo que esté marcado en el cupón como tu original fija.
-  // De ahí en adelante, el botón siempre parte de esa misma base, sin importar
-  // qué variante estés viendo en pantalla en ese momento.
+  // De ahí en adelante, el botón siempre parte de esa misma base para generar,
+  // pero si además hay algo nuevo armado a mano en el cupón (distinto a lo que
+  // ya tenías), lo agrega y lo marca como seleccionada de una vez.
   if (!selsBase) {
     const sels = leerSelsActuales();
     const nSimples = sels.filter(s => s.length === 1).length;
@@ -596,6 +597,34 @@ $('#btnGenerarCoperachas').addEventListener('click', () => {
     vistas = new Set([sels.join('|')]);
     indiceVarianteActual = 0;
     seleccionadas = new Map([[0, { nombre: $('#nombreInput').value || 'COPERACHA', color: colorSeleccionado, sels: sels }]]); // tu original siempre cuenta como una de las 6
+  } else {
+    // Ya hay una base: si el cupón tiene algo nuevo armado a mano (completo
+    // y distinto a lo que ya está en la lista), lo agregamos y seleccionamos.
+    const selsManual = leerSelsActuales();
+    const nSimples = selsManual.filter(s => s.length === 1).length;
+    const nDobles  = selsManual.filter(s => s.length === 2).length;
+    const nTriples = selsManual.filter(s => s.length === 3).length;
+    const nVacios  = selsManual.filter(s => s.length === 0).length;
+    const estaCompleta = nVacios === 0 && nSimples === 3 && nDobles === 4 && nTriples === 2;
+
+    if (estaCompleta) {
+      const clave = selsManual.join('|');
+      const yaExisteEnIndice = variantesCoperachas.findIndex(v => v.join('|') === clave);
+      let idx;
+      if (yaExisteEnIndice >= 0) {
+        idx = yaExisteEnIndice;
+      } else {
+        variantesCoperachas.push(selsManual);
+        vistas.add(clave);
+        idx = variantesCoperachas.length - 1;
+      }
+      indiceVarianteActual = idx;
+      seleccionadas.set(idx, {
+        nombre: $('#nombreInput').value || 'COPERACHA',
+        color: colorSeleccionado,
+        sels: selsManual
+      });
+    }
   }
 
   aviso.style.display = 'none';
