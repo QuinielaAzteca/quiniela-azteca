@@ -1254,14 +1254,10 @@ renderCarrito();
 resetCuponSelectionsOnly();
 releaseSendingSoon();
 
-// 4) ya después abrir Telegram
+// 4) ya después abrir Telegram - dejamos la página tal cual, sin
+// intentar cerrarla ni navegar hacia atrás (igual que hace WhatsApp).
 const tgUrl = `tg://msg?text=${encodeURIComponent(text)}`;
 location.href = tgUrl;
-
-setTimeout(() => {
-  try { window.close(); } catch(e) {}
-  try { history.back(); } catch(e) {}
-}, 300);
 
 showSnack('Abriendo Telegram...');
 });
