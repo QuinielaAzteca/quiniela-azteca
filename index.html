@@ -630,11 +630,9 @@ const TEAM_LOGOS = {
   'BRIGHTON': 'escudos/brighton.png',
   'BURNLEY': 'escudos/burnley.png',
   'CHELSEA': 'escudos/chelsea.png',
-  'COVENTRY CITY': 'escudos/coventrycityfc.png',
   'CRYSTAL PALACE': 'escudos/crystalpalace.png',
   'EVERTON': 'escudos/everton.png',
   'FULHAM': 'escudos/fulham.png',
-  'HULL CITY': 'escudos/hullcityfc.png',
   'LEEDS UNITED': 'escudos/leedsunited.png',
   'LIVERPOOL': 'escudos/liverpool.png',
   'MANCHESTER CITY': 'escudos/manchestercity.png',
@@ -857,7 +855,8 @@ function getSelections() {
     if (p.classList.contains('on')) map[i][k] = true;
   });
   const sels = [];
-  for (let i = 0; i < 9; i++) {
+  const nPartidos = PARTIDOS.slice(0, 9).length;
+  for (let i = 0; i < nPartidos; i++) {
     const m = map[i] || {L:false,E:false,V:false};
     const chars = [];
     if (m.L) chars.push('L');
