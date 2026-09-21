@@ -444,7 +444,8 @@ let estructuraBase = null; // { nSimples, nDobles, nTriples } - de tu coperacha 
 
 function leerSelsActuales(){
   const sels = [];
-  for (let i = 0; i < 9; i++) {
+  const nPartidos = PARTIDOS.slice(0, 9).length;
+  for (let i = 0; i < nPartidos; i++) {
     let letras = '';
     ['L','E','V'].forEach(k => {
       const el = document.querySelector(`.pick[data-i="${i}"][data-k="${k}"]`);
@@ -474,9 +475,10 @@ function elegirIndicesAlAzar(n, total){
 }
 
 function generarCandidataAleatoria_(favoritos){
-  const simplesIdx = elegirIndicesAlAzar(estructuraBase.nSimples, 9);
+  const totalPartidos = estructuraBase.nSimples + estructuraBase.nDobles + estructuraBase.nTriples;
+  const simplesIdx = elegirIndicesAlAzar(estructuraBase.nSimples, totalPartidos);
   const restantes = [];
-  for (let i = 0; i < 9; i++) if (!simplesIdx.includes(i)) restantes.push(i);
+  for (let i = 0; i < totalPartidos; i++) if (!simplesIdx.includes(i)) restantes.push(i);
   const dobleShuffle = restantes.slice();
   for (let i = dobleShuffle.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -485,7 +487,7 @@ function generarCandidataAleatoria_(favoritos){
   const doblesIdx = dobleShuffle.slice(0, estructuraBase.nDobles);
   const triplesIdx = dobleShuffle.slice(estructuraBase.nDobles);
 
-  const sels = new Array(9).fill('');
+  const sels = new Array(totalPartidos).fill('');
 
   simplesIdx.forEach(i => {
     if (favoritos[i]) {
@@ -514,7 +516,8 @@ function generarCandidataAleatoria_(favoritos){
 }
 
 function esValidaVsBase_(candidata, base){
-  for (let i = 0; i < 9; i++) {
+  const total = Math.min(candidata.length, base.length);
+  for (let i = 0; i < total; i++) {
     const setCand = new Set(candidata[i].split(''));
     const setBase = new Set(base[i].split(''));
     let interseccion = false;
@@ -586,7 +589,7 @@ $('#btnGenerarCoperachas').addEventListener('click', () => {
 
     if (nVacios > 0) {
       aviso.style.display = 'block';
-      aviso.textContent = 'Marca al menos una letra en cada uno de los 9 partidos antes de generar.';
+      aviso.textContent = 'Marca al menos una letra en cada partido antes de generar.';
       return;
     }
 
