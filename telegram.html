@@ -701,7 +701,6 @@ const TEAM_LOGOS = {
   'FRANCIA': 'escudos/francia.png',
   'GALES': 'escudos/gales.png',
   'GHANA': 'escudos/ghana.png',
-  'GRECIA': 'escudos/grecia.png',
   'HAITÍ': 'escudos/haiti.png',
   'INGLATERRA': 'escudos/inglaterra.png',
   'IRAK': 'escudos/irak.png',
@@ -1025,6 +1024,13 @@ function validarBase(tel, nombre, sels, combos, err) {
       err.style.display = 'block';
     }, 0);
     nombreInput.focus();
+    return false;
+  }
+  if (!sels.length) {
+    setTimeout(() => {
+      err.textContent = 'No se cargaron los partidos. Verifica tu conexión e intenta de nuevo.';
+      err.style.display = 'block';
+    }, 0);
     return false;
   }
   const faltantes = sels.filter(s => !s).length;
@@ -1355,7 +1361,7 @@ function fetchConfigFresh(storedCfg) {
   // en blanco. Si no responde en 10 segundos, lo cancelamos nosotros
   // mismos para que caiga al aviso de "no se pudo cargar, reintentar".
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 10000);
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
 
   fetch(bustUrl, { cache: 'no-store', signal: controller.signal })
     .then(r => {
