@@ -132,7 +132,7 @@
       display:grid;
       grid-template-columns:24px var(--pick) minmax(0,1fr) var(--pick) minmax(0,1fr) var(--pick);
       gap:4px;
-      padding:8px 4px;
+      padding:2px 4px;
       border-bottom:1px solid var(--line);
       align-items:center;
     }
@@ -155,9 +155,9 @@
 
     .team-logo{
       display:block;
-      margin:0 auto 4px;
-      height:32px;
-      width:32px;
+      margin:0 auto 2px;
+      height:26px;
+      width:26px;
       object-fit:contain;
       filter: drop-shadow(0 2px 2px rgba(0,0,0,.12));
     }
@@ -548,6 +548,55 @@
 
 <script>
 const SHEET_ENDPOINT_PUBLIC = "https://script.google.com/macros/s/AKfycbwaioZMPiJmk4CUoo0v6dW2kn87pGt2g2X5ROa6PvzmSKmi4COKxMRMZ9aB1ZESlNbp/exec";
+
+/* ---- Envío con respaldo: la quiniela se guarda como "pendiente" en el
+   teléfono y solo se borra cuando el servidor confirma que la registró.
+   Si el envío se corta (p. ej. al saltar a WhatsApp/Telegram), se reintenta
+   al volver a abrir la página. El servidor ignora repetidos por envioId. ---- */
+const PEND_KEY = 'quiniela_pendientes_v2';
+let pendEnCurso_ = false;
+function pendLeer_(){ try { return JSON.parse(localStorage.getItem(PEND_KEY) || '[]') || []; } catch(e){ return []; } }
+function pendGuardar_(a){ try { localStorage.setItem(PEND_KEY, JSON.stringify(a)); } catch(e){} }
+function enviarConRespaldo_(payload){
+  payload.envioId = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  const a = pendLeer_();
+  a.push({ id: payload.envioId, ts: Date.now(), n: 0, payload: payload });
+  pendGuardar_(a);
+  vaciarPendientes_();
+}
+async function vaciarPendientes_(){
+  if (pendEnCurso_) return;
+  pendEnCurso_ = true;
+  try {
+    const limite = Date.now() - 6 * 3600 * 1000;
+    let lista = pendLeer_().filter(x => x.ts > limite && x.n < 8);
+    pendGuardar_(lista);
+    for (const it of lista) {
+      let confirmado = false;
+      try {
+        const r = await fetch(SHEET_ENDPOINT_PUBLIC, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(it.payload),
+          keepalive: true
+        });
+        const j = await r.json();
+        confirmado = !!(j && (j.ok || j.error === 'registro_cerrado'));
+      } catch(e) {}
+      const actual = pendLeer_();
+      if (confirmado) {
+        pendGuardar_(actual.filter(x => x.id !== it.id));
+      } else {
+        actual.forEach(x => { if (x.id === it.id) x.n = (x.n || 0) + 1; });
+        pendGuardar_(actual);
+      }
+    }
+  } finally { pendEnCurso_ = false; }
+}
+window.addEventListener('online', vaciarPendientes_);
+document.addEventListener('DOMContentLoaded', vaciarPendientes_);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) vaciarPendientes_(); });
+setInterval(() => { if (pendLeer_().length) vaciarPendientes_(); }, 20000);
 const CANAL = "TELEGRAM";
 
 let isSending = false;
@@ -571,7 +620,6 @@ const VENDEDOR_PARAM = (urlParams.get('v') || '').trim().toUpperCase();
 // Mapa de escudos
 const TEAM_LOGOS = {
     'AMÉRICA': 'escudos/america.png',
-    'ATLANTE': 'escudos/atlante.png',
     'ATLAS': 'escudos/atlas.png',
     'SAN LUIS': 'escudos/sanluis.png',
     'ATLETICO LA PAZ': 'escudos/atleticolapaz.png',
@@ -1232,26 +1280,8 @@ if (!itemsToSend.length) {
     items: itemsToSend.map(q => ({ nombre: q.nombre, sels: q.sels }))
   };
 
-  const bodyText = JSON.stringify(payload);
-
-// 1) intentar registrar primero de forma más confiable
-let sent = false;
-try {
-  if (navigator.sendBeacon) {
-    const blob = new Blob([bodyText], { type: 'text/plain;charset=utf-8' });
-    sent = navigator.sendBeacon(SHEET_ENDPOINT_PUBLIC, blob);
-  }
-} catch(e) {}
-
-// 2) respaldo si sendBeacon no existe o falla
-if (!sent) {
-  fetch(SHEET_ENDPOINT_PUBLIC, {
-    method:'POST',
-    headers:{'Content-Type':'text/plain;charset=utf-8'},
-    body: bodyText,
-    keepalive: true
-  }).catch(()=>{});
-}
+  // 1) registrar primero, con respaldo y reintento si se corta
+enviarConRespaldo_(payload);
 
 // 3) limpiar UI local
 carrito = [];
